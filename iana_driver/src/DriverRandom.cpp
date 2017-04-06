@@ -45,13 +45,14 @@ int main(int argc, char **argv)
     ros::Rate rat(20);
     while(ros::ok()) {
         ros::spinOnce();
+        ROS_INFO("%d %d %d", bumper[0], bumper[1], bumper[2]);
         if (bumper[0] || bumper[1] || bumper[2])
         {
-            velocityChanger->ChangeVelocity(Vector3(0.2, 0.0, 0.0), *Vector3::Zero);
+            velocityChanger->ChangeVelocity(*Vector3::Zero, turnLeft);
         }
         else
         {
-            velocityChanger->ChangeVelocity(*Vector3::Zero, turnLeft);
+            velocityChanger->ChangeVelocity(Vector3(0.2, 0.0, 0.0), *Vector3::Zero);
         }
     }
     return 0;
