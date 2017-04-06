@@ -10,7 +10,7 @@ using namespace Iana;
 bool blocked = false;
 bool turning = false;
 
-Vector3 turnLeft = Vector3(0, 0, 1);
+Vector3 turnLeft = Vector3(0, 0, 0.2);
 
 struct BumperCallback
 {
@@ -25,7 +25,7 @@ public:
 public:
     void operator()(const kobuki_msgs::BumperEvent::ConstPtr& msg) const
     {
-        blocked = msg->bumper == msg->CENTER && msg->state == msg->PRESSED;
+        blocked = msg->bumper == 1;
         if (blocked)
         {
             turning = true;
@@ -56,7 +56,7 @@ int main(int argc, char **argv)
         ros::spinOnce();
         if (!turning)
         {
-            velocityChanger->ChangeVelocity(*Vector3::Left, *Vector3::Zero);
+            velocityChanger->ChangeVelocity(new Vector(0.2, 0.0, 0.0), *Vector3::Zero);
         }
         else
         {
