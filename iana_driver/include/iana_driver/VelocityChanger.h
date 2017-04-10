@@ -18,39 +18,20 @@ namespace Iana
 
     private:
         const ros::Publisher* velocityPublisher;
-        Vector3 currentLinear;
-        Vector3 currentAngular;
 
     public:
-        VelocityChanger(ros::Publisher* velocityPublisher) : VelocityChanger(velocityPublisher, RandomVector3(), RandomVector3()) { }
-        VelocityChanger(ros::Publisher* velocityPublisher, Vector3 startLinear, Vector3 startAngular)
-                : velocityPublisher(velocityPublisher),
-                  currentLinear(startLinear),
-                  currentAngular(startAngular)
+        VelocityChanger(ros::Publisher* velocityPublisher) : velocityPublisher(velocityPublisher)
         { }
 
-    private:
+    public:
 
-        void publishVelocity(const Vector3 linear, const Vector3 angular) const
+        void PublishVelocity(const Vector3 linear, const Vector3 angular) const
         {
             geometry_msgs::Twist twist;
             twist.linear = linear;
             twist.angular = angular;
             ROS_INFO("[%f]", angular.y);
             this->velocityPublisher->publish(twist);
-        }
-
-    public:
-        void ChangeVelocity(const Vector3 linear, const Vector3 angular)
-        {
-            this->currentLinear = linear;
-            this->currentAngular = angular;
-            this->PublishCurrentVelocity();
-        }
-
-        void PublishCurrentVelocity() const
-        {
-            this->publishVelocity(this->currentLinear, this->currentAngular);
         }
 
     };
