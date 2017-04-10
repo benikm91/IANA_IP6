@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     const VelocityChanger* velocityChanger = new VelocityChanger(&velocityPublisher);
 
     ros::Subscriber sub = n.subscribe<kobuki_msgs::BumperEvent>("/mobile_base/events/bumper", 1000, BumperCallback(velocityChanger));
-    ros::Rate rat(1);
+    ros::Rate rat(2);
     std::shared_ptr<const Action> action = std::shared_ptr<const Action>(new DriveForward(velocityChanger));
     while(ros::ok()) {
         ros::spinOnce();
