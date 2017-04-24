@@ -5,6 +5,7 @@
 #include "../include/iana_driver/Actions.h"
 #include "../include/iana_driver/Vector3.h"
 #include "../include/iana_driver/Quaternion.h"
+#include <math.h>
 
 using namespace Iana;
 
@@ -14,21 +15,25 @@ void ChangeDirection() { direction = direction.Negate(); }
 bool TurningLeft() { return direction.Z() > 0; }
 bool TurningRight() { return direction.Z() < 0; }
 
+double oldYawn = 0;
+
 void OdomCallback(const nav_msgs::Odometry::ConstPtr& msg)
 {
     Quaternion q = Quaternion::FromMsg(msg->pose.pose.orientation);
     double roll, pitch, yawn;
     std::tie(roll, pitch, yawn) = q.ToEulerianAngle();
+    yawn += M_PI;
     ROS_WARN_STREAM("roll: " << roll << " pitch: " << pitch << " yawn: " << yawn);
     ROS_WARN_STREAM("left: " << TurningLeft() << " RIGHT: " << TurningRight());
-    if (yawn < 0 && TurningLeft())
+    if (oldYawn > M_PI && yawn < M_PI && TurningLeft())
     {
         ChangeDirection();
     }
-    if (yawn > 0 && TurningRight())
+    if (oldYawn > M_PI && yawn < M_PI && TurningRight())
     {
         ChangeDirection();
     }
+    oldYawn = yawn;
 }
 
 int main(int argc, char **argv)
