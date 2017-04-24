@@ -19,13 +19,13 @@ void OdomCallback(const nav_msgs::Odometry::ConstPtr& msg)
     Quaternion q = Quaternion::FromMsg(msg->pose.pose.orientation);
     double roll, pitch, yawn;
     std::tie(roll, pitch, yawn) = q.ToEulerianAngle();
-    ROS_DEBUG_STREAM("roll: " << roll << " pitch: " << pitch << " yawn: " << yawn);
-
-    if (yawn > 180 && TurningLeft())
+    ROS_WARN_STREAM("roll: " << roll << " pitch: " << pitch << " yawn: " << yawn);
+    ROS_WARN_STREAM("left: " << TurningLeft() << " RIGHT: " << TurningRight());
+    if (yawn < 0 && TurningLeft())
     {
         ChangeDirection();
     }
-    if (yawn < 0 && TurningRight())
+    if (yawn > 0 && TurningRight())
     {
         ChangeDirection();
     }

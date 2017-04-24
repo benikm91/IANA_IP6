@@ -59,7 +59,7 @@ namespace Iana
         inline double Y() const { return m_y; }
         inline double Z() const { return m_z; }
 
-        Vector3 Negate() { return Vector3(X(), Y(), Z()); }
+        Vector3 Negate() { return Vector3(-X(), -Y(), -Z()); }
 
     };
 
