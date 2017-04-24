@@ -9,10 +9,10 @@ using namespace Iana;
 
 void odomCallback(const nav_msgs::Odometry::ConstPtr& msg)
 {
-    int x = msg->pose.pose.orientation.x;
-    int y = msg->pose.pose.orientation.y;
-    int z = msg->pose.pose.orientation.z;
-    int w = msg->pose.pose.orientation.w;
+    double x = msg->pose.pose.orientation.x;
+    double y = msg->pose.pose.orientation.y;
+    double z = msg->pose.pose.orientation.z;
+    double w = msg->pose.pose.orientation.w;
     ROS_INFO_STREAM("x: " << x << " y" << y << " z" << z << " w" << w);
 }
 
