@@ -19,14 +19,14 @@ namespace Iana
         const static Vector3 Backward;
 
     public:
-        double x;
-        double y;
-        double z;
+        double m_x;
+        double m_y;
+        double m_z;
 
     public:
         Vector3() = delete;
 
-        Vector3(double x, double y, double z) : x(x), y(y), z(z) { }
+        Vector3(double x, double y, double z) : m_x(x), m_y(y), m_z(z) { }
 
         Vector3(const Vector3 &v) = default;
 
@@ -39,19 +39,19 @@ namespace Iana
 
     public:
         friend Vector3 operator+(const Vector3 &l, const Vector3 &r) {
-            return Vector3(l.x + r.x, l.y + r.y, l.z + r.z);
+            return Vector3(l.m_x + r.m_x, l.m_y + r.m_y, l.m_z + r.m_z);
         }
 
         friend Vector3 operator-(const Vector3 &l, const Vector3 &r) {
-            return Vector3(l.x - r.x, l.y - r.y, l.z - r.z);
+            return Vector3(l.m_x - r.m_x, l.m_y - r.m_y, l.m_z - r.m_z);
         }
 
         // can we move this out of Vector3 in C++ (like Monkey Patching in C# or implicit cast from scala??)
         operator Vector3Message() const {
             Vector3Message message;
-            message.x = this->x;
-            message.y = this->y;
-            message.z = this->z;
+            message.x = m_x;
+            message.y = m_y;
+            message.z = m_z;
             return message;
         }
     };

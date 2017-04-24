@@ -14,25 +14,26 @@ namespace Iana {
         virtual std::shared_ptr<Action> Collision() const = 0;
     };
 
-    struct TurnLeft : public Action
+    struct VelocityChangeAction : public Action
     {
-
-    private:
-        const int times;
-        const std::shared_ptr<VelocityChanger> velocityChanger;
-
+    protected:
+        const std::shared_ptr<VelocityChanger> m_velocityChanger;
     public:
+        VelocityChangeAction(std::shared_ptr<VelocityChanger> velocityChanger) : m_velocityChanger(velocityChanger) { }
+    };
+
+    struct TurnLeft : public VelocityChangeAction
+    {
+        const int m_times;
+
         TurnLeft(std::shared_ptr<VelocityChanger> velocityChanger, const int times);
 
         std::shared_ptr<Action> Execute() const;
         std::shared_ptr<Action> Collision() const;
     };
 
-    struct DriveForward : public Action
+    struct DriveForward : public VelocityChangeAction
     {
-
-    private:
-        const std::shared_ptr<VelocityChanger> velocityChanger;
 
     public:
         DriveForward(std::shared_ptr<VelocityChanger> velocityChanger);
@@ -42,34 +43,34 @@ namespace Iana {
 
     };
 
-    TurnLeft::TurnLeft(std::shared_ptr<VelocityChanger> velocityChanger, const int times) : velocityChanger(velocityChanger), times(times) { }
+    TurnLeft::TurnLeft(std::shared_ptr<VelocityChanger> velocityChanger, const int times) : VelocityChangeAction(velocityChanger), m_times(times) { }
 
     std::shared_ptr<Action> TurnLeft::Execute() const
     {
         ROS_INFO("TURNING LEFT");
-        if (this->times == 0) return std::make_shared<DriveForward>(this->velocityChanger);
-        this->velocityChanger->PublishVelocity(Vector3::Zero, Vector3(0.5, 0.5, 0.5));
-        return std::make_shared<TurnLeft>(this->velocityChanger, this->times - 1);
+        if (m_times == 0) return std::make_shared<DriveForward>(m_velocityChanger);
+        m_velocityChanger->PublishVelocity(Vector3::Zero, Vector3(0.5, 0.5, 0.5));
+        return std::make_shared<TurnLeft>(m_velocityChanger, m_times - 1);
     }
 
     std::shared_ptr<Action> TurnLeft::Collision() const
     {
-        return std::make_shared<TurnLeft>(this->velocityChanger, this->times);
+        return std::make_shared<TurnLeft>(m_velocityChanger, m_times);
     }
 
 
-    DriveForward::DriveForward(std::shared_ptr<VelocityChanger> velocityChanger) : velocityChanger(velocityChanger) { }
+    DriveForward::DriveForward(std::shared_ptr<VelocityChanger> velocityChanger) : VelocityChangeAction(velocityChanger) { }
 
     std::shared_ptr<Action> DriveForward::Execute() const
     {
         ROS_INFO("DRIVING FORWARD");
-        this->velocityChanger->PublishVelocity(Vector3(0.2, 0.0, 0.0), Vector3::Zero);
-        return std::make_shared<DriveForward>(this->velocityChanger);
+        m_velocityChanger->PublishVelocity(Vector3(0.2, 0.0, 0.0), Vector3::Zero);
+        return std::make_shared<DriveForward>(m_velocityChanger);
     }
 
     std::shared_ptr<Action> DriveForward::Collision() const
     {
-        return std::make_shared<TurnLeft>(velocityChanger, 5);
+        return std::make_shared<TurnLeft>(m_velocityChanger, 5);
     }
 
 }
