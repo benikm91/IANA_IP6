@@ -25,7 +25,7 @@ void OdomCallback(const nav_msgs::Odometry::ConstPtr& msg)
     yawn += M_PI;
     ROS_WARN_STREAM("roll: " << roll << " pitch: " << pitch << " yawn: " << yawn);
     ROS_WARN_STREAM("left: " << TurningLeft() << " RIGHT: " << TurningRight());
-    if (oldYawn > M_PI && yawn < M_PI && TurningLeft())
+    if (yawn > M_PI && oldYawn < M_PI && TurningLeft())
     {
         ChangeDirection();
     }
