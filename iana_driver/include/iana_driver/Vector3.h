@@ -18,7 +18,7 @@ namespace Iana
         const static Vector3 Forward;
         const static Vector3 Backward;
 
-    public:
+    private:
         double m_x;
         double m_y;
         double m_z;
@@ -54,6 +54,13 @@ namespace Iana
             message.z = m_z;
             return message;
         }
+
+        inline double X() const { return m_x; }
+        inline double Y() const { return m_y; }
+        inline double Z() const { return m_z; }
+
+        Vector3 Negate() { return Vector3(X(), Y(), Z()); }
+
     };
 
     const Vector3 Vector3::Zero(0, 0, 0);
