@@ -6,11 +6,10 @@
 #include "kobuki_msgs/BumperEvent.h"
 #include "../include/iana_driver/VelocityChanger.h"
 #include "../include/iana_driver/Actions.h"
-#include "std_msgs/Float32.h"
 
 using namespace Iana;
 
-bool collisionAhead = false;
+bool bumper[3] = { false };
 
 struct BumperCallback
 {
@@ -23,9 +22,9 @@ public:
     BumperCallback(std::shared_ptr<VelocityChanger> velocityChanger) : velocityChanger(velocityChanger) { }
 
 public:
-    void operator()(const std_msgs::Float32::ConstPtr& msg) const
+    void operator()(const kobuki_msgs::BumperEvent::ConstPtr& msg) const
     {
-        collisionAhead = msg->data < 0.8;
+        bumper[msg->bumper] = msg->state;
     }
 
 };
@@ -39,12 +38,12 @@ int main(int argc, char **argv)
         n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1)
     );
 
-    ros::Subscriber sub = n.subscribe<std_msgs::Float32>("/collision_ahead", 1000, BumperCallback(velocityChanger));
+    ros::Subscriber sub = n.subscribe<kobuki_msgs::BumperEvent>("/mobile_base/events/bumper", 1000, BumperCallback(velocityChanger));
     ros::Rate rat(2);
     std::shared_ptr<Action> action = std::make_shared<DriveForward>(velocityChanger);
     while(ros::ok()) {
         ros::spinOnce();
-        if (collisionAhead) action = action->Collision();
+        if (bumper[0] || bumper[1] || bumper[2]) action = action->Collision();
         action = action->Execute();
         rat.sleep();
     }
