@@ -17,14 +17,11 @@ class ArduinoController(object):
     def run(self):
         self.pant_tilt_pub.publish(self.state[0], self.state[1])
         rospy.spin()
-        #rate = rospy.Rate(10)  # 10hz
-        #while not rospy.is_shutdown():
-        #    rate.sleep()
 
-    def handle_set_pan_tilt(self, pan_tilt: PanTilt) -> None:
+    def handle_set_pan_tilt(self, pan_tilt):
         self.__set_pan_tilt(pan_tilt.pan, pan_tilt.tilt)
 
-    def __set_pan_tilt(self, pan: int, tilt: int) -> None:
+    def __set_pan_tilt(self, pan, tilt):
         pan = min(180, max(0, pan))
         tilt = min(180, max(0, tilt))
         state = [pan, tilt]
