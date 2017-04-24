@@ -134,8 +134,9 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(driver_random_node src/DriverRandom.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Actions.h)
-add_executable(driver_rotate_test_node src/DriverRotateTest.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Actions.h)
+add_executable(driver_random_node src/DriverRandom.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Actions.h include/iana_driver/Quaternion.h)
+add_executable(driver_random_bumper_node src/DriverRandomBumper.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Actions.h include/iana_driver/Quaternion.h)
+add_executable(driver_rotate_test_node src/DriverRotateTest.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Quaternion.h)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -149,6 +150,10 @@ add_executable(driver_rotate_test_node src/DriverRotateTest.cpp include/iana_dri
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(driver_random_node
+    ${catkin_LIBRARIES}
+)
+
+target_link_libraries(driver_random_bumper_node
     ${catkin_LIBRARIES}
 )
 
