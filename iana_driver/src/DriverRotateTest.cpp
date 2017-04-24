@@ -15,23 +15,45 @@ void ChangeDirection() { direction = direction.Negate(); }
 bool TurningLeft() { return direction.Z() > 0; }
 bool TurningRight() { return direction.Z() < 0; }
 
-double oldYawn = 0;
+double currentYawn;
+
+double oldYawn = -10;
+
+int numOfRuns = 5 * 2;
 
 void OdomCallback(const nav_msgs::Odometry::ConstPtr& msg)
 {
+    if (numOfRuns <= 0) 
+    {
+        direction = Vector3::Zero;
+        return;
+    }
     Quaternion q = Quaternion::FromMsg(msg->pose.pose.orientation);
     double roll, pitch, yawn;
     std::tie(roll, pitch, yawn) = q.ToEulerianAngle();
     ROS_WARN_STREAM("roll: " << roll << " pitch: " << pitch << " yawn: " << yawn);
+    yawn += M_PI;
     ROS_WARN_STREAM("left: " << TurningLeft() << " RIGHT: " << TurningRight());
-    if (oldYawn > yawn && TurningLeft())
+    if (oldYawn == -10) 
     {
-        ChangeDirection();
+        oldYawn = yawn;
+        return;
     }
-    if ((oldYawn > yawn && yawn < 0) && TurningRight())
+    double deltaYawn = std::abs(yawn - oldYawn);
+    if (deltaYawn > M_PI) deltaYawn = std::fmin(yawn, oldYawn) + 2*M_PI - std::fmax(yawn, oldYawn);
+    currentYawn += deltaYawn;
+    if (currentYawn >= numOfRuns * M_PI) 
     {
-        ChangeDirection();
+        direction = Vector3::Zero;
+        numOfRuns = -1;
     }
+    /*if (currentYawn >=  M_PI) 
+    {
+        currentYawn = - (currentYawn - M_PI);
+        ChangeDirection();
+        numOfRuns--;
+        if (numOfRuns == 0) direction = Vector3::Zero;
+    }*/
     oldYawn = yawn;
 }
 
