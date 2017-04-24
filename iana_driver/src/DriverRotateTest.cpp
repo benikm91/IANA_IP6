@@ -1,10 +1,20 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
-#include "nav_msgs/Odometry.h";
+#include "nav_msgs/Odometry.h"
 #include "../include/iana_driver/VelocityChanger.h"
 #include "../include/iana_driver/Actions.h"
+#include "../include/iana_driver/Vector3.h"
 
-// using namespace Iana;
+using namespace Iana;
+
+void odomCallback(const nav_msgs::Odometry::ConstPtr& msg)
+{
+    int x = msg->pose.pose.orientation.x;
+    int y = msg->pose.pose.orientation.y;
+    int z = msg->pose.pose.orientation.z;
+    int w = msg->pose.pose.orientation.w;
+    ROS_INFO_STREAM("x: " << x << " y" << y << " z" << z << " w" << w);
+}
 
 int main(int argc, char **argv)
 {
@@ -14,15 +24,13 @@ int main(int argc, char **argv)
     std::shared_ptr<VelocityChanger> velocityChanger = std::make_shared<VelocityChanger>(
         n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1)
     );
-
-    ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/odom", 1000, OdometryCallback(velocityChanger));
+    ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/odom", 1000, odomCallback);
     ros::Rate rat(10);
-    std::shared_ptr<const Action> action = std::shared_ptr<const Action>(new DriveForward(velocityChanger));
 
     while(ros::ok())
     {
         ros::spinOnce();
-        # velocityChanger->PublishVelocity();
+        velocityChanger->PublishVelocity(Vector3::Zero, Vector3(0.5, 0.5, 0.5));
         rat.sleep();
     }
     return 0;
