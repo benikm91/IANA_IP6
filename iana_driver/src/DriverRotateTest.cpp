@@ -22,14 +22,13 @@ void OdomCallback(const nav_msgs::Odometry::ConstPtr& msg)
     Quaternion q = Quaternion::FromMsg(msg->pose.pose.orientation);
     double roll, pitch, yawn;
     std::tie(roll, pitch, yawn) = q.ToEulerianAngle();
-    yawn += M_PI;
     ROS_WARN_STREAM("roll: " << roll << " pitch: " << pitch << " yawn: " << yawn);
     ROS_WARN_STREAM("left: " << TurningLeft() << " RIGHT: " << TurningRight());
-    if (yawn > M_PI && oldYawn < M_PI && TurningLeft())
+    if (oldYawn > yawn && TurningLeft())
     {
         ChangeDirection();
     }
-    if (oldYawn > M_PI && yawn < M_PI && TurningRight())
+    if ((oldYawn > yawn && yawn < 0) && TurningRight())
     {
         ChangeDirection();
     }
