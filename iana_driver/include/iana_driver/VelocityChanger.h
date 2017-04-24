@@ -17,10 +17,10 @@ namespace Iana
     {
 
     private:
-        const ros::Publisher* velocityPublisher;
+        const ros::Publisher velocityPublisher;
 
     public:
-        VelocityChanger(ros::Publisher* velocityPublisher) : velocityPublisher(velocityPublisher)
+        VelocityChanger(ros::Publisher&& velocityPublisher) : velocityPublisher(velocityPublisher)
         { }
 
     public:
@@ -30,8 +30,7 @@ namespace Iana
             geometry_msgs::Twist twist;
             twist.linear = linear;
             twist.angular = angular;
-            ROS_INFO("[%f]", angular.y);
-            this->velocityPublisher->publish(twist);
+            this->velocityPublisher.publish(twist);
         }
 
     };

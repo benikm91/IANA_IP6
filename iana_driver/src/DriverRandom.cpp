@@ -15,11 +15,11 @@ struct BumperCallback
 {
 private:
 
-    const VelocityChanger* velocityChanger;
+    std::shared_ptr<VelocityChanger> velocityChanger;
 
 public:
 
-    BumperCallback(const VelocityChanger* velocityChanger) : velocityChanger(velocityChanger) { }
+    BumperCallback(std::shared_ptr<VelocityChanger> velocityChanger) : velocityChanger(velocityChanger) { }
 
 public:
     void operator()(const kobuki_msgs::BumperEvent::ConstPtr& msg) const
@@ -33,19 +33,21 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "driver_random_node");
     ros::NodeHandle n;
-    ros::Publisher velocityPublisher = n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1);
 
-    const VelocityChanger* velocityChanger = new VelocityChanger(&velocityPublisher);
+    std::shared_ptr<VelocityChanger> velocityChanger = std::make_shared<VelocityChanger>(
+        n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1)
+    );
 
     ros::Subscriber sub = n.subscribe<kobuki_msgs::BumperEvent>("/mobile_base/events/bumper", 1000, BumperCallback(velocityChanger));
     ros::Rate rat(2);
-    std::shared_ptr<const Action> action = std::shared_ptr<const Action>(new DriveForward(velocityChanger));
+    std::shared_ptr<Action> action = std::make_shared<DriveForward>(velocityChanger);
     while(ros::ok()) {
         ros::spinOnce();
         if (bumper[0] || bumper[1] || bumper[2]) action = action->Collision();
         action = action->Execute();
         rat.sleep();
     }
+
     return 0;
 
 }
