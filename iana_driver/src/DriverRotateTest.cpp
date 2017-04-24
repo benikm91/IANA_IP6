@@ -13,7 +13,7 @@ void odomCallback(const nav_msgs::Odometry::ConstPtr& msg)
     double y = msg->pose.pose.orientation.y;
     double z = msg->pose.pose.orientation.z;
     double w = msg->pose.pose.orientation.w;
-    ROS_INFO_STREAM("x: " << x << " y" << y << " z" << z << " w" << w);
+    ROS_DEBUG_STREAM("x: " << x << " y: " << y << " z: " << z << " w" << w);
 }
 
 int main(int argc, char **argv)
