@@ -10,13 +10,13 @@ namespace Iana
     class Vector3 {
 
     public:
-        static Vector3* Zero;
-        static Vector3* Up;
-        static Vector3* Down;
-        static Vector3* Left;
-        static Vector3* Right;
-        static Vector3* Forward;
-        static Vector3* Backward;
+        const static Vector3 Zero;
+        const static Vector3 Up;
+        const static Vector3 Down;
+        const static Vector3 Left;
+        const static Vector3 Right;
+        const static Vector3 Forward;
+        const static Vector3 Backward;
 
     public:
         double x;
@@ -56,13 +56,13 @@ namespace Iana
         }
     };
 
-    Vector3* Vector3::Zero = new Vector3(0, 0, 0);
-    Vector3* Vector3::Up = new Vector3(0, 1, 0);
-    Vector3* Vector3::Down = new Vector3(0, -1, 0);
-    Vector3* Vector3::Left = new Vector3(1, 0, 0);
-    Vector3* Vector3::Right = new Vector3(-1, 0, 0);
-    Vector3* Vector3::Forward = new Vector3(0, 0, 1);
-    Vector3* Vector3::Backward = new Vector3(0, 0, -1);
+    const Vector3 Vector3::Zero(0, 0, 0);
+    const Vector3 Vector3::Up(0, 1, 0);
+    const Vector3 Vector3::Down(0, -1, 0);
+    const Vector3 Vector3::Left(1, 0, 0);
+    const Vector3 Vector3::Right(-1, 0, 0);
+    const Vector3 Vector3::Forward(0, 0, 1);
+    const Vector3 Vector3::Backward(0, 0, -1);
 
 }
 

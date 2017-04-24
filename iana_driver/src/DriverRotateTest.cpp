@@ -15,14 +15,14 @@ int main(int argc, char **argv)
         n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1)
     );
 
-    // ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/odom", 1000, OdometryCallback(velocityChanger));
+    ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/odom", 1000, OdometryCallback(velocityChanger));
     ros::Rate rat(10);
     std::shared_ptr<const Action> action = std::shared_ptr<const Action>(new DriveForward(velocityChanger));
 
     while(ros::ok())
     {
         ros::spinOnce();
-        // velocityPublisher->publish(twist);
+        # velocityChanger->PublishVelocity();
         rat.sleep();
     }
     return 0;

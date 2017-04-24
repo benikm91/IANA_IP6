@@ -48,7 +48,7 @@ namespace Iana {
     {
         ROS_INFO("TURNING LEFT");
         if (this->times == 0) return std::make_shared<DriveForward>(this->velocityChanger);
-        this->velocityChanger->PublishVelocity(*Vector3::Zero, Vector3(0.5, 0.5, 0.5));
+        this->velocityChanger->PublishVelocity(Vector3::Zero, Vector3(0.5, 0.5, 0.5));
         return std::make_shared<TurnLeft>(this->velocityChanger, this->times - 1);
     }
 
@@ -63,7 +63,7 @@ namespace Iana {
     std::shared_ptr<Action> DriveForward::Execute() const
     {
         ROS_INFO("DRIVING FORWARD");
-        this->velocityChanger->PublishVelocity(Vector3(0.2, 0.0, 0.0), *Vector3::Zero);
+        this->velocityChanger->PublishVelocity(Vector3(0.2, 0.0, 0.0), Vector3::Zero);
         return std::make_shared<DriveForward>(this->velocityChanger);
     }
 
