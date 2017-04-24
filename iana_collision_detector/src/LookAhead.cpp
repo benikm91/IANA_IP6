@@ -13,9 +13,9 @@ namespace Iana
     public:
         LookAhead()
         {
-            m_collisionAheadPublisher = m_nodeHandle.advertise<std_msgs::Float32>("collision_ahead", 1000);
-            m_depthImageSubscriber = m_nodeHandle.subscribe("/depth_image", 1000, &LookAhead::depthImageCallback, this);
-        }
+            m_collisionAheadPublisher = m_nodeHandle.advertise<std_msgs::Float32>("/collision_ahead", 1000);
+            m_depthImageSubscriber = m_nodeHandle.subscribe<sensor_msgs::LaserScan>("/scan", 1000, &LookAhead::depthImageCallback, this);
+	}
 
 
         void depthImageCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "look_ahead");
 
-    Iana::LookAhead lookAhead();
+    Iana::LookAhead lookAhead;
 
     ros::spin();
 
