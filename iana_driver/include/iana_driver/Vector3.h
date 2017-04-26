@@ -2,12 +2,20 @@
 #define IANA_DRIVER_VECTOR3_H
 
 #include "geometry_msgs/Vector3.h"
+#include "geometry_msgs/Point.h"
+#include <math.h>
+
 typedef geometry_msgs::Vector3 Vector3Message;
 
 namespace Iana
 {
 
     class Vector3 {
+
+    public:
+
+        static Vector3 FromMsg(Vector3Message msg) { return Vector3(msg.x, msg.y, msg.z); }
+        static Vector3 FromMsg(geometry_msgs::Point msg) { return Vector3(msg.x, msg.y, msg.z); }
 
     public:
         const static Vector3 Zero;
@@ -38,21 +46,28 @@ namespace Iana
         Vector3 &operator=(Vector3 &&) = default;
 
     public:
-        friend Vector3 operator+(const Vector3 &l, const Vector3 &r) {
+        friend Vector3 operator+(const Vector3 &l, const Vector3 &r)
+        {
             return Vector3(l.m_x + r.m_x, l.m_y + r.m_y, l.m_z + r.m_z);
         }
 
-        friend Vector3 operator-(const Vector3 &l, const Vector3 &r) {
+        friend Vector3 operator-(const Vector3 &l, const Vector3 &r)
+        {
             return Vector3(l.m_x - r.m_x, l.m_y - r.m_y, l.m_z - r.m_z);
+        }
+
+        friend Vector3 operator*(const int s, const Vector3 &v)
+        {
+            return Vector3(v.X() * s, v.Y() * s, v.Z() * s);
         }
 
         // can we move this out of Vector3 in C++ (like Monkey Patching in C# or implicit cast from scala??)
         operator Vector3Message() const {
-            Vector3Message message;
-            message.x = m_x;
-            message.y = m_y;
-            message.z = m_z;
-            return message;
+            Vector3Message msg;
+            msg.x = m_x;
+            msg.y = m_y;
+            msg.z = m_z;
+            return msg;
         }
 
         inline double X() const { return m_x; }
@@ -60,6 +75,8 @@ namespace Iana
         inline double Z() const { return m_z; }
 
         Vector3 Negate() { return Vector3(-X(), -Y(), -Z()); }
+
+        double Length() { return sqrt(pow(X(), 2) + pow(Y(), 2) + pow(Z(), 2)); }
 
     };
 
