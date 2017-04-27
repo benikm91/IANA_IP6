@@ -19,7 +19,7 @@ namespace Iana {
         virtual void
         Update(std::shared_ptr <VelocityChanger> velocityChanger, Quaternion orientation, Vector3 position) = 0;
 
-        virtual bool GoalReached(Quaternion orientation, Vector3 position) = 0;
+        virtual bool GoalReached(Quaternion orientation, Vector3 position) const = 0;
     };
 
     class DrivingForwardAction : public PlanAction {
@@ -39,14 +39,13 @@ namespace Iana {
         void Update(std::shared_ptr <VelocityChanger> velocityChanger, Quaternion orientation, Vector3 position) {
             if (GoalReached(orientation, position)) return;
 
-            ROS_INFO_STREAM("DrivingForwardAction - Current " << (m_startPosition - position).Length() << " Goal: "
-                                                              << m_distance);
+            ROS_INFO("DrivingForwardAction - Current: %f | Goal: %f", DistanceSoFar(position), m_distance);
             velocityChanger->PublishVelocity(m_drivingSpeed * Vector3::Left, Vector3::Zero);
         }
 
-        bool GoalReached(Quaternion orientation, Vector3 position) {
-            return m_distance <= (m_startPosition - position).Length();
-        }
+        bool GoalReached(Quaternion orientation, Vector3 position) const { return m_distance <= DistanceSoFar(position); }
+
+        inline double DistanceSoFar(Vector3 position) const { return (m_startPosition - position).Length(); }
 
     };
 
@@ -92,7 +91,7 @@ namespace Iana {
             velocityChanger->PublishVelocity(Vector3::Zero, (m_direction * m_turningSpeed) * Vector3::Forward);
         }
 
-        bool GoalReached(Quaternion orientation, Vector3 position) { return m_angle <= m_rotatedSoFar; }
+        bool GoalReached(Quaternion orientation, Vector3 position) const { return m_angle <= m_rotatedSoFar; }
 
     };
 
@@ -117,7 +116,7 @@ namespace Iana {
             Quaternion orientation = Quaternion::FromMsg(msg->pose.pose.orientation);
             Vector3 position = Vector3::FromMsg(msg->pose.pose.position);
 
-            ROS_INFO_STREAM("Number of remaining actions: " << m_actions.size());
+            ROS_INFO("Number of remaining actions %i", m_actions.size());
 
             if (m_actions.size() > 0) {
                 m_actions.front()->Update(m_velocityChanger, orientation, position);
