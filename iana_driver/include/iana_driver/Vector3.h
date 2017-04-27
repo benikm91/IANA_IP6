@@ -61,6 +61,12 @@ namespace Iana
             return Vector3(v.X() * s, v.Y() * s, v.Z() * s);
         }
 
+        friend std::ostream& operator<< (std::ostream& stream, const Vector3& vector)
+        {
+            stream << "(" << vector.X() << ", " << vector.Y() << ", " << vector.Z() << ")";
+            return stream;
+        }
+
         // can we move this out of Vector3 in C++ (like Monkey Patching in C# or implicit cast from scala??)
         operator Vector3Message() const {
             Vector3Message msg;
