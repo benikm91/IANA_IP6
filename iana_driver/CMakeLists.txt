@@ -137,7 +137,7 @@ include_directories(
 add_executable(driver_random_node src/DriverRandom.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Actions.h include/iana_driver/Quaternion.h)
 add_executable(driver_random_bumper_node src/DriverRandomBumper.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Actions.h include/iana_driver/Quaternion.h)
 add_executable(driver_rotate_test_node src/DriverRotateTest.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Quaternion.h)
-add_executable(driver_plan src/DriverPlan.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Quaternion.h)
+add_executable(forward_then_left src/ForwardThenLeft.cpp include/iana_driver/DriverPlan.h include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Quaternion.h)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -162,7 +162,7 @@ target_link_libraries(driver_rotate_test_node
     ${catkin_LIBRARIES}
 )
 
-target_link_libraries(driver_plan
+target_link_libraries(forward_then_left
         ${catkin_LIBRARIES}
         )
 
