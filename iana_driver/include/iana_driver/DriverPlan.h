@@ -73,7 +73,7 @@ namespace Iana {
             double roll, pitch, startYawn;
             std::tie(roll, pitch, startYawn) = orientation.ToEulerianAngle();
 
-            m_oldYawn = startYawn;
+            m_oldYawn = startYawn + M_PI;
         }
 
         void Update(std::shared_ptr <VelocityChanger> velocityChanger, Quaternion orientation, Vector3 position) {
@@ -81,6 +81,7 @@ namespace Iana {
 
             double roll, pitch, yawn;
             std::tie(roll, pitch, yawn) = orientation.ToEulerianAngle();
+            yawn += M_PI;
 
             double deltaYawn = std::abs(yawn - m_oldYawn);
             if (deltaYawn > M_PI) deltaYawn = std::fmin(yawn, m_oldYawn) + 2*M_PI - std::fmax(yawn, m_oldYawn);
