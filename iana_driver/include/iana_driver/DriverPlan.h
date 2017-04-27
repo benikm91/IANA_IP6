@@ -133,6 +133,8 @@ namespace Iana {
             }
         }
 
+        bool Done() const { return m_actions.size() == 0; }
+
     };
 
 }

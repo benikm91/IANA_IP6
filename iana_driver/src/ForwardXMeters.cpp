@@ -7,7 +7,7 @@
 
 using namespace Iana;
 
-int meters = 1.00;
+const double meters = 1.0;
 
 int main(int argc, char **argv)
 {
