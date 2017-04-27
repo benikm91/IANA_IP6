@@ -7,7 +7,27 @@
 
 using namespace Iana;
 
-const double meters = 1.0;
+int meters = 1.00;
+
+bool startPositionSet = false;
+Vector3 startPosition = Vector3::Zero;
+
+bool driverPlanDone = false;
+
+void FinalVerdict(const nav_msgs::Odometry::ConstPtr &msg) {
+    Vector3 position = Vector3::FromMsg(msg->pose.pose.position);
+    if (!startPositionSet)
+    {
+        startPosition = position;
+        startPositionSet = true;
+        return;
+    }
+    if (driverPlanDone)
+    {
+        driverPlanDone = false;
+        ROS_INFO_STREAM("Final distance: " << (startPosition - position).Length());
+    }
+}
 
 int main(int argc, char **argv)
 {
@@ -28,7 +48,13 @@ int main(int argc, char **argv)
     );
 
     ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/odom", 1000, &DriverPlan::Update, &driverPlan);
+    ros::Subscriber sub2 = n.subscribe<nav_msgs::Odometry>("/odom", 1000, FinalVerdict);
 
-    ros::spin();
+    ros::Rate rat(1);
+    while(ros::ok()) {
+        ros::spinOnce();
+        driverPlanDone = driverPlan.Done();
+        rat.sleep();
+    }
 
 }
