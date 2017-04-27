@@ -86,7 +86,7 @@ namespace Iana {
             double deltaYawn = std::abs(yawn - m_oldYawn);
             if (deltaYawn > M_PI) deltaYawn = std::fmin(yawn, m_oldYawn) + 2*M_PI - std::fmax(yawn, m_oldYawn);
             m_rotatedSoFar += deltaYawn;
-            ROS_INFO_STREAM("TurningAction - Current: " << m_rotatedSoFar << " Goal: " << m_angle);
+            ROS_INFO("TurningAction - Current: %f | Goal: %f", m_rotatedSoFar, m_angle);
             m_oldYawn = yawn;
 
             velocityChanger->PublishVelocity(Vector3::Zero, (m_direction * m_turningSpeed) * Vector3::Forward);
