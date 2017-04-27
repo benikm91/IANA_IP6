@@ -39,7 +39,7 @@ namespace Iana {
         void Update(std::shared_ptr <VelocityChanger> velocityChanger, Quaternion orientation, Vector3 position) {
             if (GoalReached(orientation, position)) return;
 
-            ROS_INFO("DrivingForwardAction - Current: %f | Goal: %f", DistanceSoFar(position), m_distance);
+            ROS_DEBUG("DrivingForwardAction - Current: %f | Goal: %f", DistanceSoFar(position), m_distance);
             velocityChanger->PublishVelocity(m_drivingSpeed * Vector3::Left, Vector3::Zero);
         }
 
@@ -86,7 +86,7 @@ namespace Iana {
             double deltaYawn = std::abs(yawn - m_oldYawn);
             if (deltaYawn > M_PI) deltaYawn = std::fmin(yawn, m_oldYawn) + 2*M_PI - std::fmax(yawn, m_oldYawn);
             m_rotatedSoFar += deltaYawn;
-            ROS_INFO("TurningAction - Current: %f | Goal: %f", m_rotatedSoFar, m_angle);
+            ROS_DEBUG("TurningAction - Current: %f | Goal: %f", m_rotatedSoFar, m_angle);
             m_oldYawn = yawn;
 
             velocityChanger->PublishVelocity(Vector3::Zero, (m_direction * m_turningSpeed) * Vector3::Forward);
@@ -117,12 +117,12 @@ namespace Iana {
             Quaternion orientation = Quaternion::FromMsg(msg->pose.pose.orientation);
             Vector3 position = Vector3::FromMsg(msg->pose.pose.position);
 
-            ROS_INFO("Number of remaining actions %zu", m_actions.size());
+            ROS_DEBUG("Number of remaining actions %zu", m_actions.size());
 
             if (m_actions.size() > 0) {
                 m_actions.front()->Update(m_velocityChanger, orientation, position);
                 if (m_actions.front()->GoalReached(orientation, position)) {
-                    ROS_INFO("Goal reached for current action => Select next action");
+                    ROS_DEBUG("Goal reached for current action => Select next action");
                     m_actions.pop();
                     if (m_actions.size() > 0) m_actions.front()->Init(orientation, position);
                 }
