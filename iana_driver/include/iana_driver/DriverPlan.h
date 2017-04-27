@@ -40,7 +40,7 @@ namespace Iana {
             if (GoalReached(orientation, position)) return;
 
             ROS_INFO_STREAM("DrivingForwardAction - Current " << (m_startPosition - position).Length() << " Goal: "
-                                                              << m_startPosition);
+                                                              << m_distance);
             velocityChanger->PublishVelocity(m_drivingSpeed * Vector3::Left, Vector3::Zero);
         }
 
@@ -57,7 +57,7 @@ namespace Iana {
         const static int Right;
 
     private:
-        const int m_angle;
+        const double m_angle;
         const int m_direction;
         const double m_turningSpeed;
         double m_rotatedSoFar = 0;
