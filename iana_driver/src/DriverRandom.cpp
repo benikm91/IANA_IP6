@@ -39,7 +39,7 @@ int main(int argc, char **argv)
         n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1)
     );
 
-    ros::Subscriber sub = n.subscribe<std_msgs::Float32>("/collision_ahead ", 1000, BumperCallback(velocityChanger));
+    ros::Subscriber sub = n.subscribe<std_msgs::Float32>("/collision_ahead", 1000, BumperCallback(velocityChanger));
     ros::Rate rat(2);
     std::shared_ptr<Action> action = std::make_shared<DriveForward>(velocityChanger);
     while(ros::ok()) {
