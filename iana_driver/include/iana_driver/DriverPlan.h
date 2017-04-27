@@ -127,6 +127,10 @@ namespace Iana {
                     if (m_actions.size() > 0) m_actions.front()->Init(orientation, position);
                 }
             }
+            else
+            {
+                m_velocityChanger->PublishVelocity(Vector3::Zero, Vector3::Zero);
+            }
         }
 
     };
