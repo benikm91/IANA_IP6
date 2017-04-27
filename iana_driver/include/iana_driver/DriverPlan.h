@@ -83,7 +83,9 @@ namespace Iana {
             double roll, pitch, yawn;
             std::tie(roll, pitch, yawn) = orientation.ToEulerianAngle();
 
-            m_rotatedSoFar += abs(yawn - m_oldYawn);
+            double deltaYawn = std::abs(yawn - oldYawn);
+            if (deltaYawn > M_PI) deltaYawn = std::fmin(yawn, oldYawn) + 2*M_PI - std::fmax(yawn, oldYawn);
+            m_rotatedSoFar += deltaYawn;
             ROS_INFO_STREAM("TurningAction - Current: " << m_rotatedSoFar << " Goal: " << m_angle);
             m_oldYawn = yawn;
 
