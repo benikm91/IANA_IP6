@@ -56,7 +56,7 @@ namespace Iana
             return Vector3(l.m_x - r.m_x, l.m_y - r.m_y, l.m_z - r.m_z);
         }
 
-        friend Vector3 operator*(const int s, const Vector3 &v)
+        friend Vector3 operator*(const double s, const Vector3 &v)
         {
             return Vector3(v.X() * s, v.Y() * s, v.Z() * s);
         }
