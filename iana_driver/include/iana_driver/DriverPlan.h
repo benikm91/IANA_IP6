@@ -116,7 +116,7 @@ namespace Iana {
             Quaternion orientation = Quaternion::FromMsg(msg->pose.pose.orientation);
             Vector3 position = Vector3::FromMsg(msg->pose.pose.position);
 
-            ROS_INFO("Number of remaining actions %i", m_actions.size());
+            ROS_INFO("Number of remaining actions %zu", m_actions.size());
 
             if (m_actions.size() > 0) {
                 m_actions.front()->Update(m_velocityChanger, orientation, position);
