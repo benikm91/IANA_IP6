@@ -34,12 +34,14 @@ public:
 
     void Update(std::shared_ptr<VelocityChanger> velocityChanger, Quaternion orientation, Vector3 position)
     {
+	ROS_WARN("DRIVING FORWARD");
         if (GoalReached(orientation, position)) return;
 
-        velocityChanger->PublishVelocity(Vector3::Forward, Vector3::Zero);
+	ROS_WARN_STREAM("STILL DRIVING " << (m_startPosition - position).Length());
+        velocityChanger->PublishVelocity(Vector3(0.22,0,0), Vector3::Zero);
     }
 
-    bool GoalReached(Quaternion orientation, Vector3 position) { return (m_startPosition - position).Length() >= m_distance; }
+    bool GoalReached(Quaternion orientation, Vector3 position) { return m_distance <= (m_startPosition - position).Length(); }
 
 };
 
@@ -76,12 +78,13 @@ public:
         std::tie(roll, pitch, yawn) = orientation.ToEulerianAngle();
 
         m_rotatedSoFar += yawn - m_oldYawn;
+	ROS_WARN_STREAM("STILL TURNING" << m_rotatedSoFar); 
         m_oldYawn = yawn;
 
-        velocityChanger->PublishVelocity(Vector3::Zero, m_direction * Vector3::Forward);
+        velocityChanger->PublishVelocity(Vector3::Zero, m_direction * Vector3(0,0,0.2));
     }
 
-    bool GoalReached(Quaternion orientation, Vector3 position) { return m_angle > m_rotatedSoFar; }
+    bool GoalReached(Quaternion orientation, Vector3 position) { return m_angle <= m_rotatedSoFar; }
 
 };
 const int TurningAction::Left = 1;
@@ -104,15 +107,20 @@ public:
 
     void Update(const nav_msgs::Odometry::ConstPtr& msg)
     {
+	ROS_WARN("UPDATE");
         Quaternion orientation = Quaternion::FromMsg(msg->pose.pose.orientation);
         Vector3 position = Vector3::FromMsg(msg->pose.pose.position);
+
+	ROS_WARN_STREAM("Remaining actions: " << m_actions.size());
 
         if (m_actions.size() > 0)
         {
             m_actions.front()->Update(m_velocityChanger, orientation, position);
             if (m_actions.front()->GoalReached(orientation, position))
             {
+		ROS_WARN("Next Action");
                 m_actions.pop();
+		if (m_actions.size() > 0) m_actions.front()->Init(orientation, position);
             }
         }
     }
@@ -130,7 +138,8 @@ int main(int argc, char **argv)
 
     std::queue<std::shared_ptr<PlanAction>> actions;
 
-    actions.push(std::make_shared<DriveForwardAction>(1));
+    actions.push(std::make_shared<DriveForwardAction>(0));
+    actions.push(std::make_shared<DriveForwardAction>(0.4));
     actions.push(std::make_shared<TurningAction>(M_PI, TurningAction::Left));
 
     DriverPlan driverPlan(
@@ -138,7 +147,9 @@ int main(int argc, char **argv)
         actions
     );
 
-    n.subscribe<nav_msgs::Odometry>("/odom", 1000, &DriverPlan::Update, &driverPlan);
+    ROS_WARN("Subscribing to /odom topic");
+
+    ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/odom", 1000, &DriverPlan::Update, &driverPlan);
 
     ros::spin();
 
