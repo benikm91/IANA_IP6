@@ -22,10 +22,35 @@ namespace Iana
             : m_nextImageIndex(0)
         {
             m_rawImageSubscriber = m_nodeHandle.subscribe<sensor_msgs::Image>("/rgb/image_raw", 1000, &StoreToFile::RGBImageRawCallback, this);
+
+            std::string destination_folder;
+            ros::NodeHandle private_node_handle("~");
+            if (private_node_handle.getParam("destination_folder", destination_folder))
+            {
+                ROS_INFO("Got param: %s", destination_folder.c_str());
+            }
+            else
+            {
+                ROS_ERROR("Failed to get param 'destination_folder'");
+                exit(1);
+            }
+
             std::ostringstream folderName;
-            folderName << "~/iana_image_capture/capture_" << std::time(nullptr) << "/";
+            folderName << destination_folder << "iana_image_capture/";
+            if (mkdir(folderName.str().c_str(), 0777) != 0)
+            {
+                ROS_ERROR("Failed to make folder: %s", folderName.str().c_str());
+                exit(1);
+            }
+
+            folderName << "capture_" << std::time(nullptr) << "/";
+            if (mkdir(folderName.str().c_str(), 0777) != 0)
+            {
+                ROS_ERROR("Failed to make folder: %s", folderName.str().c_str());
+                exit(1);
+            }
+
             m_folderName = folderName.str();
-            int result = mkdir(m_folderName.c_str(), 0777);
         }
 
         void RGBImageRawCallback(const sensor_msgs::ImageConstPtr& msg)
