@@ -21,7 +21,7 @@ namespace Iana
         StoreToFile()
             : m_nextImageIndex(0)
         {
-            m_rawImageSubscriber = m_nodeHandle.subscribe<sensor_msgs::Image>("/rgb/image_raw", 1000, &StoreToFile::RGBImageRawCallback, this);
+            m_rawImageSubscriber = m_nodeHandle.subscribe<sensor_msgs::Image>("/rgb/image_raw", 1, &StoreToFile::RGBImageRawCallback, this);
 
             std::string destination_folder;
             ros::NodeHandle private_node_handle("~");
@@ -78,6 +78,8 @@ namespace Iana
             cv::FileStorage fs(yamlFileName.str(), cv::FileStorage::WRITE);
             fs << "rgb_image_raw" << cvImagePtr->image;
             fs.release();
+
+            m_nextImageIndex++;
         }
     };
 }
