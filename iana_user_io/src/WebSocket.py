@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 # license removed for brevity
+from autobahn.twisted.resource import WebSocketResource
+from twisted.web.server import Site
+from twisted.web.static import File
+
 import rospy
 from std_msgs.msg import String
 
 from autobahn.twisted.websocket import WebSocketServerProtocol, WebSocketServerFactory
 from threading import Thread
+
+from src import settings
 
 
 class Command(object):
@@ -68,9 +74,20 @@ def start_server_factory(explore, goto):
             explore=explore,
             goto=goto,
         )
-        factory = WebSocketServerFactory(u"ws://127.0.0.1:9000")
+
+        root = File("./iana_user_io")
+
+        factory = WebSocketServerFactory(u"ws://{0}:{1}".format(settings.INTERFACE, settings.PORT))
         factory.protocol = IanaUserIOWebSocket
-        reactor.listenTCP(9000, factory)
+
+        resource = WebSocketResource(factory)
+
+        # websockets resource on "/ws" path
+        root.putChild(u"ws", resource)
+
+        site = Site(root)
+
+        reactor.listenTCP(settings.PORT, site)
         reactor.run(installSignalHandlers=False)
     return start_server
 
