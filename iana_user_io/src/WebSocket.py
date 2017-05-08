@@ -7,16 +7,27 @@ from autobahn.twisted.websocket import WebSocketServerProtocol, WebSocketServerF
 from threading import Thread
 
 
-def explore_factory(publisher):
-    def explore():
-        publisher.publish("EXPLORE!")
-    return explore
+class Command(object):
+    def __init__(self, publisher):
+        self.publisher = publisher
 
 
-def goto_factory(publisher):
-    def goto(x, y):
-        publisher.publish("Goto {0}/{1}".format(x, y))
-    return goto
+class ExploreCommand(Command):
+
+    def __init__(self, publisher):
+        super(ExploreCommand, self).__init__(publisher)
+
+    def __call__(self):
+        self.publisher.publish("EXPLORE!")
+
+
+class GoToCommand(Command):
+
+    def __init__(self, publisher):
+        super(GoToCommand, self).__init__(publisher)
+
+    def __call__(self, x, y):
+        self.publisher.publish("Goto {0}/{1}".format(x, y))
 
 commands = dict()
 
@@ -75,8 +86,8 @@ if __name__ == '__main__':
 
     try:
         thread = Thread(target=start_server_factory(
-            explore_factory(rospy.Publisher('explorer', String, queue_size=10)),
-            goto_factory(rospy.Publisher('goto', String, queue_size=10))
+            ExploreCommand(rospy.Publisher('explorer', String, queue_size=10)),
+            GoToCommand(rospy.Publisher('goto', String, queue_size=10))
         ))
         thread.start()
 
