@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # license removed for brevity
-from autobahn.twisted.resource import WebSocketResource
+import os
+from autobahn.twisted.resource import WebSocketResource, WSGIRootResource
 from twisted.web.server import Site
 from twisted.web.static import File
 
@@ -10,7 +11,7 @@ from std_msgs.msg import String
 from autobahn.twisted.websocket import WebSocketServerProtocol, WebSocketServerFactory
 from threading import Thread
 
-from src import settings
+import settings
 
 
 class Command(object):
@@ -75,7 +76,7 @@ def start_server_factory(explore, goto):
             goto=goto,
         )
 
-        root = File("./iana_user_io")
+        root = File(".")
 
         factory = WebSocketServerFactory(u"ws://{0}:{1}".format(settings.INTERFACE, settings.PORT))
         factory.protocol = IanaUserIOWebSocket

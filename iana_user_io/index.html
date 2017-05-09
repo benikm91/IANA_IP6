@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
    <head>
+
+      <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
+      <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
       <script type="text/javascript">
          var socket = null;
          var isopen = false;
@@ -62,14 +66,20 @@
       </script>
    </head>
    <body>
-        <div class="row">
-            <div class="col-md-6">
-                <button onclick='explore();'>Explore Modus</button>
-            </div>
-            <div class="col-md-6">
-                <label for="goto_x">X: </label> <input id="goto_x" type="number" name="goto_x" />
-                <label for="goto_y">Y: </label> <input id="goto_y" type="number" name="goto_y" />
-                <button onclick='goto_target();'>Send Binary Message</button>
+        <div class="commands">
+            <div class="row">
+                <div class="col-md-6 command">
+                    <button class="btn btn-primary" onclick='explore();'>Explore Modus</button>
+                </div>
+                <div class="col-md-6 command" onclick='goto_target();'>
+                    <div>
+                        <label for="goto_x">X: </label> <input id="goto_x" type="number" name="goto_x" value="0" />
+                    </div>
+                    <div>
+                        <label for="goto_y">Y: </label> <input id="goto_y" type="number" name="goto_y" value="0" />
+                    </div>
+                    <button class="btn btn-primary" >Go to</button>
+                </div>
             </div>
         </div>
    </body>
