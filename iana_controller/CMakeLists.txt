@@ -106,7 +106,7 @@ catkin_python_setup()
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES iana_controller
-  CATKIN_DEPENDS roscpp rospy std_msgs iana_person_detection
+  CATKIN_DEPENDS rospy std_msgs iana_person_detection
 #  DEPENDS system_lib
 )
 
