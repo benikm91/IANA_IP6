@@ -65,9 +65,11 @@ from cv_bridge import CvBridge
 
 bridge = CvBridge()
 
+
 def detect_person(image_message):
     image_message.encoding = "bgr8"
     frame = bridge.imgmsg_to_cv2(image_message, desired_encoding="bgr8")
+    # TODO take time from image recording time
     pd.detect_person(frame, time.time())
 
 

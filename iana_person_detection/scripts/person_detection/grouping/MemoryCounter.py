@@ -22,6 +22,7 @@ class MemoryCounter:
                 self.memory.pop(key)
 
     def update(self, key, entry, threshold_value):
+        self.memory[1].key = 42
         self.memory[key].key = threshold_value
         self.memory[key].value.append(entry)
 

@@ -15,7 +15,7 @@ class FaceGrouper:
         self.memory_known.update(person_id, (confidence, face_vector), record_timestamp)
 
     def known_reset(self, person_id):
-        self.memory_known.pop(person_id)
+        return self.memory_known.pop(person_id)
 
     def unknown_threshold_reached(self, unknown_person_id):
         return self.memory_unknown.min_reached(unknown_person_id)
@@ -25,4 +25,4 @@ class FaceGrouper:
         self.memory_unknown.update(unknown_person_id, face_vector, record_timestamp)
 
     def unknown_reset(self, unknown_person_id):
-        self.memory_unknown.pop(unknown_person_id)
+        return self.memory_unknown.pop(unknown_person_id)

@@ -1,6 +1,10 @@
 import rospy
 from std_msgs.msg import Header
 
+from iana_person_detection.msg import UnknownPersonEntered, FaceVector
+from cv_bridge import CvBridge
+
+bridge = CvBridge()
 
 class PersonDetection(object):
 
@@ -37,9 +41,16 @@ class PersonDetection(object):
         rospy.logdebug("Known person detected with id={0}".format(person_id))
         self.known_person_publisher.publish(person_id)
 
-    def unknown_person_detected(self, unknown_person_id, record_timestamp):
+    def unknown_person_detected(self, unknown_person_id, face_vectors, preview_image, record_timestamp):
         rospy.logdebug("Unknown person detected with id={0}".format(unknown_person_id))
-        self.unknown_person_publisher.publish(unknown_person_id)
+        message = UnknownPersonEntered()
+        message.person_id = unknown_person_id
+        face_vector_messages = []
+        for face_vector in face_vectors:
+            face_vector_messages.append(FaceVector(face_vector))
+        message.face_vectors = face_vector_messages
+        message.preview_image = bridge.cv2_to_imgmsg(preview_image, encoding="passthrough")
+        self.unknown_person_publisher.publish(message)
 
     def detect_person(self, image, record_timestamp):
 
@@ -51,22 +62,27 @@ class PersonDetection(object):
                     self.known_person_detected(person_id, record_timestamp)
                 self.session_memory.known_update(person_id, record_timestamp)
 
-        def handle_unknown_face(self, face_vector):
+        def handle_unknown_face(self, face_vector, preview_image):
             unknown_person_id = self.unknown_face_labeler.label(face_vector)
             self.face_grouper.update_unknown(unknown_person_id, face_vector, record_timestamp)
             if self.face_grouper.unknown_threshold_reached(unknown_person_id):
-                self.face_grouper.unknown_reset(unknown_person_id)
+                face_vectors = self.face_grouper.unknown_reset(unknown_person_id)
                 if not self.session_memory.unknown_contains(unknown_person_id):
-                    self.unknown_person_detected(unknown_person_id, record_timestamp)
-                self.session_memory.unknown_update(person_id, record_timestamp)
+                    self.unknown_person_detected(unknown_person_id, face_vectors, preview_image, record_timestamp)
+                self.session_memory.unknown_update(unknown_person_id, record_timestamp)
 
         boundboxes = self.face_detection.detect_faces(image)
+
+        faces = []
+        for boundbox in boundboxes:
+            faces.append(image[boundbox.top():boundbox.bottom(),boundbox.left():boundbox.right()])
+
         aligned_faces = self.face_alignment.align_faces(image, boundboxes)
         embeddings = self.face_embedder.embed(aligned_faces)
         labeled_faces = self.face_labeler.label(embeddings)
 
-        for person_id, confidence, face_vector in labeled_faces:
+        for face, (person_id, confidence, face_vector) in zip(faces, labeled_faces):
             if self.face_filter.is_known(face_vector, confidence):
                 handle_known_face(self, person_id, face_vector, confidence)
             elif self.face_filter.is_unknown(face_vector, confidence):
-                handle_unknown_face(self, face_vector)
+                handle_unknown_face(self, face_vector, face)
