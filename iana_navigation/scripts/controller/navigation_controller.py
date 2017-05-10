@@ -5,22 +5,23 @@ import iana_driver.msg
 import iana_navigation.msg
 import move_base_msgs.msg
 
-from iana_navigation.action import Explore, GoTo, Idle
-
 
 class NavigationController(object):
 
     def __init__(self):
         rospy.init_node('iana_navigation', anonymous=True)
 
-        self.explore_action = actionlib.SimpleActionServer('/iana/navigation/explore', Explore, execute_cb=self.explore, auto_start=True)
-        self.go_to_action = actionlib.SimpleActionServer('/iana/navigation/go_to', GoTo, execute_cb=self.go_to, auto_start=True)
+        self.explore_action = actionlib.SimpleActionServer('/iana/navigation/explore', iana_navigation.msg.ExploreAction, execute_cb=self.explore, auto_start=False)
+        self.go_to_action = actionlib.SimpleActionServer('/iana/navigation/go_to', iana_navigation.msg.GoToAction, execute_cb=self.go_to, auto_start=False)
 
         self.move_base_action = actionlib.SimpleActionClient('move_base', move_base_msgs.msg.MoveBaseAction)
         self.move_base_action.wait_for_server()
 
         self.random_driver_publisher = rospy.Publisher('/iana/driver/random', iana_driver.msg.RandomDriverArgs, queue_size=10)
         self.stop_driver_publisher = rospy.Publisher('/iana/driver/stop', iana_driver.msg.NoDriverArgs, queue_size=10)
+
+        self.explore_action.start()
+        self.go_to_action.start()
 
     def run(self):
         rospy.spin()
