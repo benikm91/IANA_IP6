@@ -17,7 +17,7 @@ namespace Iana {
     struct VelocityChangeAction : public Action
     {
     protected:
-        const std::shared_ptr<VelocityChanger> m_velocityChanger;
+        const std::shared_ptr<Iana::VelocityChanger> m_velocityChanger;
     public:
         VelocityChangeAction(std::shared_ptr<VelocityChanger> velocityChanger) : m_velocityChanger(velocityChanger) { }
     };

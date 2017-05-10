@@ -1,11 +1,10 @@
 //
 // Created by benjamin on 24.04.17.
 //
-
-#include "Vector3.h"
-
 #ifndef IANA_DRIVER_QUATERNION_H
 #define IANA_DRIVER_QUATERNION_H
+
+#include "Vector3.h"
 
 namespace Iana
 {

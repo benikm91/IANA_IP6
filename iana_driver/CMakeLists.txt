@@ -8,10 +8,10 @@ add_definitions(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  kobuki_msgs
-  roscpp
-  std_msgs
-  kobuki_msgs
+        kobuki_msgs
+        roscpp
+        std_msgs
+        message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -48,11 +48,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+        FILES
+        NoDriverArgs.msg
+        RandomDriverArgs.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -69,10 +69,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   kobuki_msgs#   std_msgs
-# )
+generate_messages(
+        DEPENDENCIES
+        std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -106,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES iana_driver
-#  CATKIN_DEPENDS kobuki_msgs roscpp std_msgs
+        CATKIN_DEPENDS message_runtime # kobuki_msgs roscpp std_msgs
 #  DEPENDS system_lib
 )
 
@@ -118,7 +118,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  ${catkin_INCLUDE_DIRS}
+        ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -134,11 +134,17 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(driver_random_node src/DriverRandom.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Actions.h include/iana_driver/Quaternion.h)
-add_executable(driver_random_bumper_node src/DriverRandomBumper.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Actions.h include/iana_driver/Quaternion.h)
-add_executable(left_x_times src/LeftXTimes.cpp include/iana_driver/DriverPlan.h include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Quaternion.h)
-add_executable(forward_x_meters src/ForwardXMeters.cpp include/iana_driver/DriverPlan.h include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Quaternion.h)
-add_executable(forward_then_left src/ForwardThenLeft.cpp include/iana_driver/DriverPlan.h include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Quaternion.h)
+add_executable(
+        iana_driver_node
+        src/IanaDriver.cpp
+        include/driver/Driver.h
+        include/driver/NullDriver.h
+        include/driver/RandomDriver.h
+        include/iana_driver/VelocityChanger.h
+        include/iana_driver/Vector3.h
+        include/iana_driver/Actions.h
+        include/iana_driver/Quaternion.h
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -151,24 +157,9 @@ add_executable(forward_then_left src/ForwardThenLeft.cpp include/iana_driver/Dri
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(driver_random_node
-    ${catkin_LIBRARIES}
-)
-
-target_link_libraries(driver_random_bumper_node
-    ${catkin_LIBRARIES}
-)
-
-target_link_libraries(left_x_times
-    ${catkin_LIBRARIES}
-)
-
-target_link_libraries(forward_x_meters
-    ${catkin_LIBRARIES}
-)
-
-target_link_libraries(forward_then_left
-    ${catkin_LIBRARIES}
+target_link_libraries(
+        iana_driver_node
+        ${catkin_LIBRARIES}
 )
 
 #############
