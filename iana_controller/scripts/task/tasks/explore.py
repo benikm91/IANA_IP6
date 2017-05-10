@@ -1,4 +1,4 @@
-from scripts.task.task import Task
+from task.task import Task
 
 import rospy
 from std_msgs.msg import String

@@ -1,7 +1,7 @@
 import threading
 from Queue import Queue
 
-from scripts.task.task import Task
+from task.task import Task
 
 
 class TaskSystem(object):

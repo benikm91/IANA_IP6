@@ -1,7 +1,7 @@
 import rospy
 from iana_controller.msg import Explore, GoTo
 
-from scripts.task.task_system import TaskSystem
+from task.task_system import TaskSystem
 
 
 class TaskReceiver(object):
