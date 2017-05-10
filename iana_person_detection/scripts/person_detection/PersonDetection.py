@@ -34,11 +34,11 @@ class PersonDetection(object):
         return h
 
     def known_person_detected(self, person_id, record_timestamp):
-        print "HAL"
+        rospy.logdebug("Known person detected with id={0}".format(person_id))
         self.known_person_publisher.publish(person_id)
 
     def unknown_person_detected(self, unknown_person_id, record_timestamp):
-        print "HALLO"
+        rospy.logdebug("Unknown person detected with id={0}".format(unknown_person_id))
         self.unknown_person_publisher.publish(unknown_person_id)
 
     def detect_person(self, image, record_timestamp):

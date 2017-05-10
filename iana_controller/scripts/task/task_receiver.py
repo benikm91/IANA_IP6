@@ -13,8 +13,8 @@ class TaskReceiver(object):
     def __init__(self, task_system):
         super(TaskReceiver, self).__init__()
         self.task_system = task_system
-        rospy.Subscriber('/iana/user_command/explore', Explore, self.explore, queue_size=10)
-        rospy.Subscriber('/iana/user_command/go_to', GoTo, self.explore, queue_size=10)
+        rospy.Subscriber('/controller/user_command/explore', Explore, self.explore, queue_size=10)
+        rospy.Subscriber('/controller/user_command/go_to', GoTo, self.explore, queue_size=10)
 
     def explore(self, msg):
         self.task_system.submit(msg.until)

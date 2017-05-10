@@ -1,3 +1,5 @@
+import pkg_resources
+
 from person_detection.config.Config import Config
 
 camera = Config(
@@ -6,11 +8,11 @@ camera = Config(
     height=600
 )
 face_detection = Config(
-    predictor_path='/home/benjamin/IP6/src/iana_person_detection/res/models/dlib/shape_predictor_68_face_landmarks.dat',
+    predictor_path=pkg_resources.resource_filename('res', 'models/dlib/shape_predictor_68_face_landmarks.dat'),
     img_dim=96,
 )
 face_embedder = Config(
-    network_model='/home/benjamin/IP6/src/iana_person_detection/res/models/openface/nn4.small2.v1.t7',
+    network_model=pkg_resources.resource_filename('res', 'models/openface/nn4.small2.v1.t7'),
     img_dim=96,
     cuda=False
 )
