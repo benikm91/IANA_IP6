@@ -1,5 +1,6 @@
 import numpy as np
 from collections import defaultdict
+from time import sleep
 
 from person_detection.classifier.FaceClassifier import FaceClassifier
 
@@ -16,10 +17,10 @@ class DistanceToAverageFaceClassifier(FaceClassifier):
         self.confidence = confidence
         self.average = average
 
-    def train(self, face_data):
+    def train(self, persons):
         faces = defaultdict(lambda: None)
-        for person_id, feature_vectors in face_data:
-            faces[person_id] = feature_vectors
+        for person in persons:
+            faces[person.person_id] = map(lambda x: x.face, person.face_vectors)
         for person_id, feature_vectors in faces.iteritems():
             self.__insert(person_id, feature_vectors)
 

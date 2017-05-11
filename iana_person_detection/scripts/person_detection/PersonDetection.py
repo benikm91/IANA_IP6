@@ -82,6 +82,7 @@ class PersonDetection(object):
         labeled_faces = self.face_labeler.label(embeddings)
 
         for face, (person_id, confidence, face_vector) in zip(faces, labeled_faces):
+            print "T", person_id, confidence
             if self.face_filter.is_known(face_vector, confidence):
                 handle_known_face(self, person_id, face_vector, confidence)
             elif self.face_filter.is_unknown(face_vector, confidence):

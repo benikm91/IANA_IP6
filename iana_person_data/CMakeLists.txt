@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(iana_person_detection)
+project(iana_person_data)
 
 ## Add support for C++11, supported in ROS Kinetic and newer
 # add_definitions(-std=c++11)
@@ -9,11 +9,9 @@ project(iana_person_detection)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   rospy
-  std_msgs
-  sensor_msgs
   message_generation
-  iana_person_data
- )
+  genmsg
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -22,7 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -51,19 +49,18 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
+  Person.msg
   FaceVector.msg
-  KnownPersonEntered.msg
-  KnownPersonLeft.msg
-  UnknownPersonEntered.msg
-  UnknownPersonLeft.msg
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  DIRECTORY
+  srv
+  FILES
+  InsertNewPerson.srv
+  GetAllPersons.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -75,8 +72,6 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  std_msgs  # Or other packages containing msgs
-  sensor_msgs
 )
 
 ################################################
@@ -110,7 +105,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES iana_person_detection
+#  LIBRARIES iana_person_data
  CATKIN_DEPENDS message_runtime
 #  DEPENDS system_lib
 )
@@ -122,10 +117,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/iana_person_detection.cpp
+#   src/${PROJECT_NAME}/iana_person_data.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -136,7 +134,7 @@ catkin_package(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/iana_person_detection_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/iana_person_data_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -193,7 +191,7 @@ catkin_package(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_iana_person_detection.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_iana_person_data.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

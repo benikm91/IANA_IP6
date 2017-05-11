@@ -3,6 +3,8 @@ import rospy
 
 import time
 
+from iana_person_data.msg import Person
+from iana_person_data.srv import GetAllPersons
 from person_detection.config.production import iana_config
 from person_detection.PersonDetection import PersonDetection
 
@@ -11,10 +13,6 @@ from person_detection.classifier.EuclideanDistanceClassifier import EuclideanDis
 
 # Create all tables (if not exists)
 from person_detection.clusterer.AverageFaceClusterer import AverageFaceClusterer
-from person_detection.data_access.FaceFeatureDataAccessSQLAlchemy import FaceFeatureDataAccessSQLAlchemy
-from person_detection.data_access.PersonDataAccessSQLAlchemy import PersonDataAccessSQLAlchemy
-from person_detection.data_access.table_object.Base import Base
-from person_detection.data_access.table_object.SQLLiteInMemory import engine_instance, session_maker
 from person_detection.face_alignment.InnerEyesBottomLipFaceAlignment import InnerEyesBottomLipFaceAlignment
 from person_detection.face_detection.DlibFaceDetection import DlibFaceDetector
 from person_detection.face_recognition.embedding.OpenFaceEmbedder import OpenFaceEmbedder
@@ -25,16 +23,11 @@ from person_detection.grouping.FaceGrouper import FaceGrouper
 from person_detection.grouping.SessionMemory import SessionMemory
 from iana_person_detection.msg import KnownPersonEntered, UnknownPersonEntered
 
-Base.metadata.create_all(engine_instance)
-
-face_feature_data_access = FaceFeatureDataAccessSQLAlchemy(engine_instance, session_maker)
-person_data_access = PersonDataAccessSQLAlchemy(engine_instance, session_maker)
-
-face_data = face_feature_data_access.get_all()
-person_data = person_data_access.get_all()
+# face_feature_data_access = FaceFeatureDataAccessSQLAlchemy(engine_instance, session_maker)
+get_persons = rospy.ServiceProxy('get_all_persons', GetAllPersons)
 
 classifier = EuclideanDistanceClassifier()
-classifier.train(face_data)
+classifier.train(get_persons().persons)
 
 clusterer = AverageFaceClusterer(threshold_same=iana_config.clusterer.threshold_same)
 
@@ -73,9 +66,13 @@ def detect_person(image_message):
     pd.detect_person(frame, time.time())
 
 
+def insert_new_person(person):
+    classifier.update(person.person_id, map(lambda x: x.face, person.face_vectors))
+
 if __name__ == '__main__':
     try:
         rospy.init_node('person_detection', anonymous=True)
         rospy.Subscriber("/image", Image, detect_person)
+        rospy.Subscriber("/new_person", Person, insert_new_person)
         rospy.spin()
     except rospy.ROSInterruptException: pass

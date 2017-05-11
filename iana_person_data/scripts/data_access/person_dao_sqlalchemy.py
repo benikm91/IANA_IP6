@@ -1,7 +1,8 @@
-from person_detection.data_access.PersonDataAccess import PersonDataAccess
-from person_detection.data_access.table_object.Person import Person
+from data_access.person_dao import PersonDao
+from data_access.table_object.person import Person
 
-class PersonDataAccessSQLAlchemy(PersonDataAccess):
+
+class PersonDaoSQLAlchemy(PersonDao):
 
     @staticmethod
     def __to_person(person_data):

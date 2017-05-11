@@ -1,7 +1,7 @@
+from data_access.table_object.base import Base
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import LargeBinary
-from person_detection.data_access.table_object.Base import Base
 
 
 class PersonFaceFeatures(Base):
