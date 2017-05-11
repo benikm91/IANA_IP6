@@ -9,9 +9,13 @@
          var socket = null;
          var isopen = false;
 
+         function request_name() {
+             document.querySelector('#request_name').style.display = 'block';
+         }
+
          window.onload = function() {
 
-            socket = new WebSocket("ws://192.168.1.130:9000");
+            socket = new WebSocket("ws://127.0.0.1:9000/ws");
             socket.binaryType = "arraybuffer";
 
             socket.onopen = function() {
@@ -20,15 +24,10 @@
             };
 
             socket.onmessage = function(e) {
+                if (e.data == "request_name")
+                    request_name()
                if (typeof e.data === "string") {
                   console.log("Text message received: " + e.data);
-               } else {
-                  const arr = new Uint8Array(e.data);
-                  let hex = '';
-                  for (let i = 0; i < arr.length; i++) {
-                     hex += ('00' + arr[i].toString(16)).substr(-2);
-                  }
-                  console.log("Binary message received: " + hex);
                }
             };
 
@@ -39,12 +38,23 @@
             }
          };
 
+         function submit_name() {
+            const name = document.querySelector('input[name="name"]').value;
+            if (isopen) {
+               socket.send(`name ${name}`);
+             document.querySelector('#request_name').style.display = 'none';
+               console.log(`submitted name with "${name}".`);
+            } else {
+               console.warn("Connection not opened.");
+            }
+         }
+
          function explore() {
             if (isopen) {
                socket.send("explore");
                console.log("explore command sent.");
             } else {
-               console.log("Connection not opened.");
+               console.warn("Connection not opened.");
             }
          }
 
@@ -59,7 +69,7 @@
                socket.send(`goto ${x} ${y}`);
                console.log(`goto command sent with ${x} and ${y}.`);
             } else {
-               console.log("Connection not opened.")
+               console.warn("Connection not opened.")
             }
          }
 
@@ -71,14 +81,22 @@
                 <div class="col-md-6 command">
                     <button class="btn btn-primary" onclick='explore();'>Explore Modus</button>
                 </div>
-                <div class="col-md-6 command" onclick='goto_target();'>
+                <div class="col-md-6 command">
                     <div>
                         <label for="goto_x">X: </label> <input id="goto_x" type="number" name="goto_x" value="0" />
                     </div>
                     <div>
                         <label for="goto_y">Y: </label> <input id="goto_y" type="number" name="goto_y" value="0" />
                     </div>
-                    <button class="btn btn-primary" >Go to</button>
+                    <button class="btn btn-primary" onclick='goto_target();'>Go to</button>
+                </div>
+            </div>
+        </div>
+        <div id="request_name" style="display: none">
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="name"></label> <input id="name" type="text" name="name" />
+                    <button class="btn btn-primary" onclick='submit_name();'>Submit</button>
                 </div>
             </div>
         </div>

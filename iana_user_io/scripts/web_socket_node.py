@@ -19,6 +19,7 @@ if __name__ == '__main__':
         rospy.init_node('web_socket_node', anonymous=True)
 
         websocket_io = WebSocketIO(IanaTalker())
+        websocket_io.start()
 
         server = GetNameActionServer('get_name', websocket_io)
 

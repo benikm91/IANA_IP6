@@ -5,8 +5,8 @@ from std_msgs.msg import String
 class IanaTalker(object):
 
     def __init__(self):
-        self.explore_pub = rospy.Publisher('explorer', String, queue_size=10),
-        self.goto_pub = rospy.Publisher('goto', String, queue_size=10),
+        self.explore_pub = rospy.Publisher('explorer', String, queue_size=10)
+        self.goto_pub = rospy.Publisher('goto', String, queue_size=10)
 
     def start(self):
         pass
