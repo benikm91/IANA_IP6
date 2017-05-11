@@ -1,4 +1,5 @@
 import rospy
+from iana_person_detection.msg import UnknownPersonEntered, KnownPersonEntered
 
 from task.task_receiver import TaskReceiver
 from task.task_system import TaskSystem
