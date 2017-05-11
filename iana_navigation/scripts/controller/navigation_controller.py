@@ -46,6 +46,7 @@ class NavigationController(object):
 
         if not preempted:
             rospy.loginfo('Explore goal reached!')
+            self.stop_driver_publisher.publish()
             self.explore_action_server.set_succeeded()
 
     def go_to(self, goal):
