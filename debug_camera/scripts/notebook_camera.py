@@ -25,7 +25,7 @@ from cv_bridge import CvBridge
 bridge = CvBridge()
 
 def publish_images():
-    pub = rospy.Publisher('image', Image, queue_size=10)
+    pub = rospy.Publisher('image', Image, queue_size=1)
     rospy.init_node('notebook_camera', anonymous=True)
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
