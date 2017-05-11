@@ -45,13 +45,14 @@ class TaskContext(Task):
 
     def interrupt(self):
         with self.mutex:
-            if not self.running.is_set():
-                raise ValueError("Cannot interrupt a Task that is not running")
-            if self.terminated.is_set():
-                raise ValueError("Cannot interrupt a Task that has already terminated")
-            self.task.interrupt()
-            self.running.clear()
-            self.stopped.set()
+            if not self.stopped.is_set:
+                if not self.running.is_set():
+                    raise ValueError("Cannot interrupt a Task that is not running")
+                if self.terminated.is_set():
+                    raise ValueError("Cannot interrupt a Task that has already terminated")
+                self.task.interrupt()
+                self.running.clear()
+                self.stopped.set()
 
     def shutdown(self):
         with self.mutex:

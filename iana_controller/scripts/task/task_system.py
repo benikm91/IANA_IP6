@@ -11,6 +11,7 @@ from task_list import TaskList
 class TaskSystem(object):
     def __init__(self):
         super(TaskSystem, self).__init__()
+
         self.pending_tasks = TaskList()
         self.interrupted_tasks = LifoQueue()
         self.pushed_in_tasks = Queue()
@@ -18,10 +19,10 @@ class TaskSystem(object):
         self.current_task = None
         self.process_list_thread = threading.Thread(target=self._process_list)
         self.process_list_thread.daemon = True
+
         self.mutex = threading.Lock()
         self.terminated = threading.Event()
         self.running = threading.Event()
-
         self.tasks_available = threading.Condition(self.mutex)
 
     def submit(self, task, try_push_in=True):
@@ -29,13 +30,14 @@ class TaskSystem(object):
         task = TaskContext(task)
         rospy.loginfo('New task: {}'.format(task))
         with self.tasks_available:
-            if self.current_task is not None and self.current_task.interruptable_by(task):
+            # Try to interrupt currently running task
+            if try_push_in and self.current_task is not None and not self.current_task.terminated.is_set() and self.current_task.interruptable_by(task):
                 rospy.loginfo('Interrupt task: {}'.format(self.current_task))
-                running_task = self.current_task
-                self.interrupted_tasks.put(running_task)
+                self.interrupted_tasks.put(self.current_task)
                 self.pushed_in_tasks.put(task)
-                running_task.interrupt()
+                self.current_task.interrupt()
                 self.tasks_available.notify()
+            # No interruptable currently running task found: enqueue task
             else:
                 self.pending_tasks.enqueue(task, try_push_in)
                 self.tasks_available.notify()
@@ -63,7 +65,7 @@ class TaskSystem(object):
 
     def shutdown(self):
         rospy.loginfo('Shut down task system')
-        with self.running:
+        with self.tasks_available:
             if self.current_task is not None:
                 self.current_task.shutdown()
             self.terminated.set()
@@ -88,10 +90,11 @@ class TaskSystem(object):
                     self.tasks_available.wait()
                 self.current_task = self._get_next_task()
                 self.running.wait()
-                if self.current_task.stopped.is_set():
-                    rospy.loginfo('Resume task: {}'.format(self.current_task))
-                    self.current_task.resume()
-                else:
-                    rospy.loginfo('Start task: {}'.format(self.current_task))
+                if not self.current_task.terminated.is_set():
+                    if self.current_task.stopped.is_set():
+                        rospy.loginfo('Resume task: {}'.format(self.current_task))
+                        self.current_task.resume()
+                    else:
+                        rospy.loginfo('Start task: {}'.format(self.current_task))
                     self.current_task.start()
             self.current_task.wait_until_stopped()

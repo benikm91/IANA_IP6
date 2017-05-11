@@ -26,8 +26,7 @@ class ExploreTask(Task):
         self.explore_action.cancel_goal()
 
     def interruptable_by(self, task):
-        return False
+        return True
 
     def _goal_reached_callback(self, state, result):
         self.terminated.set()
-
