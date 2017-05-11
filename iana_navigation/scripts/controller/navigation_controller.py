@@ -9,8 +9,6 @@ import move_base_msgs.msg
 class NavigationController(object):
 
     def __init__(self):
-        rospy.init_node('iana_navigation', anonymous=True)
-
         self.explore_action = actionlib.SimpleActionServer('/iana/navigation/explore', iana_navigation.msg.ExploreAction, execute_cb=self.explore, auto_start=False)
         self.go_to_action = actionlib.SimpleActionServer('/iana/navigation/go_to', iana_navigation.msg.GoToAction, execute_cb=self.go_to, auto_start=False)
 
