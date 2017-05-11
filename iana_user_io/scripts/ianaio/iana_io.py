@@ -7,8 +7,8 @@ from iana_controller.msg import Explore, GoTo
 class IanaTalker(object):
 
     def __init__(self):
-        self.explore_pub = rospy.Publisher('explorer', Explore, queue_size=10)
-        self.goto_pub = rospy.Publisher('goto', GoTo, queue_size=10)
+        self.explore_pub = rospy.Publisher('/controller/user_command/explore', Explore, queue_size=10)
+        self.goto_pub = rospy.Publisher('/controller/user_command/go_to', GoTo, queue_size=10)
 
     def start(self):
         pass
