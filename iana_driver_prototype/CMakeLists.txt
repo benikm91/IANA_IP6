@@ -1,16 +1,17 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(iana_navigation)
+project(iana_driver)
 
 ## Add support for C++11, supported in ROS Kinetic and newer
-# add_definitions(-std=c++11)
+add_definitions(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-    actionlib_msgs
-    geometry_msgs
-    iana_driver
+  kobuki_msgs
+  roscpp
+  std_msgs
+  kobuki_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -20,7 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-catkin_python_setup()
+# catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -61,20 +62,17 @@ catkin_python_setup()
 # )
 
 ## Generate actions in the 'action' folder
-add_action_files(
-  DIRECTORY action
-  FILES
-  Explore.action
-  GoTo.action
-)
+# add_action_files(
+#   FILES
+#   Action1.action
+#   Action2.action
+# )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  actionlib_msgs
-  std_msgs
-  geometry_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   kobuki_msgs#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -107,10 +105,9 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES iana_navigation
-#  CATKIN_DEPENDS other_catkin_pkg
+#  LIBRARIES iana_driver
+#  CATKIN_DEPENDS kobuki_msgs roscpp std_msgs
 #  DEPENDS system_lib
-   CATKIN_DEPENDS actionlib_msgs
 )
 
 ###########
@@ -120,10 +117,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/iana_navigation.cpp
+#   src/${PROJECT_NAME}/iana_driver.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -134,7 +134,11 @@ catkin_package(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/iana_navigation_node.cpp)
+add_executable(driver_random_node src/DriverRandom.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Actions.h include/iana_driver/Quaternion.h)
+add_executable(driver_random_bumper_node src/DriverRandomBumper.cpp include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Actions.h include/iana_driver/Quaternion.h)
+add_executable(left_x_times src/LeftXTimes.cpp include/iana_driver/DriverPlan.h include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Quaternion.h)
+add_executable(forward_x_meters src/ForwardXMeters.cpp include/iana_driver/DriverPlan.h include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Quaternion.h)
+add_executable(forward_then_left src/ForwardThenLeft.cpp include/iana_driver/DriverPlan.h include/iana_driver/VelocityChanger.h include/iana_driver/Vector3.h include/iana_driver/Quaternion.h)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -147,9 +151,25 @@ catkin_package(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(driver_random_node
+    ${catkin_LIBRARIES}
+)
+
+target_link_libraries(driver_random_bumper_node
+    ${catkin_LIBRARIES}
+)
+
+target_link_libraries(left_x_times
+    ${catkin_LIBRARIES}
+)
+
+target_link_libraries(forward_x_meters
+    ${catkin_LIBRARIES}
+)
+
+target_link_libraries(forward_then_left
+    ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
@@ -191,7 +211,7 @@ catkin_package(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_iana_navigation.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_driver_random.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

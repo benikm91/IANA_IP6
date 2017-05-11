@@ -1,19 +1,29 @@
-from scripts.task.task import Task
-
 import rospy
-from std_msgs.msg import String
+import actionlib
+import iana_navigation.msg
+
+from task.task import Task
 
 
 class GoToTask(Task):
 
-    def __init__(self, goal):
+    def __init__(self, target_pose):
         super(GoToTask, self).__init__()
-        self.goal = goal
-        self.navigation_state_publisher = rospy.Publisher('/controller/navigation/set_state', String, queue_size=10)
-        rospy.Subscriber('/controller/navigation/goal_reached', String, self.finished, queue_size=10)
+        self.go_to_action = actionlib.SimpleActionClient('iana/navigation/go_to', iana_navigation.msg.GoToAction)
+        self.go_to_action.wait_for_server()
+        self.goal = iana_navigation.msg.ExploreGoal(target_pose=target_pose)
 
-    def run(self):
-        self.navigation_state_publisher.publish('goto', self.goal)
+    def start(self):
+        self.go_to_action.send_goal(self.goal, self._goal_reached_callback)
 
     def resume(self):
-        self.run()
+        self.start()
+
+    def interrupt(self):
+        self.go_to_action.cancel_goal()
+
+    def shutdown(self):
+        self.go_to_action.cancel_goal()
+
+    def _goal_reached_callback(self, state, result):
+        self.terminated.set()

@@ -15,8 +15,7 @@ namespace Iana
         {
             m_collisionAheadPublisher = m_nodeHandle.advertise<std_msgs::Float32>("/collision_ahead", 1000);
             m_depthImageSubscriber = m_nodeHandle.subscribe<sensor_msgs::LaserScan>("/scan", 1000, &LookAhead::DepthImageCallback, this);
-	}
-
+	    }
 
         void DepthImageCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
         {

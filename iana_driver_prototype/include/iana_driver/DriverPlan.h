@@ -1,6 +1,3 @@
-#ifndef IANA_DRIVER_DRIVER_PLAN_H
-#define IANA_DRIVER_DRIVER_PLAN_H
-
 #include "ros/ros.h"
 #include "nav_msgs/Odometry.h"
 #include "VelocityChanger.h"
