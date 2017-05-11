@@ -12,7 +12,7 @@ class TaskReceiver(object):
         super(TaskReceiver, self).__init__()
         self.task_list = task_list
         rospy.Subscriber('/controller/user_command/explore', Explore, self.explore, queue_size=10)
-        rospy.Subscriber('/controller/user_command/go_to', GoTo, self.explore, queue_size=10)
+        rospy.Subscriber('/controller/user_command/go_to', GoTo, self.go_to, queue_size=10)
         rospy.Subscriber('/iana/person_detection/unknown/entered', UnknownPersonEntered, self.unknown_person_entered, queue_size=10)
         rospy.Subscriber('/iana/person_detection/known/entered', KnownPersonEntered, self.known_person_entered, queue_size=10)
 
