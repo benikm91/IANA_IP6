@@ -7,6 +7,6 @@ if __name__ == '__main__':
     try:
         rospy.init_node('iana_navigation', anonymous=True)
         controller = NavigationController()
-        controller.run()
+        rospy.spin()
     except rospy.ROSInterruptException:
         pass

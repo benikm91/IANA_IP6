@@ -109,11 +109,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES iana_controller
-<<<<<<< HEAD
-  CATKIN_DEPENDS rospy std_msgs iana_person_detection
-=======
-  CATKIN_DEPENDS roscpp rospy std_msgs iana_person_detection message_runtime
->>>>>>> 826f9da132c145f3eec6749c2ec20b76dc018638
+  CATKIN_DEPENDS rospy std_msgs iana_person_detection  message_runtime
 #  DEPENDS system_lib
 )
 
