@@ -23,9 +23,7 @@ class TaskReceiver(object):
         rospy.Subscriber('/iana/person_detection/known/left', KnownPersonLeft, self.known_person_left, queue_size=10)
 
     def explore(self, msg):
-        now = rospy.get_rostime()
-        now.secs += 10
-        self.task_list.submit(ExploreTask(Time(data=now)))
+        self.task_list.submit(ExploreTask(msg.until))
 
     def go_to(self, msg):
         self.task_list.submit(GoToTask(msg))
