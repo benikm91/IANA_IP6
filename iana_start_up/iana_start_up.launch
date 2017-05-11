@@ -1,0 +1,11 @@
+<launch>
+
+	<node name="iana_user_io" pkg="iana_user_io" type="web_socket_node.py" />
+
+	<node name="iana_person_data" pkg="iana_person_data" type="person_data_node.py" />
+ 
+	<node name="iana_person_detection" pkg="iana_person_detection" type="person_detection.py" />
+	
+	<node name="iana_controller" pkg="iana_controller" type="iana_controller_node.py" />
+	
+</launch>
