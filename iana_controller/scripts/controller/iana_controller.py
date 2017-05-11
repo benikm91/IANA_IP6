@@ -1,19 +1,12 @@
 import rospy
 
-from iana_person_detection.msg import UnknownPersonEntered
-
-from interaction.state import GreetingsState
+from task.task_receiver import TaskReceiver
+from task.task_system import TaskSystem
 
 
 class IanaController(object):
-
     def __init__(self):
-        self.interaction_state = GreetingsState()
-        self._init_listen()
         rospy.init_node('iana_controller', anonymous=True)
-
-    def _init_listen(self):
-        rospy.Subscriber("/iana/person_detection/unknown/entered",
-                         UnknownPersonEntered,
-                         lambda msg: self.interaction_state.unknown_person_entered(self, msg),
-                         queue_size=10)
+        self.task_system = TaskSystem()
+        self.task_system.run()
+        self.task_receiver = TaskReceiver(self.task_system)

@@ -5,19 +5,19 @@ class Task(object):
 
     def __init__(self):
         super(Task, self).__init__()
-        self.terminate = threading.Event()
+        self.terminated = threading.Event()
 
-    def finished(self):
-        self.terminate.set()
-
-    def run(self):
-        pass
+    def start(self):
+        raise NotImplementedError()
 
     def interrupt(self):
-        pass
+        raise NotImplementedError()
 
     def resume(self):
-        pass
+        raise NotImplementedError()
 
     def shutdown(self):
-        pass
+        raise NotImplementedError()
+
+    def interruptable_by(self, task):
+        return False

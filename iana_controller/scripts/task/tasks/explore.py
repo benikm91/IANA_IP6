@@ -1,19 +1,34 @@
-from task.task import Task
-
 import rospy
+import actionlib
+import iana_navigation.msg
+
 from std_msgs.msg import String
+from task.task import Task
 
 
 class ExploreTask(Task):
 
-    def __init__(self, until=-1):
+    def __init__(self, until):
         super(ExploreTask, self).__init__()
-        self.until = until
-        self.navigation_state_publisher = rospy.Publisher('/controller/navigation/set_state', String, queue_size=10)
-        rospy.Subscriber('/controller/navigation/explored', String, self.finished, queue_size=10)
+        self.explore_action = actionlib.SimpleActionClient('iana/navigation/explore', iana_navigation.msg.ExploreAction)
+        self.explore_action.wait_for_server()
+        self.goal = iana_navigation.msg.ExploreGoal(until=until)
 
-    def run(self):
-        self.navigation_state_publisher.publish('explore', self.until)
+    def start(self):
+        self.explore_action.send_goal(self.goal, self._goal_reached_callback)
 
     def resume(self):
-        self.run()
+        self.start()
+
+    def interrupt(self):
+        self.explore_action.cancel_goal()
+
+    def shutdown(self):
+        self.explore_action.cancel_goal()
+
+    def interruptable_by(self, task):
+        return super(ExploreTask, self).interruptable_by(task)
+
+    def _goal_reached_callback(self, state, result):
+        self.terminated.set()
+
