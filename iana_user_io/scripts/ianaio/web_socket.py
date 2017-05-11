@@ -96,6 +96,7 @@ class WebSocketIO(IanaIO):
             reactor.run(installSignalHandlers=False)
 
         thread = Thread(target=start_up)
+        thread.daemon = True # we don't need the webserver anymore, if the ros node dies
         thread.start()
 
     def request_name(self):
