@@ -38,11 +38,11 @@ class PersonDetection(object):
         return h
 
     def known_person_detected(self, person_id, record_timestamp):
-        rospy.logdebug("Known person detected with id={0}".format(person_id))
+        rospy.loginfo("Entered: Known person id={0}".format(person_id))
         self.known_person_publisher.publish(person_id)
 
     def unknown_person_detected(self, unknown_person_id, face_vectors, preview_image, record_timestamp):
-        rospy.logdebug("Unknown person detected with id={0}".format(unknown_person_id))
+        rospy.loginfo("Entered: Unknown person id={0}".format(unknown_person_id))
         message = UnknownPersonEntered()
         message.person_id = unknown_person_id
         face_vector_messages = []
@@ -82,7 +82,7 @@ class PersonDetection(object):
         labeled_faces = self.face_labeler.label(embeddings)
 
         for face, (person_id, confidence, face_vector) in zip(faces, labeled_faces):
-            print "T", person_id, confidence
+            rospy.logdebug("Detected: id={0} with confidence{1}".format(person_id, confidence))
             if self.face_filter.is_known(face_vector, confidence):
                 handle_known_face(self, person_id, face_vector, confidence)
             elif self.face_filter.is_unknown(face_vector, confidence):
