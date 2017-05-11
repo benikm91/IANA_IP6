@@ -31,3 +31,9 @@ class TaskList(object):
             else:
                 self.tasks.append(task)
             self.not_empty.notify()
+
+    def empty(self):
+        self.mutex.acquire()
+        is_empty = len(self.tasks) == 0
+        self.mutex.release()
+        return is_empty
