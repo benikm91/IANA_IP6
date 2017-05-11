@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(iana_controller)
+project(iana_speech)
 
 ## Add support for C++11, supported in ROS Kinetic and newer
 # add_definitions(-std=c++11)
@@ -8,12 +8,10 @@ project(iana_controller)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
-  geometry_msgs
-  iana_person_detection
-  message_generation
+    rospy
+    actionlib
+    actionlib_msgs
+    std_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -50,11 +48,11 @@ catkin_python_setup()
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  Explore.msg
-  GoTo.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -64,17 +62,18 @@ add_message_files(
 # )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+add_action_files(
+  DIRECTORY
+  action
+  FILES
+  Say.action
+)
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
   std_msgs
-  geometry_msgs
+  actionlib_msgs
 )
 
 ################################################
@@ -108,8 +107,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES iana_controller
-  CATKIN_DEPENDS rospy std_msgs iana_person_detection message_runtime
+#  LIBRARIES iana_speech
+   CATKIN_DEPENDS actionlib_msgs
 #  DEPENDS system_lib
 )
 
@@ -126,7 +125,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/iana_controller.cpp
+#   src/${PROJECT_NAME}/iana_speech.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -137,7 +136,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/iana_controller_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/iana_speech_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -194,7 +193,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_iana_controller.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_iana_speech.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

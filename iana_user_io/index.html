@@ -10,7 +10,7 @@
          var isopen = false;
 
          function request_name() {
-             document.querySelector('#request_name').style.display = 'block';
+             document.querySelector('#request_name').style.display = 'flex';
          }
 
          window.onload = function() {
@@ -90,13 +90,11 @@
                     </div>
                     <button class="btn btn-primary" onclick='goto_target();'>Go to</button>
                 </div>
-            </div>
-        </div>
-        <div id="request_name" style="display: none">
-            <div class="row">
-                <div class="col-md-6">
-                    <label for="name"></label> <input id="name" type="text" name="name" />
-                    <button class="btn btn-primary" onclick='submit_name();'>Submit</button>
+                <div id="request_name" class="col-md-6 command" style="display: none">
+                    <div>
+                        <label for="name">Name:</label> <input id="name" type="text" name="name" />
+                        <button class="btn btn-primary" onclick='submit_name();'>Submit</button>
+                    </div>
                 </div>
             </div>
         </div>

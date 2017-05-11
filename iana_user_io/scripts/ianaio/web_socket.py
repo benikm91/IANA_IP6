@@ -1,7 +1,8 @@
 #TODO This code is a mess! I (Beni) am so sorry and will clean it up later
-
+import os
 from autobahn.twisted.resource import WebSocketResource
 from autobahn.twisted.websocket import WebSocketServerProtocol, WebSocketServerFactory
+from os.path import abspath, dirname
 from threading import Thread
 from twisted.internet import reactor
 from twisted.web.server import Site
@@ -79,7 +80,7 @@ class WebSocketIO(IanaIO):
     def start(self):
 
         def start_up():
-            root = File(".")
+            root = File(dirname(dirname(dirname(abspath(__file__)))))
 
             factory = WebSocketServerFactory(u"ws://{0}:{1}".format(settings.INTERFACE, settings.PORT))
             factory.protocol = WebSocketIO.Protocol
@@ -95,6 +96,7 @@ class WebSocketIO(IanaIO):
             reactor.run(installSignalHandlers=False)
 
         thread = Thread(target=start_up)
+        thread.daemon = True # we don't need the webserver anymore, if the ros node dies
         thread.start()
 
     def request_name(self):

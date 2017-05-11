@@ -1,5 +1,3 @@
-import rospy
-
 from task.task_receiver import TaskReceiver
 from task.task_system import TaskSystem
 
