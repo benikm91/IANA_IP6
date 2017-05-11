@@ -1,5 +1,7 @@
 import threading
 
+import rospy
+
 from task import Task
 
 
@@ -18,6 +20,7 @@ class TaskContext(Task):
         self.stopped = threading.Event()
         self.task_state_observer = threading.Thread(target=event_broadcast, args=(task.terminated, self.stopped, self.terminated))
         self.task_state_observer.daemon = True
+        self.task_state_observer.start()
 
     def start(self):
         with self.mutex:

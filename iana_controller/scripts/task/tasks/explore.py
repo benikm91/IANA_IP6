@@ -9,7 +9,7 @@ class ExploreTask(Task):
 
     def __init__(self, until):
         super(ExploreTask, self).__init__()
-        self.explore_action = actionlib.SimpleActionClient('iana/navigation/explore', iana_navigation.msg.ExploreAction)
+        self.explore_action = actionlib.SimpleActionClient('/iana/navigation/explore', iana_navigation.msg.ExploreAction)
         self.explore_action.wait_for_server()
         self.goal = iana_navigation.msg.ExploreGoal(until=until)
 
@@ -26,7 +26,7 @@ class ExploreTask(Task):
         self.explore_action.cancel_goal()
 
     def interruptable_by(self, task):
-        return super(ExploreTask, self).interruptable_by(task)
+        return False
 
     def _goal_reached_callback(self, state, result):
         self.terminated.set()

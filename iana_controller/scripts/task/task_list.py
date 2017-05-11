@@ -10,20 +10,30 @@ class TaskList(object):
         self.not_empty = threading.Condition(self.mutex)
 
     def get(self):
-        self.not_empty.aquire()
-        while len(self.tasks) == 0:
-            self.not_empty.wait()
-        task = self.tasks.pop(0)
-        self.not_empty.release()
+        with self.not_empty:
+            while len(self.tasks) == 0:
+                self.not_empty.wait()
+            task = self.tasks.pop(0)
         return task
 
     def enqueue(self, task, try_push_in=True):
-        self.not_empty.aquire()
-        if try_push_in:
-            for i in range(len(self.tasks)):
-                if self.tasks[0].interruptable_by(task):
-                    self.tasks.insert(i, task)
-        else:
-            self.tasks.append(task)
-        self.not_empty.notify_all()
-        self.not_empty.release()
+        with self.not_empty:
+            if try_push_in:
+                push_in_successful = False
+                i = 0
+                while not push_in_successful and i < len(self.tasks):
+                    if self.tasks[i].interruptable_by(task):
+                        self.tasks.insert(i, task)
+                        push_in_successful = True
+                    i += 1
+                if not push_in_successful:
+                    self.tasks.append(task)
+            else:
+                self.tasks.append(task)
+            self.not_empty.notify()
+
+    def empty(self):
+        self.mutex.acquire()
+        is_empty = len(self.tasks) == 0
+        self.mutex.release()
+        return is_empty

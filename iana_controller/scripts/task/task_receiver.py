@@ -6,7 +6,7 @@ from tasks.greet_known_person import GreetKnownPersonTask
 from tasks.greet_unknown_person import GreetUnknownPersonTask
 from tasks.explore import ExploreTask
 from tasks.goto import GoToTask
-
+from std_msgs.msg import Time
 
 class TaskReceiver(object):
 
@@ -21,7 +21,9 @@ class TaskReceiver(object):
         rospy.Subscriber('/iana/person_detection/known/left', KnownPersonLeft, self.known_person_left, queue_size=10)
 
     def explore(self, msg):
-        self.task_list.submit(ExploreTask(msg))
+        now = rospy.get_rostime()
+        now.secs += 10
+        self.task_list.submit(ExploreTask(Time(data=now)))
 
     def go_to(self, msg):
         self.task_list.submit(GoToTask(msg))
