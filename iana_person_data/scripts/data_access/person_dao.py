@@ -1,6 +1,4 @@
-
-
-class PersonDataAccess(object):
+class PersonDao(object):
 
     def get_all(self):
         """

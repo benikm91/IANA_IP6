@@ -17,5 +17,5 @@ class KnownPersonEnteredBehavior(object):
 
 class GreetKnownPerson(KnownPersonEnteredBehavior):
     def known_person_entered(self, iana, msg):
-        message = "Hello " + msg.person_id
+        message = "Hello {0}".format(msg.person_id)
         os.system("say %(message)s" % locals())

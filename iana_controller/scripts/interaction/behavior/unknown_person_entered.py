@@ -1,6 +1,8 @@
 import os
 
+import rospy
 import actionlib
+from iana_person_data.srv import InsertNewPerson
 from iana_user_io.msg import GetNameAction, GetNameGoal
 import cv2
 
@@ -34,12 +36,21 @@ class GreetUnknownPerson(UnknownPersonEnteredBehavior):
 
 
 class RegisterUnknownPerson(UnknownPersonEnteredBehavior):
+
+    def __init__(self):
+        self.insert_new_person_proxy = rospy.ServiceProxy('insert_new_person', InsertNewPerson)
+
     def unknown_person_entered(self, iana, msg):
-        print "Please enter name..."
+        message = "Oh Hello there please tell me who you are!"
+        os.system("say %(message)s" % locals())
         client = actionlib.SimpleActionClient('get_name', GetNameAction)
         client.wait_for_server()
         goal = GetNameGoal(msg.preview_image)
         client.send_goal(goal)
         client.wait_for_result()
+
         name = client.get_result().name
+
+        self.insert_new_person_proxy(name, msg.face_vectors)
+
         print "Hallo", name

@@ -1,18 +1,23 @@
 import pickle
 
-from person_detection.data_access.table_object.PersonFaceFeatures import PersonFaceFeatures
-from person_detection.data_access.FaceFeatureDataAccess import FaceFeatureDataAccess
+from data_access.face_feature_dao import FaceFeatureDao
+from data_access.table_object.person_face_features import PersonFaceFeatures
 
 
-class FaceFeatureDataAccessSQLAlchemy(FaceFeatureDataAccess):
+class FaceFeatureDaoSQLAlchemy(FaceFeatureDao):
 
     @staticmethod
     def __to_face_feature(face_feature_data):
-        return face_feature_data.person_id, pickle.loads(face_feature_data.face_features)
+        return pickle.loads(face_feature_data.face_features)
 
     def __init__(self, engine, session_maker):
         self.engine = engine
         self.session_maker = session_maker
+
+    def get_all_for_person(self, person_id):
+        session = self.session_maker()
+        face_feature_data = session.query(PersonFaceFeatures).filter_by(person_id=person_id).first()
+        return self.__to_face_feature(face_feature_data)
 
     def get_all(self):
         session = self.session_maker()

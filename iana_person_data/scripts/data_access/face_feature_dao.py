@@ -1,13 +1,16 @@
 
 
-class FaceFeatureDataAccess(object):
+class FaceFeatureDao(object):
 
     def get_all(self):
         """
         :return:
         :rtype: list[(int, np.ndarray)]
         """
-        pass
+        raise NotImplementedError
+
+    def get_all_for_person(self, person_id):
+        raise NotImplementedError
 
     def insert(self, person_id, features):
         """
@@ -17,4 +20,4 @@ class FaceFeatureDataAccess(object):
         :type features: numpy.ndarray
         :return:
         """
-        pass
+        raise NotImplementedError
