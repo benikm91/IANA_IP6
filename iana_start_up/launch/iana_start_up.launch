@@ -6,6 +6,10 @@
  
 	<node name="iana_person_detection" pkg="iana_person_detection" type="person_detection.py" />
 	
+        <!-- IANA COMPONENTS -->
+	<node name="iana_speech" pkg="iana_speech" type="iana_speech_node.py" />
+	<node name="iana_navigation" pkg="iana_navigation" type="iana_navigation_node.py" />
+	
 	<node name="iana_controller" pkg="iana_controller" type="iana_controller_node.py" />
 	
 </launch>
