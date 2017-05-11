@@ -2,11 +2,13 @@ import rospy
 
 from iana_controller.msg import Explore, GoTo
 from iana_person_detection.msg import UnknownPersonEntered, KnownPersonEntered, UnknownPersonLeft, KnownPersonLeft
+from tasks.goodbye_unknown_person import GoodbyeUnknownPersonTask
 from tasks.greet_known_person import GreetKnownPersonTask
 from tasks.greet_unknown_person import GreetUnknownPersonTask
 from tasks.explore import ExploreTask
 from tasks.goto import GoToTask
 from std_msgs.msg import Time
+
 
 class TaskReceiver(object):
 
@@ -35,7 +37,7 @@ class TaskReceiver(object):
         self.task_list.submit(GreetKnownPersonTask(msg))
 
     def unknown_person_left(self, msg):
-        pass
+        self.task_list.submit(GoodbyeUnknownPersonTask(msg))
 
     def known_person_left(self, msg):
         pass
