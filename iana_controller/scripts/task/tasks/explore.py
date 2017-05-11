@@ -2,7 +2,6 @@ import rospy
 import actionlib
 import iana_navigation.msg
 
-from std_msgs.msg import String
 from task.task import Task
 
 

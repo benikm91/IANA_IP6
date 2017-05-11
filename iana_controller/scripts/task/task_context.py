@@ -1,12 +1,12 @@
 import threading
 
-from task.task import Task
+from task import Task
 
 
-def event_relay(e1, *e2):
-    e1.wait()
-    for e in e2:
-        e.set()
+def event_broadcast(source, *targets):
+    source.wait()
+    for target in targets:
+        target.set()
 
 
 class TaskContext(Task):
@@ -16,7 +16,8 @@ class TaskContext(Task):
         self.mutex = threading.Lock()
         self.running = threading.Event()
         self.stopped = threading.Event()
-        self.task_state_observer = threading.Thread(target=event_relay, args=(self.terminated, self.stopped, self.terminated))
+        self.task_state_observer = threading.Thread(target=event_broadcast, args=(task.terminated, self.stopped, self.terminated))
+        self.task_state_observer.daemon = True
 
     def start(self):
         with self.mutex:

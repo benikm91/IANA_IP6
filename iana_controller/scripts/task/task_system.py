@@ -1,10 +1,9 @@
 import threading
-from Queue import Queue, LifoQueue
-from collections import deque
+from Queue import LifoQueue
 
-from task.task import Task
-from task.task_context import TaskContext
-from task.task_list import TaskList
+from task import Task
+from task_context import TaskContext
+from task_list import TaskList
 
 
 class TaskSystem(object):
@@ -14,6 +13,7 @@ class TaskSystem(object):
         self.interrupted_tasks = LifoQueue()
         self.current_task = None
         self.process_list_thread = threading.Thread(target=self._process_list)
+        self.process_list_thread.daemon = True
         self.mutex = threading.Lock()
         self.terminated = threading.Event()
         self.running = threading.Event()
@@ -54,7 +54,7 @@ class TaskSystem(object):
     def _process_list(self):
         while not self.terminated.is_set():
             with self.mutex:
-                while self.current_task.terminated.is_set:
+                while self.current_task is not None and self.current_task.terminated.is_set:
                     if not self.interrupted_tasks.empty():
                         self.current_task = self.interrupted_tasks.get()
                     else:

@@ -1,8 +1,8 @@
 import rospy
 
 from iana_controller.msg import Explore, GoTo
-from task.tasks.explore import ExploreTask
-from task.tasks.goto import GoToTask
+from tasks.explore import ExploreTask
+from tasks.goto import GoToTask
 
 
 class TaskReceiver(object):
