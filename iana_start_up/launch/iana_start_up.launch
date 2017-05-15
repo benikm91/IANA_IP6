@@ -1,15 +1,28 @@
 <launch>
 
+	<node name="base_link_path_server" pkg="hector_trajectory_server" type="hector_trajectory_server">
+		<param name="source_frame_name" value="/base_link" />
+		<param name="target_frame_name" value="/map" />
+		<remap from="/trajectory" to="/base_link_path" />	
+	</node>
+
+	<node name="odom_path_server" pkg="hector_trajectory_server" type="hector_trajectory_server">
+		<param name="source_frame_name" value="/odom" />
+		<param name="target_frame_name" value="/map" />	
+		<remap from="/trajectory" to="/odom_path" />	
+	</node>
+
 	<node name="iana_user_io" pkg="iana_user_io" type="web_socket_node.py" />
 
 	<node name="iana_person_data" pkg="iana_person_data" type="person_data_node.py" />
  
-	<node name="iana_person_detection" pkg="iana_person_detection" type="person_detection.py" />
+	<!-- <node name="iana_person_detection" pkg="iana_person_detection" type="person_detection.py" /> -->
 	
         <!-- IANA COMPONENTS -->
 	<node name="iana_speech" pkg="iana_speech" type="iana_speech_node.py" />
 	<node name="iana_navigation" pkg="iana_navigation" type="iana_navigation_node.py" />
-	
+ 	<node name="iana_driver" pkg="iana_driver" type="iana_driver_node" />	
+
 	<node name="iana_controller" pkg="iana_controller" type="iana_controller_node.py" />
 	
 </launch>

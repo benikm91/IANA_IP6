@@ -1,0 +1,11 @@
+<launch>
+
+	<include file="$(find kobuki_node)/launch/robot_with_tf.launch" />
+	<include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch" />
+	
+	<node name="depthimage_to_laserscan" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan">
+		<param name="~output_frame_id" type="str" value="base_link" />	
+		<remap from="/image" to="/kinect2/sd/image_depth"/>
+	</node>
+
+</launch>
