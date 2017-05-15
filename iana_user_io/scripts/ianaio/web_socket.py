@@ -53,7 +53,6 @@ class WebSocketIO(IanaIO):
 
         def set_name(self, name):
             global submitted_name
-            print "Set name to ", name
             submitted_name = name
 
         def request_name(self):

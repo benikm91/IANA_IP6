@@ -1,14 +1,14 @@
 import rospy
 from std_msgs.msg import Time
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PoseStamped
 from iana_controller.msg import Explore, GoTo
 
 
 class IanaTalker(object):
 
     def __init__(self):
-        self.explore_pub = rospy.Publisher('/controller/user_command/explore', Explore, queue_size=10)
-        self.goto_pub = rospy.Publisher('/controller/user_command/go_to', GoTo, queue_size=10)
+        self.explore_pub = rospy.Publisher('/iana/user_command/explore', Explore, queue_size=10)
+        self.goto_pub = rospy.Publisher('/iana/user_command/go_to', GoTo, queue_size=10)
 
     def start(self):
         pass
@@ -19,15 +19,15 @@ class IanaTalker(object):
         self.explore_pub.publish(time)
 
     def goto(self, x, y):
-        pose = Pose()
-        pose.position.x = float(x)
-        pose.position.y = float(y)
-        pose.position.z = 0.0
-        pose.orientation.x = 0.0
-        pose.orientation.y = 0.0
-        pose.orientation.z = 0.0
-        pose.orientation.w = 0.0
-        self.goto_pub.publish(pose)
+        target_pose = PoseStamped()
+        target_pose.pose.position.x = float(x)
+        target_pose.pose.position.y = float(y)
+        target_pose.pose.position.z = 0.0
+        target_pose.pose.orientation.x = 0.0
+        target_pose.pose.orientation.y = 0.0
+        target_pose.pose.orientation.z = 0.0
+        target_pose.pose.orientation.w = 0.0
+        self.goto_pub.publish(target_pose)
 
 
 class IanaIO(object):
