@@ -13,7 +13,7 @@ class GoToTask(Task):
         if not self.go_to_action.wait_for_server(rospy.Duration(1)):
             rospy.logerr('Failed to connect to /iana/navigation/go_to')
             self.terminated.set()
-        self.goal = iana_navigation.msg.ExploreGoal(target_pose=target_pose)
+        self.goal = iana_navigation.msg.GoToGoal(target_pose=target_pose)
 
     def update(self, elapsed):
         pass
