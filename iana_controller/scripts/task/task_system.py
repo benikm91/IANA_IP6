@@ -37,21 +37,19 @@ class TaskSystem(object):
                 self.pushed_in_tasks.put(task)
                 self.current_task.interrupt()
                 self.tasks_available.notify()
-            # No interruptable currently running task found: enqueue task
+            # No interruptable running task found: enqueue task
             else:
                 self.pending_tasks.enqueue(task, try_push_in)
                 self.tasks_available.notify()
 
     def run(self):
         rospy.loginfo('Start task system')
-        with self.tasks_available:
-            self.process_list_thread.start()
-            self.running.set()
+        self.process_list_thread.start()
+        self.running.set()
 
     def resume(self):
         rospy.loginfo('Resume task system')
-        with self.tasks_available:
-            self.running.set()
+        self.running.set()
 
     def interrupt(self):
         rospy.loginfo('Interrupt task system')
@@ -65,10 +63,11 @@ class TaskSystem(object):
 
     def shutdown(self):
         rospy.loginfo('Shut down task system')
+        # todo: shutdown only works if a task is currently processed
+        self.terminated.set()
         with self.tasks_available:
             if self.current_task is not None:
                 self.current_task.shutdown()
-            self.terminated.set()
 
     def _has_next_task(self):
         return not self.pushed_in_tasks.empty() or not self.interrupted_tasks.empty() or not self.pending_tasks.empty()
