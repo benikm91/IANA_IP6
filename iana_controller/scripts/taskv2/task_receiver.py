@@ -26,7 +26,7 @@ class TaskReceiver(object):
         self.task_list.submit(ExploreTask(msg.until))
 
     def go_to(self, msg):
-        self.task_list.submit(GoToTask(msg))
+        self.task_list.submit(GoToTask(msg.target_pose))
 
     def unknown_person_entered(self, msg):
         self.task_list.submit(GreetUnknownPersonTask(msg))

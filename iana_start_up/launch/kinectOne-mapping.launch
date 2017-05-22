@@ -3,13 +3,17 @@
 	<include file="$(find kobuki_node)/launch/robot_with_tf.launch" />
 	<include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch" />
 
-	<!-- <node pkg="tf" type="static_transform_publisher" name="kinet2_tf_broadcaster" args="1 0 0 0 0 0 1 base_link odom 100" /> -->
-	
+	<node pkg="tf" type="static_transform_publisher" name="kinet2_tf_broadcaster" args="0 0 0 0 0 0 base_link camera_depth_image 100" />
+
 	<node name="depthimage_to_laserscan" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan">
-		<param name="~output_frame_id" type="str" value="base_link" />	
+		<param name="~output_frame_id" type="str" value="camera_depth_image" />	
+		<param name="~scan_height" value="10" />
 		<remap from="/image" to="/kinect2/sd/image_depth"/>
 	</node>
 
-	<include file="$(find gmapping)/launch/slam_gmapping_pr2.launch" />
+	<include file="$(find iana_start_up)/launch/kinect_gmapping.launch" />
+
+	<include file="$(find kobuki_bumper2pc)/launch/standalone.launch" />
+
 
 </launch>

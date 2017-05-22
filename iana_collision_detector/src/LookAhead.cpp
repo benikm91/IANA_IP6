@@ -1,4 +1,5 @@
 #include <vector>
+#include <algorithm>
 #include "ros/ros.h"
 #include "sensor_msgs/LaserScan.h"
 #include "std_msgs/Float32.h"
@@ -19,9 +20,17 @@ namespace Iana
 
         void DepthImageCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
         {
-            std::vector<float>::const_iterator it = msg->ranges.begin();
-            std::vector<float>::const_iterator end = msg->ranges.end();
-            float min_range = msg->range_max;
+	    std::vector<float> ranges = msg->ranges;
+            auto begin = ranges.begin();
+            auto end = ranges.end();
+	    end = std::remove_if(begin, end, [&](float range) { return range <= msg->range_min || range >= msg->range_max; });
+	    std::sort(begin, end);
+	    std_msgs::Float32 minRangeMsg;
+            minRangeMsg.data = begin[2];
+            m_collisionAheadPublisher.publish(minRangeMsg);
+
+	/*
+            float range = msg->range_max;
             for (it; it != end; ++it)
             {
                 float range = *it;
@@ -35,7 +44,7 @@ namespace Iana
                 std_msgs::Float32 minRangeMsg;
                 minRangeMsg.data = min_range;
                 m_collisionAheadPublisher.publish(minRangeMsg);
-            }
+            }*/
         }
     };
 }
