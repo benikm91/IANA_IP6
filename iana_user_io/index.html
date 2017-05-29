@@ -28,7 +28,7 @@
 
          window.onload = function() {
 
-            socket = new WebSocket(`ws://{0}:${ip}9000/ws`);
+            socket = new WebSocket(`ws://${ip}:9000/ws`);
             socket.binaryType = "arraybuffer";
 
             socket.onopen = function() {
@@ -209,13 +209,8 @@
                 </div>
                 <div class="col-md-6 command">
                     <div>
-                        <label for="goto_x">X: </label> <input id="goto_x" type="number" name="goto_x" value="0" />
-                    </div>
-                    <div>
                         <canvas id="map"></canvas>
-                        <label for="goto_y">Y: </label> <input id="goto_y" type="number" name="goto_y" value="0" />
                     </div>
-                    <button class="btn btn-primary" onclick='goto_target();'>Go to</button>
                 </div>
                 <div id="request_name" class="col-md-6 command" style="display: none">
                     <div>
