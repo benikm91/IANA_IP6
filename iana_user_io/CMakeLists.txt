@@ -10,6 +10,7 @@ project(iana_user_io)
 find_package(catkin REQUIRED COMPONENTS
     rospy
     std_msgs
+    nav_msgs
     sensor_msgs
     geometry_msgs
     iana_controller

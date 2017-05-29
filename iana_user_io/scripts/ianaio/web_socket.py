@@ -10,6 +10,7 @@ from twisted.web.static import File
 
 import settings
 from ianaio.iana_io import IanaIO
+from math import isnan
 
 commands = dict()
 protocol = None
@@ -64,6 +65,12 @@ class WebSocketIO(IanaIO):
             submitted_name = None
             return result
 
+        def refresh_map(self, width, height, map):
+            for i in map:
+                if (i != -1 and i != 100 and i != 0):
+                    print i
+            self.sendMessage("refresh_map {0},{1},".format(str(width), str(height)) + ','.join((str(0) if i == -1 else str(i)) for i in map))
+
     def __init__(self, publisher):
         super(WebSocketIO, self).__init__(publisher)
         global commands
@@ -101,3 +108,8 @@ class WebSocketIO(IanaIO):
     def request_name(self):
         global protocol
         return protocol.request_name()
+
+    def refresh_map(self, width, height, map):
+        global protocol
+        if protocol is not None:
+            protocol.refresh_map(width, height, map)

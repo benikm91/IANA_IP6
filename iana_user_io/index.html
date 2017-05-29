@@ -6,8 +6,8 @@
       <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 
       <script type="text/javascript">
-         var socket = null;
-         var isopen = false;
+         let socket = null;
+         let isopen = false;
 
          function request_name() {
              document.querySelector('#request_name').style.display = 'flex';
@@ -26,8 +26,15 @@
             socket.onmessage = function(e) {
                 if (e.data == "request_name")
                     request_name()
+                let refresh_map_command = "refresh_map ";
+                if (e.data.startsWith(refresh_map_command)) {
+                    let map_data = e.data.substring(refresh_map_command.length).split(",");
+                    console.log(map_data);
+                    console.log(map_data.map(x => parseInt(x)));
+                    refresh_map(map_data[0], map_data[1], map_data.slice(2));
+                }
                if (typeof e.data === "string") {
-                  console.log("Text message received: " + e.data);
+                  //console.log("Text message received: " + e.data);
                }
             };
 
@@ -73,6 +80,26 @@
             }
          }
 
+         function refresh_map(width, height, map) {
+             console.log("REFRESH MPA");
+             let canvas = document.querySelector('#map');
+             canvas.width = width;
+             canvas.height = height;
+             let context = canvas.getContext('2d');
+             let imageData = context.getImageData(0, 0, width, height);
+             for (let y = 0; y < height; y++)
+                 for (let x = 0; x < width; x++) {
+                    let mapIndex = (y * width + x);
+                    let color = 255 - parseInt(map[mapIndex] * 2.55);
+                    let imageIndex = mapIndex * 4;
+                    imageData.data[imageIndex] = color;
+                    imageData.data[imageIndex + 1] = color;
+                    imageData.data[imageIndex + 2] = color;
+                    imageData.data[imageIndex + 3] = 255;
+                 }
+             context.putImageData(imageData, 0, 0);
+         }
+
       </script>
    </head>
    <body>
@@ -86,6 +113,7 @@
                         <label for="goto_x">X: </label> <input id="goto_x" type="number" name="goto_x" value="0" />
                     </div>
                     <div>
+                        <canvas id="map"></canvas>
                         <label for="goto_y">Y: </label> <input id="goto_y" type="number" name="goto_y" value="0" />
                     </div>
                     <button class="btn btn-primary" onclick='goto_target();'>Go to</button>
