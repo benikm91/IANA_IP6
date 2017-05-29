@@ -12,6 +12,12 @@
          let startX = null;
          let startY = null;
 
+         let current_width = null;
+         let current_height = null;
+         let current_map = null;
+
+         let ip = "10.42.0.1";
+
          function request_name() {
              document.querySelector('#request_name').style.display = 'flex';
          }
@@ -22,7 +28,7 @@
 
          window.onload = function() {
 
-            socket = new WebSocket("ws://127.0.0.1:9000/ws");
+            socket = new WebSocket(`ws://{0}:${ip}9000/ws`);
             socket.binaryType = "arraybuffer";
 
             socket.onopen = function() {
@@ -88,16 +94,24 @@
          }
 
          function refresh_map(width, height, map) {
-             console.log("REFRESH MPA");
+             current_map = map;
+             current_height = height;
+             current_width = width;
+             draw_current_map();
+         }
+
+         function draw_current_map()
+         {
              let canvas = document.querySelector('#map');
-             canvas.width = width;
-             canvas.height = height;
+             canvas.width = current_width;
+             canvas.height = current_height;
              let context = canvas.getContext('2d');
-             let imageData = context.getImageData(0, 0, width, height);
-             for (let y = 0; y < height; y++)
-                 for (let x = 0; x < width; x++) {
-                    let mapIndex = (y * width + x);
-                    let color = 255 - parseInt(map[mapIndex] * 2.55);
+             context.clearRect(0, 0, canvas.width, canvas.height);
+             let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+             for (let y = 0; y < canvas.height; y++)
+                 for (let x = 0; x < canvas.width; x++) {
+                    let mapIndex = (y * canvas.width + x);
+                    let color = 255 - parseInt(current_map[mapIndex] * 2.55);
                     let imageIndex = mapIndex * 4;
                     imageData.data[imageIndex] = color;
                     imageData.data[imageIndex + 1] = color;
@@ -140,29 +154,49 @@
              }
          }
 
+         function visulize_orientation(e) {
+             if (startX === null || startY === null) return;
+
+             draw_current_map();
+             let canvas = document.querySelector('#map');
+             let rect = canvas.getBoundingClientRect();
+             let currentX = e.clientX - rect.left;
+             let currentY = e.clientY - rect.top;
+             let context = canvas.getContext('2d');
+             context.beginPath();
+             context.moveTo(startX, startY);
+             context.lineTo(currentX, currentY);
+             context.stroke();
+         }
+
          function init_map() {
              let canvas = document.querySelector('#map');
+
              canvas.addEventListener('mousedown', function(e) {
-                let rect = canvas.getBoundingClientRect();
-                startX = e.clientX - rect.left;
-                startY = e.clientY - rect.top;
+                 let rect = canvas.getBoundingClientRect();
+                 startX = e.clientX - rect.left;
+                 startY = e.clientY - rect.top;
              });
              canvas.addEventListener('mouseup', function(e) {
-                if (startX === null || startY === null) return true;
-                let rect = canvas.getBoundingClientRect();
-                let endX = e.clientX - rect.left;
-                let endY = e.clientY - rect.top;
+                 if (startX === null || startY === null) return true;
 
-                let startV = new Vector3(startX, startY, 0).normalize();
-                let endV = new Vector3(endX, endY, 0).normalize();
+                 let rect = canvas.getBoundingClientRect();
+                 let endX = e.clientX - rect.left;
+                 let endY = e.clientY - rect.top;
 
-                let q = Vector3.crossProduct(startV, endV);
-                let qw = Vector3.dotProduct(startV, endV);
+                 let startV = new Vector3(startX, startY, 0).normalize();
+                 let endV = new Vector3(endX, endY, 0).normalize();
 
-                console.log(q);
+                 let q = Vector3.crossProduct(startV, endV);
+                 let qw = Vector3.dotProduct(startV, endV);
 
-                goto(startX, startY, q, qw);
+                 goto(startX, startY, q, qw);
+
+                 draw_current_map();
+                 startX = null;
+                 startY = null;
              });
+             canvas.addEventListener('mousemove', function(e) { visulize_orientation(e); });
          }
 
       </script>
