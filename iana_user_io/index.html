@@ -42,8 +42,6 @@
                 let refresh_map_command = "refresh_map ";
                 if (e.data.startsWith(refresh_map_command)) {
                     let map_data = e.data.substring(refresh_map_command.length).split(",");
-                    console.log(map_data);
-                    console.log(map_data.map(x => parseInt(x)));
                     refresh_map(map_data[0], map_data[1], map_data.slice(2));
                 }
                if (typeof e.data === "string") {
