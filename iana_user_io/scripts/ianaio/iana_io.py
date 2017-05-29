@@ -18,16 +18,16 @@ class IanaTalker(object):
         time.data = rospy.Time.now() + rospy.Duration(5*60)
         self.explore_pub.publish(time)
 
-    def goto(self, x, y):
+    def goto(self, x, y, qx, qy, qz, qw):
         target_pose = PoseStamped()
-	target_pose.header.frame_id = 'map'        
-	target_pose.pose.position.x = float(x)
+        target_pose.header.frame_id = 'map'
+        target_pose.pose.position.x = float(x)
         target_pose.pose.position.y = float(y)
         target_pose.pose.position.z = 0.0
-        target_pose.pose.orientation.x = 0.0
-        target_pose.pose.orientation.y = 0.0
-        target_pose.pose.orientation.z = 1.0
-        target_pose.pose.orientation.w = 0.0
+        target_pose.pose.orientation.x = float(qx)
+        target_pose.pose.orientation.y = float(qy)
+        target_pose.pose.orientation.z = float(qz)
+        target_pose.pose.orientation.w = float(qw)
         self.goto_pub.publish(target_pose)
 
 

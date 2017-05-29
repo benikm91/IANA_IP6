@@ -9,13 +9,20 @@
          let socket = null;
          let isopen = false;
 
+         let startX = null;
+         let startY = null;
+
          function request_name() {
              document.querySelector('#request_name').style.display = 'flex';
          }
 
+         document.addEventListener('DOMContentLoaded', function() {
+             init_map();
+         }, false);
+
          window.onload = function() {
 
-            socket = new WebSocket("ws://10.42.0.1:9000/ws");
+            socket = new WebSocket("ws://127.0.0.1:9000/ws");
             socket.binaryType = "arraybuffer";
 
             socket.onopen = function() {
@@ -71,10 +78,10 @@
              goto(x, y);
          }
 
-         function goto(x, y) {
+         function goto(x, y, q, qw) {
             if (isopen) {
-               socket.send(`goto ${x} ${y}`);
-               console.log(`goto command sent with ${x} and ${y}.`);
+               socket.send(`goto ${x} ${y} ${q.x} ${q.y} ${q.z} ${qw}`);
+               console.log(`goto ${x} ${y} ${q.x} ${q.y} ${q.z} ${qw}`);
             } else {
                console.warn("Connection not opened.")
             }
@@ -98,6 +105,64 @@
                     imageData.data[imageIndex + 3] = 255;
                  }
              context.putImageData(imageData, 0, 0);
+         }
+
+         class Vector3 {
+             static crossProduct(v1, v2) {
+                return new Vector3(
+                    v1.y * v2.z - v1.z * v2.y,
+                    v1.z * v2.x - v1.x * v2.z,
+                    v1.x * v2.y - v1.y * v2.x
+                );
+             }
+
+             static dotProduct(v1, v2) {
+                 return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+             }
+
+             constructor(x, y, z) {
+                 this.x = x;
+                 this.y = y;
+                 this.z = z;
+             }
+
+             static length(v) {
+                 return Math.sqrt(Vector3.dotProduct(v, v));
+             }
+
+             normalize() {
+                 return Vector3.normalize(this);
+             }
+
+             static normalize(v) {
+                 let length = Vector3.length(v);
+                 return new Vector3(v.x / length, v.y / length, v.z / length);
+             }
+         }
+
+         function init_map() {
+             let canvas = document.querySelector('#map');
+             canvas.addEventListener('mousedown', function(e) {
+                let rect = canvas.getBoundingClientRect();
+                startX = e.clientX - rect.left;
+                startY = e.clientY - rect.top;
+             });
+             canvas.addEventListener('mouseup', function(e) {
+                if (startX === null || startY === null) return true;
+                let rect = canvas.getBoundingClientRect();
+                let endX = e.clientX - rect.left;
+                let endY = e.clientY - rect.top;
+
+                let startV = new Vector3(startX, startY, 0).normalize();
+                let endV = new Vector3(endX, endY, 0).normalize();
+
+                let q = Vector3.crossProduct(startV, endV);
+                let qw = Vector3.dotProduct(startV, endV);
+
+                console.log(q);
+
+                goto(startX, startY, q, qw);
+             });
          }
 
       </script>
