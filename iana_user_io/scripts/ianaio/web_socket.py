@@ -65,11 +65,8 @@ class WebSocketIO(IanaIO):
             submitted_name = None
             return result
 
-        def refresh_map(self, width, height, map):
-            for i in map:
-                if (i != -1 and i != 100 and i != 0):
-                    print i
-            self.sendMessage("refresh_map {0},{1},".format(str(width), str(height)) + ','.join((str(0) if i == -1 else str(i)) for i in map))
+        def refresh_map(self, resolution, width, height, map):
+            self.sendMessage("refresh_map {0},{1},{2},".format(str(resolution), str(width), str(height)) + ','.join((str(0) if i == -1 else str(i)) for i in map))
 
     def __init__(self, publisher):
         super(WebSocketIO, self).__init__(publisher)
@@ -109,7 +106,7 @@ class WebSocketIO(IanaIO):
         global protocol
         return protocol.request_name()
 
-    def refresh_map(self, width, height, map):
+    def refresh_map(self, resolution, width, height, map):
         global protocol
         if protocol is not None:
-            protocol.refresh_map(width, height, map)
+            protocol.refresh_map(resolution, width, height, map)

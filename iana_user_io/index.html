@@ -16,6 +16,8 @@
          let current_height = null;
          let current_map = null;
 
+         let current_resolution = null;
+
          let ip = "10.42.0.1";
 
          function request_name() {
@@ -42,7 +44,7 @@
                 let refresh_map_command = "refresh_map ";
                 if (e.data.startsWith(refresh_map_command)) {
                     let map_data = e.data.substring(refresh_map_command.length).split(",");
-                    refresh_map(map_data[0], map_data[1], map_data.slice(2));
+                    refresh_map(map_data[0], map_data[1], map_data[2], map_data.slice(3));
                 }
                if (typeof e.data === "string") {
                   //console.log("Text message received: " + e.data);
@@ -91,10 +93,11 @@
             }
          }
 
-         function refresh_map(width, height, map) {
+         function refresh_map(resolution, width, height, map) {
              current_map = map;
              current_height = height;
              current_width = width;
+             current_resolution = resolution;
              draw_current_map();
          }
 
@@ -146,6 +149,12 @@
                  return Vector3.normalize(this);
              }
 
+             scale(by) {
+                 console.log(this.x * by);
+                 console.log(this.y * by);
+                 return new Vector3(this.x * by, this.y * by, this.z * by);
+             }
+
              static normalize(v) {
                  let length = Vector3.length(v);
                  return new Vector3(v.x / length, v.y / length, v.z / length);
@@ -182,13 +191,13 @@
                  let endX = e.clientX - rect.left;
                  let endY = e.clientY - rect.top;
 
-                 let startV = new Vector3(startX, startY, 0).normalize();
-                 let endV = new Vector3(endX, endY, 0).normalize();
+                 let startV = new Vector3(startX, startY, 0).scale(current_resolution).normalize();
+                 let endV = new Vector3(endX, endY, 0).scale(current_resolution).normalize();
 
                  let q = Vector3.crossProduct(startV, endV);
                  let qw = Vector3.dotProduct(startV, endV);
 
-                 goto(startX, startY, q, qw);
+                 goto(startX * current_resolution, startY * current_resolution, q, qw);
 
                  draw_current_map();
                  startX = null;

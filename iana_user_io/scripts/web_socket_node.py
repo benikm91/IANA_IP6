@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
         server = GetNameActionServer('get_name', websocket_io)
 
-        subscriber = rospy.Subscriber("map", OccupancyGrid, lambda map: websocket_io.refresh_map(map.info.width, map.info.height, map.data))
+        subscriber = rospy.Subscriber("map", OccupancyGrid, lambda map: websocket_io.refresh_map(map.info.resolution, map.info.width, map.info.height, map.data))
 
         rospy.spin()
     except rospy.ROSInterruptException:
