@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from multiprocessing import Lock
+import cv2
 
 if __name__ == '__main__':
 
@@ -65,10 +66,12 @@ if __name__ == '__main__':
     lock = Lock()
 
     def detect_person(image_message):
+        # TODO Find face in low res image, but cut it out in high res image + landmark detection
         with lock:
-            image_message.encoding = "bgr8"
+            image_message.encoding = "bgr8" #TODO use "mono8"
             frame = bridge.imgmsg_to_cv2(image_message, desired_encoding="bgr8")
-            # TODO take time from image recording time
+            frame = cv2.resize(frame, (0, 0), fx=0.2, fy=0.2)
+	    # TODO take time from image recording time
             pd.detect_person(frame, time.time())
 
 
@@ -81,7 +84,7 @@ if __name__ == '__main__':
 
     try:
         rospy.init_node('person_detection', anonymous=True)
-        rospy.Subscriber("/image", Image, detect_person)
+        rospy.Subscriber("/image", Image, detect_person, queue_size=1)
         rospy.Subscriber("/new_person", Person, insert_new_person)
 
         r = rospy.Rate(2)

@@ -38,11 +38,11 @@ class PersonDetection(object):
         return h
 
     def known_person_detected(self, person_id, record_timestamp):
-        rospy.loginfo("Entered: Known person id={0}".format(person_id))
+        rospy.logerr("Entered: Known person id={0}".format(person_id))
         self.known_person_publisher.publish(person_id)
 
     def unknown_person_detected(self, unknown_person_id, face_vectors, preview_image, record_timestamp):
-        rospy.loginfo("Entered: Unknown person id={0}".format(unknown_person_id))
+        rospy.logerr("Entered: Unknown person id={0}".format(unknown_person_id))
         message = UnknownPersonEntered()
         message.person_id = unknown_person_id
         face_vector_messages = []
@@ -71,18 +71,26 @@ class PersonDetection(object):
                     self.unknown_person_detected(unknown_person_id, face_vectors, preview_image, record_timestamp)
                 self.session_memory.unknown_update(unknown_person_id, record_timestamp)
 
+	#rospy.logerr("I AM WORKING!")
+
         boundboxes = self.face_detection.detect_faces(image)
 
+	#rospy.logerr("BOUNDINGBOX!")
+	
         faces = []
         for boundbox in boundboxes:
             faces.append(image[boundbox.top():boundbox.bottom(),boundbox.left():boundbox.right()])
 
-        aligned_faces = self.face_alignment.align_faces(image, boundboxes)
-        embeddings = self.face_embedder.embed(aligned_faces)
-        labeled_faces = self.face_labeler.label(embeddings)
+	#rospy.logerr("ALIGNEMENT!")
 
+        aligned_faces = self.face_alignment.align_faces(image, boundboxes)
+        #rospy.logerr("ALIGNMENT ZWEI!")
+        embeddings = self.face_embedder.embed(aligned_faces)
+        #rospy.logerr("EMBEDDING DONE!")
+        labeled_faces = self.face_labeler.label(embeddings)
+	#rospy.logerr("LABELED DONE")
         for face, (person_id, confidence, face_vector) in zip(faces, labeled_faces):
-            rospy.logdebug("Detected: id={0} with confidence{1}".format(person_id, confidence))
+            rospy.logerr("Detected: id={0} with confidence{1}".format(person_id, confidence))
             if self.face_filter.is_known(face_vector, confidence):
                 handle_known_face(self, person_id, face_vector, confidence)
             elif self.face_filter.is_unknown(face_vector, confidence):

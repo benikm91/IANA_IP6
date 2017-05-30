@@ -14,7 +14,7 @@ face_detection = Config(
 face_embedder = Config(
     network_model=pkg_resources.resource_filename('res', 'models/openface/nn4.small2.v1.t7'),
     img_dim=96,
-    cuda=False
+    cuda=True
 )
 clusterer = Config(
     threshold_same = 0.75
