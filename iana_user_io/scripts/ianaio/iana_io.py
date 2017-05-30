@@ -3,6 +3,7 @@ from std_msgs.msg import Time
 from geometry_msgs.msg import PoseStamped
 from iana_controller.msg import Explore, GoTo
 
+
 class IanaTalker(object):
 
     def __init__(self):
@@ -12,21 +13,21 @@ class IanaTalker(object):
     def start(self):
         pass
 
-    def explore(self):
+    def explore(self, seconds):
         time = Time()
-        time.data = rospy.Time.now() + rospy.Duration(5 * 60)
+        time.data = rospy.Time.now() + rospy.Duration(int(seconds))
         self.explore_pub.publish(time)
 
-    def goto(self, x, y):
+    def goto(self, x, y, qx, qy, qz, qw):
         target_pose = PoseStamped()
         target_pose.header.frame_id = 'map'
         target_pose.pose.position.x = float(x)
         target_pose.pose.position.y = float(y)
         target_pose.pose.position.z = 0.0
-        target_pose.pose.orientation.x = float(0)
-        target_pose.pose.orientation.y = float(0)
-        target_pose.pose.orientation.z = float(1)
-        target_pose.pose.orientation.w = float(0)
+        target_pose.pose.orientation.x = float(qx)
+        target_pose.pose.orientation.y = float(qy)
+        target_pose.pose.orientation.z = float(qz)
+        target_pose.pose.orientation.w = float(qw)
         self.goto_pub.publish(target_pose)
 
 
@@ -39,4 +40,7 @@ class IanaIO(object):
         pass
 
     def request_name(self):
+        pass
+
+    def refresh_map(self, resolution, origin, width, height, origin_x, origin_y, map):
         pass
