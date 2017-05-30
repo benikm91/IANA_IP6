@@ -1,7 +1,9 @@
 <launch>
 
 	<include file="$(find kobuki_node)/launch/robot_with_tf.launch" />
-	<include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch" />
+	<include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch">
+		<arg name="fps_limit" value="10" />
+	</include>
 
 	<node pkg="tf" type="static_transform_publisher" name="kinet2_tf_broadcaster" args="0 0 0 0 0 0 base_link camera_depth_image 100" />
 

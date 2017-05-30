@@ -4,7 +4,9 @@
 
 	<node name="iana_person_data" pkg="iana_person_data" type="person_data_node.py" />
  
-	<!-- <node name="iana_person_detection" pkg="iana_person_detection" type="person_detection.py" /> -->
+	<node name="iana_person_detection" pkg="iana_person_detection" type="person_detection.py" >
+		<remap from="image" to="/kinect2/qhd/image_color" />
+	</node>
 	
         <!-- IANA COMPONENTS -->
 	<node name="iana_speech" pkg="iana_speech" type="iana_speech_node.py" />
