@@ -76,7 +76,7 @@ if __name__ == '__main__':
         with lock:
             face_detection_image = get_image(face_detection_image_message, "mono8")
             person_detection_image = get_image(person_detection_image_message, "bgr8")
-            face_detection_image = cv2.resize(face_detection_image, (0, 0), fx=0.2, fy=0.2)
+            # face_detection_image = cv2.resize(face_detection_image, (0, 0), fx=0.2, fy=0.2)
             # TODO take time from image recording time
             pd.detect_person(face_detection_image, person_detection_image, time.time())
 
