@@ -30,9 +30,12 @@ int main(int argc, char **argv)
     ros::Subscriber stop_subscriber = n.subscribe<iana_driver::NoDriverArgs>("/iana/driver/stop", 1000, SetNoDriverCallback);
     ros::Subscriber random_subscriber = n.subscribe<iana_driver::RandomDriverArgs>("/iana/driver/random", 1000, SetRandomDriverCallback);
 
+    ros::Rate rate(10);
+
     while(ros::ok()) {
         ros::spinOnce();
         driver->Run();
+        rate.sleep();
     }
 
     return 0;
