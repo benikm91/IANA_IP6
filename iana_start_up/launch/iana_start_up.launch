@@ -5,7 +5,8 @@
 	<node name="iana_person_data" pkg="iana_person_data" type="person_data_node.py" />
  
 	<node name="iana_person_detection" pkg="iana_person_detection" type="person_detection.py" >
-		<remap from="image" to="/kinect2/qhd/image_color" />
+		<remap from="face_image" to="/kinect2/qhd/image_mono" />
+		<remap from="person_image" to="/kinect2/hd/image_color" />
 	</node>
 	
         <!-- IANA COMPONENTS -->

@@ -1,3 +1,4 @@
+import dlib.rectangle
 import rospy
 from std_msgs.msg import Header
 
@@ -52,7 +53,7 @@ class PersonDetection(object):
         message.preview_image = bridge.cv2_to_imgmsg(preview_image, encoding="passthrough")
         self.unknown_person_publisher.publish(message)
 
-    def detect_person(self, image, record_timestamp):
+    def detect_person(self, face_image, person_image, record_timestamp):
 
         def handle_known_face(self, person_id, confidence, face_vector):
             self.face_grouper.update_known(person_id, confidence, face_vector, record_timestamp)
@@ -71,24 +72,33 @@ class PersonDetection(object):
                     self.unknown_person_detected(unknown_person_id, face_vectors, preview_image, record_timestamp)
                 self.session_memory.unknown_update(unknown_person_id, record_timestamp)
 
-	#rospy.logerr("I AM WORKING!")
+        def resize_bounding_box(bounding_box):
+            """
+            :param bounding_box: 
+            :type bounding_box: dlib.rectangle
+            :return: 
+            """
+            face_height, face_width, = face_image.shape
+            person_height, person_width, = person_image.shape
+            w_resize_factor = person_width / face_width
+            h_resize_factor = person_height / face_height
+            return dlib.rectangle(
+                bounding_box.l * w_resize_factor,
+                bounding_box.t * h_resize_factor,
+                bounding_box.r * w_resize_factor,
+                bounding_box.b * h_resize_factor
+            )
 
-        boundboxes = self.face_detection.detect_faces(image)
+        boundboxes = self.face_detection.detect_faces(face_image)
+        boundboxes = map(resize_bounding_box, boundboxes)
 
-	#rospy.logerr("BOUNDINGBOX!")
-	
         faces = []
         for boundbox in boundboxes:
-            faces.append(image[boundbox.top():boundbox.bottom(),boundbox.left():boundbox.right()])
+            faces.append(person_image[boundbox.top():boundbox.bottom(),boundbox.left():boundbox.right()])
 
-	#rospy.logerr("ALIGNEMENT!")
-
-        aligned_faces = self.face_alignment.align_faces(image, boundboxes)
-        #rospy.logerr("ALIGNMENT ZWEI!")
+        aligned_faces = self.face_alignment.align_faces(person_image, boundboxes)
         embeddings = self.face_embedder.embed(aligned_faces)
-        #rospy.logerr("EMBEDDING DONE!")
         labeled_faces = self.face_labeler.label(embeddings)
-	#rospy.logerr("LABELED DONE")
         for face, (person_id, confidence, face_vector) in zip(faces, labeled_faces):
             rospy.logerr("Detected: id={0} with confidence{1}".format(person_id, confidence))
             if self.face_filter.is_known(face_vector, confidence):

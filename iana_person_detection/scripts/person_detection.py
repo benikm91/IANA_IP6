@@ -7,6 +7,7 @@ if __name__ == '__main__':
     import rospy
 
     import time
+    import message_filters
 
     from iana_person_data.msg import Person
     from iana_person_data.srv import GetAllPersons
@@ -65,14 +66,19 @@ if __name__ == '__main__':
 
     lock = Lock()
 
-    def detect_person(image_message):
-        # TODO Find face in low res image, but cut it out in high res image + landmark detection
+    def detect_person(face_detection_image_message, person_detection_image_message):
+
+        def get_image(message, encoding):
+            message.encoding = encoding
+            frame = bridge.imgmsg_to_cv2(message, desired_encoding=encoding)
+            return frame
+
         with lock:
-            image_message.encoding = "bgr8" #TODO use "mono8"
-            frame = bridge.imgmsg_to_cv2(image_message, desired_encoding="bgr8")
-            frame = cv2.resize(frame, (0, 0), fx=0.2, fy=0.2)
-	    # TODO take time from image recording time
-            pd.detect_person(frame, time.time())
+            face_detection_image = get_image(face_detection_image_message, "mono8")
+            person_detection_image = get_image(person_detection_image_message, "mono8")
+            face_detection_image = cv2.resize(face_detection_image, (0, 0), fx=0.2, fy=0.2)
+            # TODO take time from image recording time
+            pd.detect_person(face_detection_image, person_detection_image, time.time())
 
 
     def insert_new_person(person):
@@ -84,7 +90,13 @@ if __name__ == '__main__':
 
     try:
         rospy.init_node('person_detection', anonymous=True)
-        rospy.Subscriber("/image", Image, detect_person, queue_size=1)
+        face_detection_image = message_filters.Subscriber("/face_detection_image", Image)
+        person_detection_image = message_filters.Subscriber("/person_detection_image", Image)
+
+
+
+        message_filters.TimeSynchronizer([face_detection_image, person_detection_image], 10).registerCallback(detect_person)
+
         rospy.Subscriber("/new_person", Person, insert_new_person)
 
         r = rospy.Rate(2)
