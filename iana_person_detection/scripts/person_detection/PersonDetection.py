@@ -1,6 +1,8 @@
-import dlib.rectangle
+import dlib
 import rospy
 from std_msgs.msg import Header
+
+import cv2
 
 from iana_person_detection.msg import UnknownPersonEntered, FaceVector
 from cv_bridge import CvBridge
@@ -78,15 +80,15 @@ class PersonDetection(object):
             :type bounding_box: dlib.rectangle
             :return: 
             """
-            face_height, face_width, = face_image.shape
-            person_height, person_width, = person_image.shape
+            face_height, face_width = face_image.shape
+            person_height, person_width, _ = person_image.shape
             w_resize_factor = person_width / face_width
-            h_resize_factor = person_height / face_height
+            h_resize_factor = person_height / face_height 
             return dlib.rectangle(
-                bounding_box.l * w_resize_factor,
-                bounding_box.t * h_resize_factor,
-                bounding_box.r * w_resize_factor,
-                bounding_box.b * h_resize_factor
+                bounding_box.left() * w_resize_factor,
+                bounding_box.top() * h_resize_factor,
+                bounding_box.right() * w_resize_factor,
+                bounding_box.bottom() * h_resize_factor
             )
 
         boundboxes = self.face_detection.detect_faces(face_image)
