@@ -6,6 +6,7 @@ from action.get_name_server import GetNameActionServer
 from ianaio.iana_io import IanaTalker
 from ianaio.web_socket import WebSocketIO
 from nav_msgs.msg import OccupancyGrid
+from vector.Pose import Pose
 
 if __name__ == '__main__':
 
@@ -24,7 +25,11 @@ if __name__ == '__main__':
 
         server = GetNameActionServer('get_name', websocket_io)
 
-        subscriber = rospy.Subscriber("map", OccupancyGrid, lambda map: websocket_io.refresh_map(map.info.resolution, map.info.width, map.info.height, map.data))
+        def map_callback(map):
+            pose = Pose.from_ros_msg(map.info.origin)
+            websocket_io.refresh_map(map.info.resolution, pose, map.info.width, map.info.height, map.data)
+
+        subscriber = rospy.Subscriber("map", OccupancyGrid, map_callback)
 
         rospy.spin()
     except rospy.ROSInterruptException:

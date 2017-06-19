@@ -65,7 +65,7 @@ class WebSocketIO(IanaIO):
             submitted_name = None
             return result
 
-        def refresh_map(self, resolution, width, height, map):
+        def refresh_map(self, resolution, origin, width, height, map):
             self.sendMessage("refresh_map {0},{1},{2},".format(str(resolution), str(width), str(height)) + ','.join((str(0) if i == -1 else str(i)) for i in map))
 
     def __init__(self, publisher):
@@ -103,10 +103,10 @@ class WebSocketIO(IanaIO):
         thread.start()
 
     def request_name(self):
+        # TODO do this with many users.
         global protocol
         return protocol.request_name()
 
-    def refresh_map(self, resolution, width, height, map):
-        global protocol
-        if protocol is not None:
-            protocol.refresh_map(resolution, width, height, map)
+    def refresh_map(self, resolution, origin, width, height, map):
+        for c in self.Protocol.clients:
+            c.refresh_map(resolution, origin, width, height, map)
