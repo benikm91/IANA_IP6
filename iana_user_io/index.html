@@ -18,6 +18,8 @@
 
          let current_resolution = null;
 
+         let current_pose = null;
+
          let ip = "127.0.0.1";
 
          function request_name() {
@@ -44,7 +46,7 @@
                 let refresh_map_command = "refresh_map ";
                 if (e.data.startsWith(refresh_map_command)) {
                     let map_data = e.data.substring(refresh_map_command.length).split(",");
-                    refresh_map(map_data[0], map_data[1], map_data[2], map_data.slice(3));
+                    refresh_map(map_data[0], map_data[1], map_data[2], map_data[3], map_data[4], map_data.slice(5));
                 }
                if (typeof e.data === "string") {
                   //console.log("Text message received: " + e.data);
@@ -93,11 +95,13 @@
             }
          }
 
-         function refresh_map(resolution, width, height, map) {
+         function refresh_map(resolution, width, height, pose_x, pose_y, map) {
+             console.log("refresh_map");
              current_map = map;
              current_height = height;
              current_width = width;
              current_resolution = resolution;
+             current_pose = Object.freeze({x: parseFloat(pose_x), y: parseFloat(pose_y)});
              draw_current_map();
          }
 
@@ -197,7 +201,7 @@
                  let q = Vector3.crossProduct(startV, endV);
                  let qw = Vector3.dotProduct(startV, endV);
 
-                 goto(startX * current_resolution, startY * current_resolution, q, qw);
+                 goto(startX * current_resolution + current_pose.x, startY * current_resolution + current_pose.y, q, qw);
 
                  draw_current_map();
                  startX = null;

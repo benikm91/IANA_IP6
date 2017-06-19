@@ -42,5 +42,5 @@ class IanaIO(object):
     def request_name(self):
         pass
 
-    def refresh_map(self, resolution, origin, width, height, map):
+    def refresh_map(self, resolution, origin, width, height, origin_x, origin_y, map):
         pass

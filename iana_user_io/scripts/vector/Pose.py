@@ -22,3 +22,6 @@ class Pose(object):
         :return: 
         """
         return cls(Vector3.from_ros_msg(msg.position), Quaternion.from_ros_msg(msg.orientation))
+
+    def __str__(self):
+        return "Pose({0}, {1})".format(self.position, self.orientation)

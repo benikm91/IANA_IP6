@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
         def map_callback(map):
             pose = Pose.from_ros_msg(map.info.origin)
-            websocket_io.refresh_map(map.info.resolution, pose, map.info.width, map.info.height, map.data)
+            websocket_io.refresh_map(map.info.resolution, pose, map.info.width, map.info.height, pose.position.x, pose.position .y, map.data)
 
         subscriber = rospy.Subscriber("map", OccupancyGrid, map_callback)
 
