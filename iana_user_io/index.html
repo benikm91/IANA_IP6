@@ -40,7 +40,7 @@
             socket.binaryType = "arraybuffer";
 
             socket.onopen = function() {
-               console.log("Connected!");
+               console.info("Connected!");
                isopen = true;
             };
 
@@ -52,13 +52,11 @@
                     let map_data = e.data.substring(refresh_map_command.length).split(",");
                     refresh_map(map_data[0], map_data[1], map_data[2], map_data[3], map_data[4], map_data.slice(5));
                 }
-               if (typeof e.data === "string") {
-                  //console.log("Text message received: " + e.data);
-               }
+               if (typeof e.data === "string") { }
             };
 
             socket.onclose = function(e) {
-                console.log("Connection closed.");
+                console.info("Connection closed.");
                 socket = null;
                 isopen = false;
             }
@@ -77,10 +75,12 @@
 
          function explore() {
             if (isopen) {
-             const explore_time = document.querySelector('input[name="explore_time"]').value;
-               socket.send(`explore ${explore_time}`);
+                const explore_time = document.querySelector('input[name="explore_time"]').value;
+                const command = `explore ${explore_time}`;
+                console.log(command);
+                socket.send(command);
             } else {
-               console.warn("Connection not opened.");
+                console.warn("Connection not opened.");
             }
          }
 
@@ -92,9 +92,11 @@
 
          function goto(x, y, q, qw) {
             if (isopen) {
-               socket.send(`goto ${x} ${y} ${q.x} ${q.y} ${q.z} ${qw}`);
+                const command = `goto ${x} ${y} ${q.x} ${q.y} ${q.z} ${qw}`;
+                console.log(command);
+                socket.send(command);
             } else {
-               console.warn("Connection not opened.")
+                console.warn("Connection not opened.")
             }
          }
 
@@ -159,9 +161,11 @@
                  return Vector3.normalize(this);
              }
 
+             subtract(v) {
+                 return new Vector3(this.x - v.x, this.y - v.y, this.z - v.z);
+             }
+
              scale(by) {
-                 console.log(this.x * by);
-                 console.log(this.y * by);
                  return new Vector3(this.x * by, this.y * by, this.z * by);
              }
 
@@ -201,11 +205,19 @@
                  let endX = e.clientX - rect.left;
                  let endY = e.clientY - rect.top;
 
-                 let startV = new Vector3(startX, startY, 0).scale(current_resolution).normalize();
-                 let endV = new Vector3(endX, endY, 0).scale(current_resolution).normalize();
+                 let startV = new Vector3(startX, startY, 0).scale(current_resolution);
+                 let endV = new Vector3(endX, endY, 0).scale(current_resolution);
 
-                 let q = Vector3.crossProduct(startV, endV);
-                 let qw = Vector3.dotProduct(startV, endV);
+                 console.log(startV.subtract(endV).normalize());
+
+                 const n_startV = startV.normalize();
+                 const n_endV = endV.normalize();
+
+                 const must = endV.subtract(startV).normalize();
+                 const afa = new Vector3(0, 1, 0);
+
+                 let q = Vector3.crossProduct(must, afa);
+                 let qw = Vector3.dotProduct(must, afa);
 
                  goto(startX * current_resolution + current_pose.x, startY * current_resolution + current_pose.y, q, qw);
 
