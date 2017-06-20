@@ -73,8 +73,8 @@
 
          function explore() {
             if (isopen) {
-               socket.send("explore");
-               console.log("explore command sent.");
+             const explore_time = document.querySelector('input[name="explore_time"]').value;
+               socket.send(`explore ${explore_time}`);
             } else {
                console.warn("Connection not opened.");
             }
@@ -83,20 +83,18 @@
          function goto_target() {
              const x = document.querySelector('input[name="goto_x"]').value;
              const y = document.querySelector('input[name="goto_y"]').value;
-             goto(x, y);
+             goto(x, y, Object.freeze({x: 0, y: 0, z: 1}), 1);
          }
 
          function goto(x, y, q, qw) {
             if (isopen) {
                socket.send(`goto ${x} ${y} ${q.x} ${q.y} ${q.z} ${qw}`);
-               console.log(`goto ${x} ${y} ${q.x} ${q.y} ${q.z} ${qw}`);
             } else {
                console.warn("Connection not opened.")
             }
          }
 
          function refresh_map(resolution, width, height, pose_x, pose_y, map) {
-             console.log("refresh_map");
              current_map = map;
              current_height = height;
              current_width = width;
@@ -215,18 +213,34 @@
    <body>
         <div class="commands">
             <div class="row">
-                <div class="col-md-6 command">
-                    <button class="btn btn-primary" onclick='explore();'>Explore Modus</button>
-                </div>
-                <div class="col-md-6 command">
+                <div class="col-md-9 command">
                     <div>
                         <canvas id="map"></canvas>
                     </div>
                 </div>
-                <div id="request_name" class="col-md-6 command" style="display: none">
-                    <div>
-                        <label for="name">Name:</label> <input id="name" type="text" name="name" />
-                        <button class="btn btn-primary" onclick='submit_name();'>Submit</button>
+                <div class="col-md-3">
+                    <div class="row">
+                        <div class="command col-md-12">
+                            <div>
+                                <label for="explore_time">Seconds: </label> <input type="text" id="explore_time" name="explore_time" value="60" />
+                            </div>
+                            <button class="btn btn-primary" onclick='explore();'>Explore Modus</button>
+                        </div>
+                        <div class="command col-md-12">
+                            <div>
+                                <label for="goto_x">X: </label> <input id="goto_x" type="number" name="goto_x" value="0" />
+                            </div>
+                            <div>
+                                <label for="goto_y">Y: </label> <input id="goto_y" type="number" name="goto_y" value="0" />
+                            </div>
+                            <button class="btn btn-primary" onclick='goto_target();'>Go to</button>
+                        </div>
+                        <div id="request_name" class="col-md-12 command" style="display: none">
+                            <div>
+                                <label for="name">Name:</label> <input id="name" type="text" name="name" />
+                                <button class="btn btn-primary" onclick='submit_name();'>Submit</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

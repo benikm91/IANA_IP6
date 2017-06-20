@@ -9,7 +9,7 @@ body,
 }
 
 .commands .command {
-    height: 100%;
+    min-height: 400px;
     display: flex;
     flex-direction: column;
     -webkit-box-align: center;
@@ -20,4 +20,9 @@ body,
     justify-content: center;
     background: #C0C0C0;
     border: 1px solid white;
+}
+
+.card {
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
