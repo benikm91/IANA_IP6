@@ -26,6 +26,10 @@
              document.querySelector('#request_name').style.display = 'flex';
          }
 
+         function hide_name_request() {
+             document.querySelector('#request_name').style.display = 'none';
+         }
+
          document.addEventListener('DOMContentLoaded', function() {
              init_map();
          }, false);
@@ -54,20 +58,20 @@
             };
 
             socket.onclose = function(e) {
-               console.log("Connection closed.");
-               socket = null;
-               isopen = false;
+                console.log("Connection closed.");
+                socket = null;
+                isopen = false;
             }
          };
 
          function submit_name() {
             const name = document.querySelector('input[name="name"]').value;
             if (isopen) {
-               socket.send(`name ${name}`);
-             document.querySelector('#request_name').style.display = 'none';
-               console.log(`submitted name with "${name}".`);
+                socket.send(`name ${name}`);
+                hide_name_request();
+                console.log(`submitted name with "${name}".`);
             } else {
-               console.warn("Connection not opened.");
+                console.warn("Connection not opened.");
             }
          }
 
@@ -211,6 +215,16 @@
       </script>
    </head>
    <body>
+        <div id="request_name" class="col-md-12 overlay" style="display: none">
+            <div class="close" onclick="hide_name_request()">X</div>
+            <div>
+                <div>
+                    Oh hello there, please tell me who you are!
+                </div>
+                <label for="name">Name:</label> <input id="name" type="text" name="name" />
+                <button class="btn btn-primary" onclick='submit_name();'>Submit</button>
+            </div>
+        </div>
         <div class="commands">
             <div class="row">
                 <div class="col-md-9 command">
@@ -234,12 +248,6 @@
                                 <label for="goto_y">Y: </label> <input id="goto_y" type="number" name="goto_y" value="0" />
                             </div>
                             <button class="btn btn-primary" onclick='goto_target();'>Go to</button>
-                        </div>
-                        <div id="request_name" class="col-md-12 command" style="display: none">
-                            <div>
-                                <label for="name">Name:</label> <input id="name" type="text" name="name" />
-                                <button class="btn btn-primary" onclick='submit_name();'>Submit</button>
-                            </div>
                         </div>
                     </div>
                 </div>
