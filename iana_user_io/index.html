@@ -115,17 +115,21 @@
              let context = canvas.getContext('2d');
              context.clearRect(0, 0, canvas.width, canvas.height);
              let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-             for (let y = 0; y < canvas.height; y++)
+             let imageIndex = 0;
+             for (let y = canvas.height - 1; y >= 0; y--)
                  for (let x = 0; x < canvas.width; x++) {
                     let mapIndex = (y * canvas.width + x);
                     let color = 255 - parseInt(current_map[mapIndex] * 2.55);
-                    let imageIndex = mapIndex * 4;
-                    imageData.data[imageIndex] = color;
-                    imageData.data[imageIndex + 1] = color;
-                    imageData.data[imageIndex + 2] = color;
-                    imageData.data[imageIndex + 3] = 255;
+                    imageData.data[imageIndex++] = color;
+                    imageData.data[imageIndex++] = color;
+                    imageData.data[imageIndex++] = color;
+                    imageData.data[imageIndex++] = 255;
                  }
+
+             context.save();
+             context.scale(1, -1); // flip vertically
              context.putImageData(imageData, 0, 0);
+             context.restore();
          }
 
          class Vector3 {
