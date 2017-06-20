@@ -21,5 +21,5 @@ class GetNameActionServer(object):
         self._as.start()
 
     def execute_cb(self, goal):
-        self._result.name = self.io.request_name()
+        self._result.name = self.io.request_name(goal.preview_image)
         self._as.set_succeeded(self._result)

@@ -20,9 +20,12 @@
 
          let current_pose = null;
 
-         let ip = "127.0.0.1";
+         let ip = "10.42.0.1";
 
          function request_name() {
+	     // Add random get parameter so cache misses.
+	     var randomNumber = Math.random();
+	     document.querySelector('#preview_image').src = '/preview_image.png?'+randomNumber;
              document.querySelector('#request_name').style.display = 'flex';
          }
 
@@ -219,7 +222,7 @@
                  let q = Vector3.crossProduct(must, afa);
                  let qw = Vector3.dotProduct(must, afa);
 
-                 goto(startX * current_resolution + current_pose.x, startY * current_resolution + current_pose.y, q, qw);
+                 goto(startX * current_resolution + current_pose.x, (current_height - startY) * current_resolution + current_pose.y, q, qw);
 
                  draw_current_map();
                  startX = null;
@@ -237,7 +240,10 @@
                 <div>
                     Oh hello there, please tell me who you are!
                 </div>
-                <label for="name">Name:</label> <input id="name" type="text" name="name" />
+                <div>
+			<img id="preview_image" src="" />
+		</div>
+		<label for="name">Name:</label> <input id="name" type="text" name="name" />
                 <button class="btn btn-primary" onclick='submit_name();'>Submit</button>
             </div>
         </div>

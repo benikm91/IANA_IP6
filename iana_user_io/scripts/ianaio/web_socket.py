@@ -8,6 +8,7 @@ from twisted.internet import reactor
 from twisted.web.server import Site
 from twisted.web.static import File
 
+import cv2
 import settings
 from ianaio.iana_io import IanaIO
 
@@ -102,6 +103,10 @@ class _BroadcastServerFactory(WebSocketServerFactory):
             self.clients.remove(client)
             print("unregistered client {}".format(client.peer))
 
+    def request_name(self):
+	for c in self.clients:
+            c.request_name()
+
     def refresh_map(self, map_data):
         self.current_map = map_data
         for c in self.clients:
@@ -140,10 +145,10 @@ class WebSocketIO(IanaIO):
         thread.daemon = True # we don't need the webserver anymore, if the ros node dies
         thread.start()
 
-    def request_name(self):
-        # TODO do this with many users.
-        global protocol
-        return protocol.request_name()
+    def request_name(self, preview_image):
+	root = File(dirname(dirname(dirname(abspath(__file__)))))
+	cv2.imwrite(root.name+'/preview_image.png', preview_image) 
+        return self.factory.request_name()
 
     def refresh_map(self, resolution, origin, width, height, origin_x, origin_y, map):
         self.factory.refresh_map(MapData(resolution, origin, width, height, origin_x, origin_y, map))
