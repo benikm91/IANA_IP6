@@ -1,21 +1,42 @@
-<!DOCTYPE html>
-<html>
-   <head>
+    <!DOCTYPE html>
+    <html>
+       <head>
 
-      <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
-      <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+          <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
+          <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 
-      <script type="text/javascript">
-         var socket = null;
-         var isopen = false;
+          <script type="text/javascript">
+         let socket = null;
+         let isopen = false;
+
+         let startX = null;
+         let startY = null;
+
+         let current_width = null;
+         let current_height = null;
+         let current_map = null;
+
+         let current_resolution = null;
+
+         let current_pose = null;
+
+         let ip = "127.0.0.1";
 
          function request_name() {
              document.querySelector('#request_name').style.display = 'flex';
          }
 
+         function hide_name_request() {
+             document.querySelector('#request_name').style.display = 'none';
+         }
+
+         document.addEventListener('DOMContentLoaded', function() {
+             init_map();
+         }, false);
+
          window.onload = function() {
 
-            socket = new WebSocket("ws://10.42.0.1:9000/ws");
+            socket = new WebSocket(`ws://${ip}:9000/ws`);
             socket.binaryType = "arraybuffer";
 
             socket.onopen = function() {
@@ -26,33 +47,38 @@
             socket.onmessage = function(e) {
                 if (e.data == "request_name")
                     request_name()
+                let refresh_map_command = "refresh_map ";
+                if (e.data.startsWith(refresh_map_command)) {
+                    let map_data = e.data.substring(refresh_map_command.length).split(",");
+                    refresh_map(map_data[0], map_data[1], map_data[2], map_data[3], map_data[4], map_data.slice(5));
+                }
                if (typeof e.data === "string") {
-                  console.log("Text message received: " + e.data);
+                  //console.log("Text message received: " + e.data);
                }
             };
 
             socket.onclose = function(e) {
-               console.log("Connection closed.");
-               socket = null;
-               isopen = false;
+                console.log("Connection closed.");
+                socket = null;
+                isopen = false;
             }
          };
 
          function submit_name() {
             const name = document.querySelector('input[name="name"]').value;
             if (isopen) {
-               socket.send(`name ${name}`);
-             document.querySelector('#request_name').style.display = 'none';
-               console.log(`submitted name with "${name}".`);
+                socket.send(`name ${name}`);
+                hide_name_request();
+                console.log(`submitted name with "${name}".`);
             } else {
-               console.warn("Connection not opened.");
+                console.warn("Connection not opened.");
             }
          }
 
          function explore() {
             if (isopen) {
-               socket.send("explore");
-               console.log("explore command sent.");
+             const explore_time = document.querySelector('input[name="explore_time"]').value;
+               socket.send(`explore ${explore_time}`);
             } else {
                console.warn("Connection not opened.");
             }
@@ -61,39 +87,168 @@
          function goto_target() {
              const x = document.querySelector('input[name="goto_x"]').value;
              const y = document.querySelector('input[name="goto_y"]').value;
-             goto(x, y);
+             goto(x, y, Object.freeze({x: 0, y: 0, z: 1}), 1);
          }
 
-         function goto(x, y) {
+         function goto(x, y, q, qw) {
             if (isopen) {
-               socket.send(`goto ${x} ${y}`);
-               console.log(`goto command sent with ${x} and ${y}.`);
+               socket.send(`goto ${x} ${y} ${q.x} ${q.y} ${q.z} ${qw}`);
             } else {
                console.warn("Connection not opened.")
             }
          }
 
+         function refresh_map(resolution, width, height, pose_x, pose_y, map) {
+             current_map = map;
+             current_height = height;
+             current_width = width;
+             current_resolution = resolution;
+             current_pose = Object.freeze({x: parseFloat(pose_x), y: parseFloat(pose_y)});
+             draw_current_map();
+         }
+
+         function draw_current_map()
+         {
+             let canvas = document.querySelector('#map');
+             canvas.width = current_width;
+             canvas.height = current_height;
+             let context = canvas.getContext('2d');
+             context.clearRect(0, 0, canvas.width, canvas.height);
+             let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+             for (let y = 0; y < canvas.height; y++)
+                 for (let x = 0; x < canvas.width; x++) {
+                    let mapIndex = (y * canvas.width + x);
+                    let color = 255 - parseInt(current_map[mapIndex] * 2.55);
+                    let imageIndex = mapIndex * 4;
+                    imageData.data[imageIndex] = color;
+                    imageData.data[imageIndex + 1] = color;
+                    imageData.data[imageIndex + 2] = color;
+                    imageData.data[imageIndex + 3] = 255;
+                 }
+             context.putImageData(imageData, 0, 0);
+         }
+
+         class Vector3 {
+             static crossProduct(v1, v2) {
+                return new Vector3(
+                    v1.y * v2.z - v1.z * v2.y,
+                    v1.z * v2.x - v1.x * v2.z,
+                    v1.x * v2.y - v1.y * v2.x
+                );
+             }
+
+             static dotProduct(v1, v2) {
+                 return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+             }
+
+             constructor(x, y, z) {
+                 this.x = x;
+                 this.y = y;
+                 this.z = z;
+             }
+
+             static length(v) {
+                 return Math.sqrt(Vector3.dotProduct(v, v));
+             }
+
+             normalize() {
+                 return Vector3.normalize(this);
+             }
+
+             scale(by) {
+                 console.log(this.x * by);
+                 console.log(this.y * by);
+                 return new Vector3(this.x * by, this.y * by, this.z * by);
+             }
+
+             static normalize(v) {
+                 let length = Vector3.length(v);
+                 return new Vector3(v.x / length, v.y / length, v.z / length);
+             }
+         }
+
+         function visulize_orientation(e) {
+             if (startX === null || startY === null) return;
+
+             draw_current_map();
+             let canvas = document.querySelector('#map');
+             let rect = canvas.getBoundingClientRect();
+             let currentX = e.clientX - rect.left;
+             let currentY = e.clientY - rect.top;
+             let context = canvas.getContext('2d');
+             context.beginPath();
+             context.moveTo(startX, startY);
+             context.lineTo(currentX, currentY);
+             context.stroke();
+         }
+
+         function init_map() {
+             let canvas = document.querySelector('#map');
+
+             canvas.addEventListener('mousedown', function(e) {
+                 let rect = canvas.getBoundingClientRect();
+                 startX = e.clientX - rect.left;
+                 startY = e.clientY - rect.top;
+             });
+             canvas.addEventListener('mouseup', function(e) {
+                 if (startX === null || startY === null) return true;
+
+                 let rect = canvas.getBoundingClientRect();
+                 let endX = e.clientX - rect.left;
+                 let endY = e.clientY - rect.top;
+
+                 let startV = new Vector3(startX, startY, 0).scale(current_resolution).normalize();
+                 let endV = new Vector3(endX, endY, 0).scale(current_resolution).normalize();
+
+                 let q = Vector3.crossProduct(startV, endV);
+                 let qw = Vector3.dotProduct(startV, endV);
+
+                 goto(startX * current_resolution + current_pose.x, startY * current_resolution + current_pose.y, q, qw);
+
+                 draw_current_map();
+                 startX = null;
+                 startY = null;
+             });
+             canvas.addEventListener('mousemove', function(e) { visulize_orientation(e); });
+         }
+
       </script>
    </head>
    <body>
+        <div id="request_name" class="col-md-12 overlay" style="display: none">
+            <div class="close" onclick="hide_name_request()">X</div>
+            <div>
+                <div>
+                    Oh hello there, please tell me who you are!
+                </div>
+                <label for="name">Name:</label> <input id="name" type="text" name="name" />
+                <button class="btn btn-primary" onclick='submit_name();'>Submit</button>
+            </div>
+        </div>
         <div class="commands">
             <div class="row">
-                <div class="col-md-6 command">
-                    <button class="btn btn-primary" onclick='explore();'>Explore Modus</button>
-                </div>
-                <div class="col-md-6 command">
+                <div class="col-md-9 command">
                     <div>
-                        <label for="goto_x">X: </label> <input id="goto_x" type="number" name="goto_x" value="0" />
+                        <canvas id="map"></canvas>
                     </div>
-                    <div>
-                        <label for="goto_y">Y: </label> <input id="goto_y" type="number" name="goto_y" value="0" />
-                    </div>
-                    <button class="btn btn-primary" onclick='goto_target();'>Go to</button>
                 </div>
-                <div id="request_name" class="col-md-6 command" style="display: none">
-                    <div>
-                        <label for="name">Name:</label> <input id="name" type="text" name="name" />
-                        <button class="btn btn-primary" onclick='submit_name();'>Submit</button>
+                <div class="col-md-3">
+                    <div class="row">
+                        <div class="command col-md-12">
+                            <div>
+                                <label for="explore_time">Seconds: </label> <input type="text" id="explore_time" name="explore_time" value="60" />
+                            </div>
+                            <button class="btn btn-primary" onclick='explore();'>Explore Modus</button>
+                        </div>
+                        <div class="command col-md-12">
+                            <div>
+                                <label for="goto_x">X: </label> <input id="goto_x" type="number" name="goto_x" value="0" />
+                            </div>
+                            <div>
+                                <label for="goto_y">Y: </label> <input id="goto_y" type="number" name="goto_y" value="0" />
+                            </div>
+                            <button class="btn btn-primary" onclick='goto_target();'>Go to</button>
+                        </div>
                     </div>
                 </div>
             </div>

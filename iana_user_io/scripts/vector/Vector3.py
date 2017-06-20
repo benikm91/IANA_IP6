@@ -14,3 +14,5 @@ class Vector3(object):
         """
         return cls(msg.x, msg.y, msg.z)
 
+    def __str__(self):
+        return "Vector3({0}, {1}, {2})".format(self.x, self.y, self.z)
