@@ -20,6 +20,7 @@ class GoToTask(Task):
 
     def on_start(self):
         self.go_to_action.send_goal(self.goal, self._goal_reached_callback)
+	rospy.logerr('Goto started!')
 
     def on_resume(self):
         self.on_start()
@@ -34,4 +35,5 @@ class GoToTask(Task):
         return True
 
     def _goal_reached_callback(self, state, result):
+	rospy.logerr(result)
         self.terminated.set()
