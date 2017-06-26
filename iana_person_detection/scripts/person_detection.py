@@ -29,11 +29,19 @@ if __name__ == '__main__':
     from person_detection.grouping.SessionMemory import SessionMemory
     from iana_person_detection.msg import KnownPersonEntered, UnknownPersonEntered, UnknownPersonLeft, KnownPersonLeft
 
+    from person_detection.cache.PersonCache import PersonCache
+
     # face_feature_data_access = FaceFeatureDataAccessSQLAlchemy(engine_instance, session_maker)
     get_persons = rospy.ServiceProxy('get_all_persons', GetAllPersons)
 
+    persons = get_persons().persons # type: list
+    person_cache = PersonCache()
+
+    for person in persons:
+        person_cache.insert(person)
+
     classifier = EuclideanDistanceClassifier()
-    classifier.train(get_persons().persons)
+    classifier.train(persons)
 
     clusterer = AverageFaceClusterer(threshold_same=iana_config.clusterer.threshold_same)
 
@@ -56,7 +64,8 @@ if __name__ == '__main__':
         face_grouper=faceGrouper,
         session_memory=sessionMemory,
         known_person_publisher=rospy.Publisher('/iana/person_detection/known/entered', KnownPersonEntered, queue_size=10),
-        unknown_person_publisher=rospy.Publisher('/iana/person_detection/unknown/entered', UnknownPersonEntered, queue_size=10)
+        unknown_person_publisher=rospy.Publisher('/iana/person_detection/unknown/entered', UnknownPersonEntered, queue_size=10),
+        person_cache=person_cache
     )
 
     from sensor_msgs.msg import Image
@@ -82,6 +91,7 @@ if __name__ == '__main__':
 
 
     def insert_new_person(person):
+        person_cache.insert(person)
         with lock:
             classifier.update(person.person_id, map(lambda x: x.face, person.face_vectors))
 
@@ -93,8 +103,6 @@ if __name__ == '__main__':
         face_detection_image = message_filters.Subscriber("/face_image", Image)
         person_detection_image = message_filters.Subscriber("/person_image", Image)
 
-
-
         message_filters.TimeSynchronizer([face_detection_image, person_detection_image], 10).registerCallback(detect_person)
 
         rospy.Subscriber("/new_person", Person, insert_new_person)
@@ -103,7 +111,7 @@ if __name__ == '__main__':
         while not rospy.is_shutdown():
             for known_left_id, _ in sessionMemory.known_remove_old():
                 rospy.loginfo("Left: Known person id={0}".format(known_left_id))
-                known_person_left_publisher.publish(known_left_id)
+                known_person_left_publisher.publish(persons_dict[known_left_id])
             for unknown_left_id, _ in sessionMemory.unknown_remove_old():
                 rospy.loginfo("Left: Unknown person id={0}".format(unknown_left_id))
                 unknown_person_left_publisher.publish(unknown_left_id)

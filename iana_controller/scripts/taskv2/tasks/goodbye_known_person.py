@@ -1,22 +1,22 @@
 import actionlib
-import iana_speech.msg
+from iana_speech.msg import SayAction, SayGoal
 
 from taskv2.task import Task
 
 
-class GreetKnownPersonTask(Task):
+class GoodbyeKnownPersonTask(Task):
 
     def __init__(self, msg):
-        super(GreetKnownPersonTask, self).__init__()
-        self.say_action = actionlib.SimpleActionClient('iana/speech/say', iana_speech.msg.SayAction)
+        super(GoodbyeKnownPersonTask, self).__init__()
+        self.say_action = actionlib.SimpleActionClient('/iana/speech/say', SayAction)
         self.say_action.wait_for_server()
-        self.person = msg.person
+        self.goal = SayGoal("Bye! Bye!")
 
     def update(self, elapsed):
         pass
 
     def on_start(self):
-        self.say_action.send_goal(iana_speech.msg.SayGoal("Hallo {0}".format(self.person.name)), self._goal_reached_callback)
+        self.say_action.send_goal(self.goal, self._goal_reached_callback)
 
     def on_resume(self):
         self.on_start()
@@ -28,7 +28,7 @@ class GreetKnownPersonTask(Task):
         self.say_action.cancel_goal()
 
     def interruptable_by(self, task):
-        return super(GreetKnownPersonTask, self).interruptable_by(task)
+        return super(GoodbyeKnownPersonTask, self).interruptable_by(task)
 
     def _goal_reached_callback(self, state, result):
         self.terminated.set()

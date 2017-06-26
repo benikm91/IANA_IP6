@@ -49,3 +49,5 @@ body,
     color: white;
     padding: 20px;
 }
+
+.overlay input { color: black; }

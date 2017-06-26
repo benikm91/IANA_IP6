@@ -77,6 +77,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs  # Or other packages containing msgs
   sensor_msgs
+  iana_person_data
 )
 
 ################################################
