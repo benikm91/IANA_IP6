@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
             face_detection_image = face_detection_image[start_y:end_y, start_x:end_x]
             face_detection_image = cv2.resize(face_detection_image, (0, 0), fx=scale_factor, fy=scale_factor)
-            
+
             # TODO take time from image recording time
             pd.detect_person(face_detection_image, person_detection_image, time.time())
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
         while not rospy.is_shutdown():
             for known_left_id, _ in sessionMemory.known_remove_old():
                 rospy.loginfo("Left: Known person id={0}".format(known_left_id))
-                known_person_left_publisher.publish(persons_dict[known_left_id])
+                known_person_left_publisher.publish(person_cache[known_left_id])
             for unknown_left_id, _ in sessionMemory.unknown_remove_old():
                 rospy.loginfo("Left: Unknown person id={0}".format(unknown_left_id))
                 unknown_person_left_publisher.publish(unknown_left_id)
