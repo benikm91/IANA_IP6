@@ -29,11 +29,19 @@ if __name__ == '__main__':
     from person_detection.grouping.SessionMemory import SessionMemory
     from iana_person_detection.msg import KnownPersonEntered, UnknownPersonEntered, UnknownPersonLeft, KnownPersonLeft
 
+    from person_detection.cache.PersonCache import PersonCache
+
     # face_feature_data_access = FaceFeatureDataAccessSQLAlchemy(engine_instance, session_maker)
     get_persons = rospy.ServiceProxy('get_all_persons', GetAllPersons)
 
+    persons = get_persons().persons # type: list
+    person_cache = PersonCache()
+
+    for person in persons:
+        person_cache.insert(person)
+
     classifier = EuclideanDistanceClassifier()
-    classifier.train(get_persons().persons)
+    classifier.train(persons)
 
     clusterer = AverageFaceClusterer(threshold_same=iana_config.clusterer.threshold_same)
 
@@ -56,7 +64,8 @@ if __name__ == '__main__':
         face_grouper=faceGrouper,
         session_memory=sessionMemory,
         known_person_publisher=rospy.Publisher('/iana/person_detection/known/entered', KnownPersonEntered, queue_size=10),
-        unknown_person_publisher=rospy.Publisher('/iana/person_detection/unknown/entered', UnknownPersonEntered, queue_size=10)
+        unknown_person_publisher=rospy.Publisher('/iana/person_detection/unknown/entered', UnknownPersonEntered, queue_size=10),
+        person_cache=person_cache
     )
 
     from sensor_msgs.msg import Image
@@ -76,12 +85,21 @@ if __name__ == '__main__':
         with lock:
             face_detection_image = get_image(face_detection_image_message, "mono8")
             person_detection_image = get_image(person_detection_image_message, "bgr8")
-            face_detection_image = cv2.resize(face_detection_image, (0, 0), fx=0.2, fy=0.2)
+
+            start_x, end_x = rospy.get_param('start_x', 200), rospy.get_param('end_x', 700)
+            start_y, end_y = rospy.get_param('start_y', 0), rospy.get_param('end_y', 300)
+
+            scale_factor = rospy.get_param('scale_factor', 1)
+
+            face_detection_image = face_detection_image[start_y:end_y, start_x:end_x]
+            face_detection_image = cv2.resize(face_detection_image, (0, 0), fx=scale_factor, fy=scale_factor)
+
             # TODO take time from image recording time
             pd.detect_person(face_detection_image, person_detection_image, time.time())
 
 
     def insert_new_person(person):
+        person_cache.insert(person)
         with lock:
             classifier.update(person.person_id, map(lambda x: x.face, person.face_vectors))
 
@@ -93,8 +111,6 @@ if __name__ == '__main__':
         face_detection_image = message_filters.Subscriber("/face_image", Image)
         person_detection_image = message_filters.Subscriber("/person_image", Image)
 
-
-
         message_filters.TimeSynchronizer([face_detection_image, person_detection_image], 10).registerCallback(detect_person)
 
         rospy.Subscriber("/new_person", Person, insert_new_person)
@@ -103,7 +119,7 @@ if __name__ == '__main__':
         while not rospy.is_shutdown():
             for known_left_id, _ in sessionMemory.known_remove_old():
                 rospy.loginfo("Left: Known person id={0}".format(known_left_id))
-                known_person_left_publisher.publish(known_left_id)
+                known_person_left_publisher.publish(person_cache[known_left_id])
             for unknown_left_id, _ in sessionMemory.unknown_remove_old():
                 rospy.loginfo("Left: Unknown person id={0}".format(unknown_left_id))
                 unknown_person_left_publisher.publish(unknown_left_id)

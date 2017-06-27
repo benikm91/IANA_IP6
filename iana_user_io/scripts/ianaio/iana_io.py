@@ -13,9 +13,9 @@ class IanaTalker(object):
     def start(self):
         pass
 
-    def explore(self):
+    def explore(self, seconds):
         time = Time()
-        time.data = rospy.Time.now() + rospy.Duration(5*60)
+        time.data = rospy.Time.now() + rospy.Duration(int(seconds))
         self.explore_pub.publish(time)
 
     def goto(self, x, y, qx, qy, qz, qw):
@@ -42,5 +42,5 @@ class IanaIO(object):
     def request_name(self):
         pass
 
-    def refresh_map(self, resolution, width, height, map):
+    def refresh_map(self, resolution, origin, width, height, origin_x, origin_y, map):
         pass

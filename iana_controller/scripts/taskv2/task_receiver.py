@@ -4,10 +4,10 @@ from iana_controller.msg import Explore, GoTo
 from iana_person_detection.msg import UnknownPersonEntered, KnownPersonEntered, UnknownPersonLeft, KnownPersonLeft
 from tasks.goodbye_unknown_person import GoodbyeUnknownPersonTask
 from tasks.greet_known_person import GreetKnownPersonTask
-from tasks.greet_unknown_person import GreetUnknownPersonTask
+from tasks.get_to_know_unknown_person import GetToKnowUnknownPersonTask
 from tasks.explore import ExploreTask
 from tasks.goto import GoToTask
-from std_msgs.msg import Time
+from taskv2.tasks.goodbye_known_person import GoodbyeKnownPersonTask
 
 
 class TaskReceiver(object):
@@ -29,7 +29,7 @@ class TaskReceiver(object):
         self.task_list.submit(GoToTask(msg.target_pose))
 
     def unknown_person_entered(self, msg):
-        self.task_list.submit(GreetUnknownPersonTask(msg))
+        self.task_list.submit(GetToKnowUnknownPersonTask(msg))
 
     def known_person_entered(self, msg):
         self.task_list.submit(GreetKnownPersonTask(msg))
@@ -38,4 +38,4 @@ class TaskReceiver(object):
         self.task_list.submit(GoodbyeUnknownPersonTask(msg))
 
     def known_person_left(self, msg):
-        pass
+        self.task_list.submit(GoodbyeKnownPersonTask(msg))

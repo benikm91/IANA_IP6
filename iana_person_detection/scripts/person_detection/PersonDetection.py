@@ -11,7 +11,7 @@ bridge = CvBridge()
 
 class PersonDetection(object):
 
-    def  __init__(self, face_detection, face_alignment, face_embedder, face_labeler, face_filter, unknown_face_labeler, face_grouper, session_memory, known_person_publisher, unknown_person_publisher):
+    def  __init__(self, face_detection, face_alignment, face_embedder, face_labeler, face_filter, unknown_face_labeler, face_grouper, session_memory, known_person_publisher, unknown_person_publisher, person_cache):
         """
         :type face_detection: FaceDetection.FaceDetection
         :type face_alignment: FaceAlignment.FaceAlignment
@@ -34,6 +34,7 @@ class PersonDetection(object):
         self.session_memory = session_memory
         self.known_person_publisher = known_person_publisher
         self.unknown_person_publisher = unknown_person_publisher
+        self.person_cache = person_cache
 
     def _generate_header(self):
         h = Header()
@@ -42,7 +43,7 @@ class PersonDetection(object):
 
     def known_person_detected(self, person_id, record_timestamp):
         rospy.logerr("Entered: Known person id={0}".format(person_id))
-        self.known_person_publisher.publish(person_id)
+        self.known_person_publisher.publish(self.person_cache[person_id])
 
     def unknown_person_detected(self, unknown_person_id, face_vectors, preview_image, record_timestamp):
         rospy.logerr("Entered: Unknown person id={0}".format(unknown_person_id))
@@ -80,7 +81,7 @@ class PersonDetection(object):
             :type bounding_box: dlib.rectangle
             :return: 
             """
-            face_height, face_width = face_image.shape
+            face_height, face_width, _ = face_image.shape
             person_height, person_width, _ = person_image.shape
             w_resize_factor = person_width / face_width
             h_resize_factor = person_height / face_height 
@@ -102,7 +103,7 @@ class PersonDetection(object):
         embeddings = self.face_embedder.embed(aligned_faces)
         labeled_faces = self.face_labeler.label(embeddings)
         for face, (person_id, confidence, face_vector) in zip(faces, labeled_faces):
-            rospy.logerr("Detected: id={0} with confidence{1}".format(person_id, confidence))
+            rospy.loginfo("Detected: id={0} with confidence{1}".format(person_id, confidence))
             if self.face_filter.is_known(face_vector, confidence):
                 handle_known_face(self, person_id, face_vector, confidence)
             elif self.face_filter.is_unknown(face_vector, confidence):
