@@ -95,8 +95,9 @@ class TaskSystem(object):
                     rospy.loginfo('Interrupt task: {}'.format(self.current_task))
                     self.current_task.on_interrupt()
                 self.running.wait()
-                self.current_task.on_resume()
-                rospy.loginfo('Resume task: {}'.format(self.current_task))
+                if self.current_task is not None:
+                    self.current_task.on_resume()
+                    rospy.loginfo('Resume task: {}'.format(self.current_task))
                 start = time.time()
 
             # if there is a current_task: check if terminated
