@@ -85,7 +85,15 @@ if __name__ == '__main__':
         with lock:
             face_detection_image = get_image(face_detection_image_message, "mono8")
             person_detection_image = get_image(person_detection_image_message, "bgr8")
-            # face_detection_image = cv2.resize(face_detection_image, (0, 0), fx=0.2, fy=0.2)
+
+            start_x, end_x = rospy.get_param('start_x', 200), rospy.get_param('end_x', 700)
+            start_y, end_y = rospy.get_param('start_y', 0), rospy.get_param('end_y', 300)
+
+            scale_factor = rospy.get_param('scale_factor', 1)
+
+            face_detection_image = face_detection_image[start_y:end_y, start_x:end_x]
+            face_detection_image = cv2.resize(face_detection_image, (0, 0), fx=scale_factor, fy=scale_factor)
+            
             # TODO take time from image recording time
             pd.detect_person(face_detection_image, person_detection_image, time.time())
 
