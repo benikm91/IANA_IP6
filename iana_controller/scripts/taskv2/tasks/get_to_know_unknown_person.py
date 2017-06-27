@@ -33,7 +33,6 @@ class GetToKnowUnknownPersonTask(Task):
 
         # setup -> init needed actions and services.
         get_name_action = actionlib.SimpleActionClient('/get_name', GetNameAction)
-        rospy.loginfo('Setting up services and actions.')
         get_name_action.wait_for_server()
         say_action = actionlib.SimpleActionClient('/iana/speech/say', SayAction)
         say_action.wait_for_server()

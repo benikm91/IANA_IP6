@@ -104,8 +104,7 @@ class _BroadcastServerFactory(WebSocketServerFactory):
             print("unregistered client {}".format(client.peer))
 
     def request_name(self):
-	for c in self.clients:
-            c.request_name()
+        pass
 
     def refresh_map(self, map_data):
         self.current_map = map_data
@@ -146,9 +145,12 @@ class WebSocketIO(IanaIO):
         thread.start()
 
     def request_name(self, preview_image):
-	root = File(dirname(dirname(dirname(abspath(__file__)))))
-	cv2.imwrite(root.name+'/preview_image.png', preview_image) 
-        return self.factory.request_name()
+        global protocol
+        if protocol is None:
+            return None
+        root = File(dirname(dirname(dirname(abspath(__file__)))))
+        cv2.imwrite(root.path+'/preview_image.png', preview_image)
+        return protocol.request_name()
 
     def refresh_map(self, resolution, origin, width, height, origin_x, origin_y, map):
         self.factory.refresh_map(MapData(resolution, origin, width, height, origin_x, origin_y, map))

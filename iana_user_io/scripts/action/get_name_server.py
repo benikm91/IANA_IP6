@@ -2,6 +2,10 @@ import rospy
 import actionlib
 from iana_user_io.msg import GetNameAction, GetNameGoal, GetNameFeedback, GetNameResult
 
+from cv_bridge import CvBridge
+
+bridge = CvBridge()
+
 
 class GetNameActionServer(object):
     # create messages that are used to publish feedback/result
@@ -21,5 +25,6 @@ class GetNameActionServer(object):
         self._as.start()
 
     def execute_cb(self, goal):
-        self._result.name = self.io.request_name(goal.preview_image)
+        goal.preview_image.encoding = "bgr8"
+        self._result.name = self.io.request_name(bridge.imgmsg_to_cv2(goal.preview_image, desired_encoding="bgr8"))
         self._as.set_succeeded(self._result)
