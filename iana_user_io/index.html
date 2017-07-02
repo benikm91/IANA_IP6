@@ -1,11 +1,11 @@
-    <!DOCTYPE html>
-    <html>
-       <head>
+<!DOCTYPE html>
+<html>
+   <head>
 
-          <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
-          <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+      <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.css">
+      <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 
-          <script type="text/javascript">
+      <script type="text/javascript">
          let socket = null;
          let isopen = false;
 
@@ -20,7 +20,7 @@
 
          let current_pose = null;
 
-         let ip = "10.42.0.1";
+         let ip = "127.0.0.1";
 
          function request_name() {
 	     // Add random get parameter so cache misses.
@@ -90,6 +90,10 @@
          function goto_target() {
              const x = document.querySelector('input[name="goto_x"]').value;
              const y = document.querySelector('input[name="goto_y"]').value;
+             goto_position(x, y);
+         }
+
+         function goto_position(x, y) {
              goto(x, y, Object.freeze({x: 0, y: 0, z: 1}), 1);
          }
 
@@ -208,6 +212,12 @@
                  let endX = e.clientX - rect.left;
                  let endY = e.clientY - rect.top;
 
+                 // if positions are the same, there is no rotation calculatable => only go to position.
+                 if (startX == endX && startY == endY) {
+                     goto_position(startX, startY);
+                     return;
+                 }
+
                  let startV = new Vector3(startX, startY, 0).scale(current_resolution);
                  let endV = new Vector3(endX, endY, 0).scale(current_resolution);
 
@@ -222,6 +232,8 @@
                  let q = Vector3.crossProduct(must, afa);
                  let qw = Vector3.dotProduct(must, afa);
 
+                 console.log(toEulerianAngle(q, qw));
+
                  goto(startX * current_resolution + current_pose.x, (current_height - startY) * current_resolution + current_pose.y, q, qw);
 
                  draw_current_map();
@@ -230,6 +242,33 @@
              });
              canvas.addEventListener('mousemove', function(e) { visulize_orientation(e); });
          }
+
+
+
+
+
+        function toEulerianAngle(q, qw)
+        {
+            ysqr = q.y * q.y;
+
+            // roll (x-axis rotation)
+            t0 = +2.0 * (qw * q.x + q.y * q.z);
+            t1 = +1.0 - 2.0 * (q.x * q.x + ysqr);
+            roll = Math.atan2(t0, t1);
+
+            // pitch (y-axis rotation)
+            t2 = +2.0 * (qw * q.y - q.z * q.x);
+            t2 = t2 > 1.0 ? 1.0 : t2;
+            t2 = t2 < -1.0 ? -1.0 : t2;
+            pitch = Math.asin(t2);
+
+            // yaw (z-axis rotation)
+            t3 = +2.0 * (qw * q.z + q.x * q.y);
+            t4 = +1.0 - 2.0 * (ysqr + q.z * q.z);
+            yaw = Math.atan2(t3, t4);
+
+            return Object.freeze({roll: roll, pitch: pitch, yaw: yaw});
+        }
 
       </script>
    </head>
