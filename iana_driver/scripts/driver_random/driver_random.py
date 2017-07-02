@@ -12,11 +12,8 @@ ZERO_VELOCITY = geometry_msgs.msg.Twist()
 
 class DriverRandom(object):
 
-    def __init__(self, node_handle):
-        self.node_handle = node_handle
-
+    def __init__(self):
         self.enabled = False
-
         self.state = DriverIdleState(self)
         self.sensor_state = SensorState()
 
@@ -33,11 +30,9 @@ class DriverRandom(object):
 
         rospy.Subscriber("/iana/driver_random/enable", std_msgs.msg.Empty, self.enable)
         rospy.Subscriber("/iana/driver_random/disable", std_msgs.msg.Empty, self.disable)
-
         rospy.Subscriber("/events/bumper", kobuki_msgs.msg.BumperEvent, self.on_bumper_event)
         rospy.Subscriber("/events/cliff", kobuki_msgs.msg.CliffEvent, self.on_cliff_event)
         rospy.Subscriber("/events/wheel_drop", kobuki_msgs.msg.WheelDropEvent, self.on_wheel_drop_event)
-
         rospy.Subscriber("/collision_ahead", std_msgs.msg.Float32, self.on_collision_ahead_event)
 
     def enable(self, msg):
