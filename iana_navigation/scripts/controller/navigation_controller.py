@@ -37,7 +37,7 @@ class NavigationController(object):
         while not rospy.get_rostime() >= until and not preempted:
             if self.explore_action_server.is_preempt_requested():
                 self.stop_driver_publisher.publish()
-		rospy.logerr('Stop explore right now! I said now! You fools!')
+		        rospy.logerr('Stop explore right now! I said now! You fools!')
                 self.explore_action_server.set_preempted()
                 preempted = True
             else:
