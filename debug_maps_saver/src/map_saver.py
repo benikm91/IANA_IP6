@@ -4,11 +4,11 @@ import subprocess
 import rospy
 from nav_msgs.msg import OccupancyGrid
 
-base_file_name = rospy.get_param('file', '~/map/map')
 counter = 0
 
 
 def save_map(msg):
+    base_file_name = rospy.get_param('~file', '~/map/map')
     global counter
     file_path = "{0}_{1}".format(base_file_name, counter)
     command = "rosrun map_server map_saver -f {0}".format(file_path)
