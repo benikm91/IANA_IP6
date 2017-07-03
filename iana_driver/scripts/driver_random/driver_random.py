@@ -1,65 +1,48 @@
 import math
+import random
+
+import numpy as np
 import rospy
 import std_msgs.msg
 import geometry_msgs.msg
 import kobuki_msgs.msg
 
-
-class DriverRandomState(object):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-    def update(self):
-        raise NotImplemented("not yet implemented!")
-
-
-class DriveForwardState(DriverRandomState):
-    def __init__(self, velocity) -> None:
-        super().__init__()
-        self.velocity = velocity
-
-    def update(self):
-        return super().update()
-
-
-class DriverState(object):
-    DRIVING_FORWARD, TURNING = range(2)
+ZERO_VELOCITY = geometry_msgs.msg.Twist()
 
 
 class DriverRandom(object):
 
-    def __init__(self, node_handle):
-        self.node_handle = node_handle
-
+    def __init__(self):
         self.enabled = False
+        self.state = DriverIdleState(self)
+        self.sensor_state = SensorState()
 
-        self.state = DriverState.DRIVING_FORWARD
-        self.turning_duration = 0
-        self.current_velocity = kobuki_msgs.msg.Twist()
-
-        self.linear_velocity = rospy.get_param("linear_velocity", 0.5)
-        self.angular_velocity = rospy.get_param("angular_velocity", 0.1)
+        self.min_linear_velocity = rospy.get_param("min_linear_velocity", 0.1)
+        self.max_linear_velocity = rospy.get_param("max_linear_velocity", 0.5)
+        self.min_angular_velocity = rospy.get_param("min_angular_velocity", 0.05)
+        self.max_angular_velocity = rospy.get_param("max_angular_velocity", 0.2)
         self.linear_acceleration = rospy.get_param("linear_acceleration", 0.1)
         self.angular_acceleration = rospy.get_param("angular_acceleration", 0.02)
-
-        self.bumper_pressed = [False, False, False]
-        self.wheel_dropped = [False, False]
-        self.cliff_detected = [False, False, False]
+        self.collision_warn_threshold = rospy.get_param("collision_warn_threshold", 1.3)
+        self.collision_ahead_threshold = rospy.get_param("collision_ahead_threshold", 0.8)
 
         self.command_velocity_publisher = rospy.Publisher('/commands/velocity', geometry_msgs.msg.Twist, queue_size=10)
 
-        rospy.Subscriber("/iana/driver_random/enable", Empty, self.enable)
-        rospy.Subscriber("/iana/driver_random/disable", Empty, self.disable)
-
+        rospy.Subscriber("/iana/driver_random/enable", std_msgs.msg.Empty, self.enable)
+        rospy.Subscriber("/iana/driver_random/disable", std_msgs.msg.Empty, self.disable)
         rospy.Subscriber("/events/bumper", kobuki_msgs.msg.BumperEvent, self.on_bumper_event)
         rospy.Subscriber("/events/cliff", kobuki_msgs.msg.CliffEvent, self.on_cliff_event)
         rospy.Subscriber("/events/wheel_drop", kobuki_msgs.msg.WheelDropEvent, self.on_wheel_drop_event)
+        rospy.Subscriber("/collision_ahead", std_msgs.msg.Float32, self.on_collision_ahead_event)
 
     def enable(self, msg):
+        if not self.enabled:
+            self.state = DriverForwardState(self)
         self.enabled = True
 
     def disable(self, msg):
+        if self.enabled:
+            self.state = DriverIdleState(self)
         self.enabled = False
 
     def on_bumper_event(self, msg):
@@ -68,11 +51,11 @@ class DriverRandom(object):
             is_pressed = True
 
         if msg.bumper == kobuki_msgs.msg.BumperEvent.LEFT:
-            self.bumper_pressed[0] = is_pressed
+            self.sensor_state.bumper_pressed[0] = is_pressed
         elif msg.bumper == kobuki_msgs.msg.BumperEvent.CENTER:
-            self.bumper_pressed[1] = is_pressed
+            self.sensor_state.bumper_pressed[1] = is_pressed
         else:
-            self.bumper_pressed[2] = is_pressed
+            self.sensor_state.bumper_pressed[2] = is_pressed
 
         rospy.loginfo("received bumper event: {}".format(msg))
 
@@ -82,11 +65,11 @@ class DriverRandom(object):
             is_cliff = True
 
         if msg.sensor == kobuki_msgs.msg.CliffEvent.LEFT:
-            self.cliff_detected[0] = is_cliff
+            self.sensor_state.cliff_detected[0] = is_cliff
         elif msg.sensor == kobuki_msgs.msg.CliffEvent.CENTER:
-            self.cliff_detected[1] = is_cliff
+            self.sensor_state.cliff_detected[1] = is_cliff
         else:
-            self.cliff_detected[2] = is_cliff
+            self.sensor_state.cliff_detected[2] = is_cliff
 
         rospy.loginfo("received bumper event: {}".format(msg))
 
@@ -96,29 +79,145 @@ class DriverRandom(object):
             is_dropped = True
 
         if msg.wheel == kobuki_msgs.msg.WheelDropEvent.LEFT:
-            self.wheel_dropped[0] = is_dropped
+            self.sensor_state.wheel_dropped[0] = is_dropped
         else:
-            self.wheel_dropped[1] = is_dropped
+            self.sensor_state.wheel_dropped[1] = is_dropped
 
         rospy.loginfo("received wheel drop event: {}".format(msg))
 
+    def on_collision_ahead_event(self, msg):
+        self.sensor_state.collision_warn = msg.data < self.collision_warn_threshold
+        self.sensor_state.collision_ahead = msg.data < self.collision_ahead_threshold
+
+        if self.sensor_state.collision_ahead:
+            rospy.loginfo("Collision ahead! ({})".format(msg.data))
+
     def update(self, delta_time):
-        if self.enabled:
-            if any(self.cliff_detected) or any(self.wheel_dropped):
-                # emergency exit!!!!! D:
-                rospy.logerr("Heeeelp!!")
-                return
+        self.state = self.state.update(delta_time)
 
-            if any(self.bumper_pressed) and self.state != DriverState.TURNING:
-                # run into something: make a ~180° turn and go on
-                self.turning_duration = math.pi / self.angular_velocity
-                self.state = DriverState.TURNING
 
-            if self.state == DriverState.DRIVING_FORWARD:
-                if now < self.turning_duration:
-                    self.command_velocity_publisher.publish()
+class SensorState(object):
+    def __init__(self):
+        super(SensorState, self).__init__()
+        self.bumper_pressed = [False, False, False]
+        self.wheel_dropped = [False, False]
+        self.cliff_detected = [False, False, False]
+        self.collision_warn = False
+        self.collision_ahead = False
+
+
+class DriverRandomState(object):
+
+    def __init__(self, driver):
+        """
+        :type driver: DriverRandom
+        """
+        super(DriverRandomState, self).__init__()
+        self.driver = driver
+
+    def update(self, delta_time):
+        raise NotImplemented("not yet implemented!")
+
+
+class DriverForwardState(DriverRandomState):
+
+    def __init__(self, driver, current_velocity=0):
+        super(DriverForwardState, self).__init__(driver)
+        self.current_velocity = current_velocity
+        self.target_velocity = self.driver.max_linear_velocity
+
+    def update(self, delta_time):
+        # set target velocity depending on safety of robot
+        if self.driver.sensor_state.collision_warn:
+            self.target_velocity = self.driver.min_linear_velocity
+        else:
+            self.target_velocity = self.driver.max_linear_velocity
+
+        # handle collision events
+        if any(self.driver.sensor_state.bumper_pressed) or \
+                any(self.driver.sensor_state.cliff_detected) or \
+                any(self.driver.sensor_state.wheel_dropped) or \
+                self.driver.sensor_state.collision_ahead:
+            self.driver.command_velocity_publisher.publish(ZERO_VELOCITY)
+            return DriverTurningState(self.driver, random.uniform(30, 180), np.random.choice([-1, 1]))
+
+        # if target velocity not reached yet: accelerate!
+        if self.current_velocity < self.target_velocity:
+            self.current_velocity = min(
+                self.current_velocity + self.driver.linear_acceleration * delta_time,
+                self.target_velocity
+            )
+        elif self.current_velocity > self.target_velocity:
+            self.current_velocity = max(
+                self.current_velocity - self.driver.linear_acceleration * delta_time,
+                self.target_velocity
+            )
+
+        # publish new velocity
+        new_velocity = geometry_msgs.msg.Twist()
+        new_velocity.linear.x = self.current_velocity
+        self.driver.command_velocity_publisher.publish(new_velocity)
+        return self
+
+
+class DriverTurningState(DriverRandomState):
+
+    def __init__(self, driver, target_angle, direction, current_velocity=0):
+        super(DriverTurningState, self).__init__(driver)
+        self.target_angle = target_angle
+        self.turned_angle = 0
+        self.direction = direction
+        self.current_velocity = current_velocity
+        self.target_velocity = self.driver.max_linear_velocity
+
+    def update(self, delta_time):
+        # update
+        self.turned_angle += delta_time * self.current_velocity
+
+        # handle target angle reached
+        if self.target_angle <= self.turned_angle:
+            if any(self.driver.sensor_state.bumper_pressed) or \
+                    any(self.driver.sensor_state.cliff_detected) or \
+                    any(self.driver.sensor_state.wheel_dropped) or \
+                    self.driver.sensor_state.collision_ahead:
+                self.target_angle = random.uniform(30, 180)
+                self.turned_angle = 0
             else:
-                pass
+                self.driver.command_velocity_publisher.publish(ZERO_VELOCITY)
+                return DriverForwardState(0)
 
+        # set target velocity depending on distance to goal
+        if (self.target_angle - self.turned_angle) < 10:
+            self.target_velocity = self.driver.min_angular_velocity
+        else:
+            self.target_velocity = self.driver.max_angular_velocity
+
+        # if target velocity not reached yet: accelerate!
+        if self.current_velocity < self.target_velocity:
+            self.current_velocity = min(
+                self.current_velocity + self.driver.angular_acceleration * delta_time,
+                self.target_velocity
+            )
+        elif self.current_velocity > self.target_velocity:
+            self.current_velocity = max(
+                self.current_velocity - self.driver.angular_acceleration * delta_time,
+                self.target_velocity
+            )
+
+        # publish new velocity
+        new_velocity = geometry_msgs.msg.Twist()
+        new_velocity.angular.z = self.direction * self.current_velocity
+        self.driver.command_velocity_publisher.publish(new_velocity)
+        return self
+
+
+class DriverIdleState(DriverRandomState):
+
+    def __init__(self, driver):
+        super(DriverIdleState, self).__init__(driver)
+        self.driver.command_velocity_publisher.publish(ZERO_VELOCITY)
+
+    def update(self, delta_time):
+        return self
 
 
