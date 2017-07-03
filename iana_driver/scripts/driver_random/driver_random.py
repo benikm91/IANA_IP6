@@ -13,10 +13,6 @@ ZERO_VELOCITY = geometry_msgs.msg.Twist()
 class DriverRandom(object):
 
     def __init__(self):
-        self.enabled = False
-        self.state = DriverIdleState(self)
-        self.sensor_state = SensorState()
-
         self.min_linear_velocity = rospy.get_param("min_linear_velocity", 0.1)
         self.max_linear_velocity = rospy.get_param("max_linear_velocity", 0.5)
         self.min_angular_velocity = rospy.get_param("min_angular_velocity", 0.05)
@@ -34,6 +30,10 @@ class DriverRandom(object):
         rospy.Subscriber("/events/cliff", kobuki_msgs.msg.CliffEvent, self.on_cliff_event)
         rospy.Subscriber("/events/wheel_drop", kobuki_msgs.msg.WheelDropEvent, self.on_wheel_drop_event)
         rospy.Subscriber("/collision_ahead", std_msgs.msg.Float32, self.on_collision_ahead_event)
+
+        self.enabled = False
+        self.sensor_state = SensorState()
+        self.state = DriverIdleState(self)
 
     def enable(self, msg):
         if not self.enabled:
