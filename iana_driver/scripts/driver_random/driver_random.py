@@ -16,9 +16,9 @@ class DriverRandom(object):
         rospy.loginfo("Starting random driver...")
 
         self.min_linear_velocity = rospy.get_param("min_linear_velocity", 0.1)
-        self.max_linear_velocity = rospy.get_param("max_linear_velocity", 0.5)
-        self.min_angular_velocity = rospy.get_param("min_angular_velocity", 0.05)
-        self.max_angular_velocity = rospy.get_param("max_angular_velocity", 0.2)
+        self.max_linear_velocity = rospy.get_param("max_linear_velocity", 1)
+        self.min_angular_velocity = rospy.get_param("min_angular_velocity", 0.1)
+        self.max_angular_velocity = rospy.get_param("max_angular_velocity", 1)
         self.linear_acceleration = rospy.get_param("linear_acceleration", 0.1)
         self.angular_acceleration = rospy.get_param("angular_acceleration", 0.02)
         self.collision_warn_threshold = rospy.get_param("collision_warn_threshold", 1.3)
@@ -146,7 +146,7 @@ class DriverForwardState(DriverRandomState):
                 self.driver.sensor_state.collision_ahead:
             self.driver.command_velocity_publisher.publish(ZERO_VELOCITY)
             rospy.logerr("Collision ahead! go to turning state")
-            return DriverTurningState(self.driver, random.uniform(30, 180), np.random.choice([-1, 1]))
+            return DriverTurningState(self.driver, random.uniform(math.pi/6, math.pi), np.random.choice([-1, 1]))
 
         # if target velocity not reached yet: accelerate!
         if self.current_velocity < self.target_velocity:
@@ -173,7 +173,7 @@ class DriverTurningState(DriverRandomState):
     def __init__(self, driver, target_angle, direction, current_velocity=0):
         super(DriverTurningState, self).__init__(driver)
         self.target_angle = target_angle
-        self.turned_angle = 0
+        self.turned_angle = 0.0
         self.direction = direction
         self.current_velocity = current_velocity
         self.target_velocity = self.driver.max_linear_velocity
@@ -188,15 +188,15 @@ class DriverTurningState(DriverRandomState):
                     any(self.driver.sensor_state.cliff_detected) or \
                     any(self.driver.sensor_state.wheel_dropped) or \
                     self.driver.sensor_state.collision_ahead:
-                self.target_angle = random.uniform(30, 180)
-                self.turned_angle = 0
+                self.target_angle = random.uniform(math.pi/6, math.pi)
+                self.turned_angle = 0.0
             else:
                 self.driver.command_velocity_publisher.publish(ZERO_VELOCITY)
                 rospy.logerr("Turning is ova! Back to Forward state")
                 return DriverForwardState(0)
 
         # set target velocity depending on distance to goal
-        if (self.target_angle - self.turned_angle) < 10:
+        if (self.target_angle - self.turned_angle) < math.pi/15:
             self.target_velocity = self.driver.min_angular_velocity
         else:
             self.target_velocity = self.driver.max_angular_velocity
