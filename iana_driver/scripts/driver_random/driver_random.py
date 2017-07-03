@@ -13,6 +13,8 @@ ZERO_VELOCITY = geometry_msgs.msg.Twist()
 class DriverRandom(object):
 
     def __init__(self):
+        rospy.loginfo("Starting random driver...")
+
         self.min_linear_velocity = rospy.get_param("min_linear_velocity", 0.1)
         self.max_linear_velocity = rospy.get_param("max_linear_velocity", 0.5)
         self.min_angular_velocity = rospy.get_param("min_angular_velocity", 0.05)
@@ -22,7 +24,7 @@ class DriverRandom(object):
         self.collision_warn_threshold = rospy.get_param("collision_warn_threshold", 1.3)
         self.collision_ahead_threshold = rospy.get_param("collision_ahead_threshold", 0.8)
 
-        self.command_velocity_publisher = rospy.Publisher('/commands/velocity', geometry_msgs.msg.Twist, queue_size=10)
+        self.command_velocity_publisher = rospy.Publisher('/mobile_base/commands/velocity', geometry_msgs.msg.Twist, queue_size=10)
 
         rospy.Subscriber("/iana/driver_random/enable", std_msgs.msg.Empty, self.enable)
         rospy.Subscriber("/iana/driver_random/disable", std_msgs.msg.Empty, self.disable)
@@ -35,14 +37,18 @@ class DriverRandom(object):
         self.sensor_state = SensorState()
         self.state = DriverIdleState(self)
 
+        rospy.loginfo("Random driver successfully!")
+
     def enable(self, msg):
         if not self.enabled:
             self.state = DriverForwardState(self)
+        rospy.loginfo("Driver enabled")
         self.enabled = True
 
     def disable(self, msg):
         if self.enabled:
             self.state = DriverIdleState(self)
+        rospy.loginfo("Driver disabled")
         self.enabled = False
 
     def on_bumper_event(self, msg):
@@ -139,6 +145,7 @@ class DriverForwardState(DriverRandomState):
                 any(self.driver.sensor_state.wheel_dropped) or \
                 self.driver.sensor_state.collision_ahead:
             self.driver.command_velocity_publisher.publish(ZERO_VELOCITY)
+            rospy.logerr("Collision ahead! go to turning state")
             return DriverTurningState(self.driver, random.uniform(30, 180), np.random.choice([-1, 1]))
 
         # if target velocity not reached yet: accelerate!
@@ -156,6 +163,7 @@ class DriverForwardState(DriverRandomState):
         # publish new velocity
         new_velocity = geometry_msgs.msg.Twist()
         new_velocity.linear.x = self.current_velocity
+        rospy.logerr("ForwardState, Publishing new velocity: {}".format(new_velocity))
         self.driver.command_velocity_publisher.publish(new_velocity)
         return self
 
@@ -184,6 +192,7 @@ class DriverTurningState(DriverRandomState):
                 self.turned_angle = 0
             else:
                 self.driver.command_velocity_publisher.publish(ZERO_VELOCITY)
+                rospy.logerr("Turning is ova! Back to Forward state")
                 return DriverForwardState(0)
 
         # set target velocity depending on distance to goal
@@ -207,6 +216,7 @@ class DriverTurningState(DriverRandomState):
         # publish new velocity
         new_velocity = geometry_msgs.msg.Twist()
         new_velocity.angular.z = self.direction * self.current_velocity
+        rospy.logerr("TurningState, Publishing new velocity: {}".format(new_velocity))
         self.driver.command_velocity_publisher.publish(new_velocity)
         return self
 
@@ -218,6 +228,7 @@ class DriverIdleState(DriverRandomState):
         self.driver.command_velocity_publisher.publish(ZERO_VELOCITY)
 
     def update(self, delta_time):
+        rospy.logerr("IdleState!")
         return self
 
 
