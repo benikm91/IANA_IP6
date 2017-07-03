@@ -16,11 +16,13 @@ class DriverRandom(object):
         rospy.loginfo("Starting random driver...")
 
         self.min_linear_velocity = rospy.get_param("min_linear_velocity", 0.1)
+        self.medium_linear_velocity = rospy.get_param("medium_linear_velocity", 0.25)
         self.max_linear_velocity = rospy.get_param("max_linear_velocity", 0.5)
         self.min_angular_velocity = rospy.get_param("min_angular_velocity", 0.1)
         self.max_angular_velocity = rospy.get_param("max_angular_velocity", 1)
         self.linear_acceleration = rospy.get_param("linear_acceleration", 0.2)
         self.angular_acceleration = rospy.get_param("angular_acceleration", 0.2)
+        self.collision_warn_threshold = rospy.get_param("collision_info_threshold", 2.3)
         self.collision_warn_threshold = rospy.get_param("collision_warn_threshold", 1.3)
         self.collision_ahead_threshold = rospy.get_param("collision_ahead_threshold", 0.8)
 
@@ -108,6 +110,7 @@ class SensorState(object):
         self.bumper_pressed = [False, False, False]
         self.wheel_dropped = [False, False]
         self.cliff_detected = [False, False, False]
+        self.collision_info = False
         self.collision_warn = False
         self.collision_ahead = False
 
@@ -134,7 +137,9 @@ class DriverForwardState(DriverRandomState):
 
     def update(self, delta_time):
         # set target velocity depending on safety of robot
-        if self.driver.sensor_state.collision_warn:
+        if self.driver.sensor_state.collision_info:
+            self.target_velocity = self.driver.medium_linear_velocity
+        elif self.driver.sensor_state.collision_warn:
             self.target_velocity = self.driver.min_linear_velocity
         else:
             self.target_velocity = self.driver.max_linear_velocity
@@ -145,7 +150,7 @@ class DriverForwardState(DriverRandomState):
                 any(self.driver.sensor_state.wheel_dropped) or \
                 self.driver.sensor_state.collision_ahead:
             self.driver.command_velocity_publisher.publish(ZERO_VELOCITY)
-            rospy.logerr("Collision ahead! go to turning state")
+            rospy.loginfo("Collision ahead! go to turning state")
             return DriverTurningState(self.driver, random.uniform(math.pi/6, math.pi), np.random.choice([-1, 1]))
 
         # if target velocity not reached yet: accelerate!
@@ -163,7 +168,7 @@ class DriverForwardState(DriverRandomState):
         # publish new velocity
         new_velocity = geometry_msgs.msg.Twist()
         new_velocity.linear.x = self.current_velocity
-        rospy.logerr("ForwardState, Publishing new velocity: {}".format(new_velocity))
+        rospy.loginfo("ForwardState, Publishing new velocity: {}".format(new_velocity))
         self.driver.command_velocity_publisher.publish(new_velocity)
         return self
 
@@ -188,12 +193,12 @@ class DriverTurningState(DriverRandomState):
                     any(self.driver.sensor_state.cliff_detected) or \
                     any(self.driver.sensor_state.wheel_dropped) or \
                     self.driver.sensor_state.collision_ahead:
-                rospy.logerr("Goal reached, still obstacles!")
+                rospy.loginfo("Goal reached, still obstacles!")
                 self.target_angle = random.uniform(math.pi/6, math.pi)
                 self.turned_angle = 0.0
             else:
                 self.driver.command_velocity_publisher.publish(ZERO_VELOCITY)
-                rospy.logerr("Turning is ova! Back to Forward state")
+                rospy.loginfo("Turning is ova! Back to Forward state")
                 return DriverForwardState(self.driver, 0)
 
         # set target velocity depending on distance to goal
@@ -217,7 +222,7 @@ class DriverTurningState(DriverRandomState):
         # publish new velocity
         new_velocity = geometry_msgs.msg.Twist()
         new_velocity.angular.z = self.direction * self.current_velocity
-        rospy.logerr("TurningState, Publishing new velocity: {}".format(new_velocity))
+        rospy.loginfo("TurningState, Publishing new velocity: {}".format(new_velocity))
         self.driver.command_velocity_publisher.publish(new_velocity)
         return self
 
@@ -229,7 +234,7 @@ class DriverIdleState(DriverRandomState):
         self.driver.command_velocity_publisher.publish(ZERO_VELOCITY)
 
     def update(self, delta_time):
-        rospy.logerr("IdleState!")
+        rospy.loginfo("IdleState")
         return self
 
 
