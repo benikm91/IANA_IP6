@@ -33,7 +33,7 @@ def detect_letters(img):
     return bound_rect
 
 # img_path = "212rgb_image_raw.jpg"
-img_path = "dlink_zoom_1_5m_2017-06-27_13-28-13.027401.jpg"
+img_path = "res/dlink_zoom_1_5m_2017-06-27.jpg"
 
 large = cv2.imread(img_path)
 
