@@ -9,9 +9,10 @@ project(iana_driver)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
     rospy
-#    actionlib
-#    actionlib_msgs
-    std_msgs
+    actionlib
+    actionlib_msgs
+    geometry_msgs
+    kobuki_msgs
 )
 
 ## System dependencies are found with CMake's conventions
