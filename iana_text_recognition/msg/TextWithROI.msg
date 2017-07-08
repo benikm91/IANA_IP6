@@ -1,0 +1,2 @@
+std_msgs/String text
+sensor_msgs/RegionOfInterest roi
