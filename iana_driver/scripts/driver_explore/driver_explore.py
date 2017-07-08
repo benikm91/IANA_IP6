@@ -9,17 +9,21 @@ import std_msgs.msg
 import move_base_msgs.msg
 import geometry_msgs.msg
 import actionlib_msgs.msg
+import nav_msgs.msg
+
+from scripts.driver_explore.driver_explore_state import ExploreFrontiersState
+
 
 class DriverExplore(object):
 
     def __init__(self):
         self.enabled = False
-        self.base_goal = None
-
-        # self.collision_ahead_threshold = rospy.get_param("collision_ahead_threshold", 0.8)
+        self.occupancy_grid = None
+        self.state = ExploreFrontiersState(self)
 
         rospy.Subscriber("/iana/driver_explorer/enable", std_msgs.msg.Empty, self.enable)
         rospy.Subscriber("/iana/driver_explorer/disable", std_msgs.msg.Empty, self.disable)
+        rospy.Subscriber("/map", nav_msgs.msg.OccupancyGrid, self.update_map)
 
         self.move_base_action = actionlib.SimpleActionClient('/move_base', move_base_msgs.msg.MoveBaseAction)
         if not self.move_base_action.wait_for_server(rospy.Duration(30)):
@@ -27,21 +31,16 @@ class DriverExplore(object):
 
     def enable(self, msg):
         self.enabled = True
+        self.state.on_enable()
 
     def disable(self, msg):
-        if self.base_goal is not None:
-            self.base_goal.cancel_goal()
         self.enabled = False
+        self.state.on_disable()
 
-    def next_target_pose(self):
-        target_pose = geometry_msgs.msg.PoseStamped()
-        return target_pose
+    def update_map(self, occupancy_grid):
+        self.occupancy_grid = occupancy_grid
+        self.state.on_map_updated()
 
     def update(self, delta_time):
         if self.enabled:
-            if self.base_goal is None:
-                target_pose = self.next_target_pose()
-                self.base_goal = move_base_msgs.msg.MoveBaseGoal(target_pose=target_pose)
-
-            if self.base_goal.wait_for_result():
-                self.base_goal = None
+            self.state.update(delta_time)
