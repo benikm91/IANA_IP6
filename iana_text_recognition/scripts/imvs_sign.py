@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import cv2
 import rospy
 from recognition.TextRecognitionNode import TextRecognitionNode
 

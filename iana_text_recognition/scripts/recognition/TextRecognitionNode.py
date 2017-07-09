@@ -1,4 +1,5 @@
 import cv2
+import datetime
 import numpy as np
 from tesserocr import PyTessBaseAPI
 
@@ -8,7 +9,7 @@ from sensor_msgs.msg import RegionOfInterest
 
 import Image
 
-from std_msgs.msg import UInt32, String
+from std_msgs.msg import UInt32, String, Header
 
 
 class TextInImage:
@@ -137,7 +138,7 @@ class TextRecognitionNode:
                         texts_in_image[i].text = texts_in_image[i].text + " " + texts_in_image[connections[i]].text
                         texts_in_image[connections[i]].text = ""
 
-            return filter(lambda text_in_image: text_in_image.text is None, texts_in_image)
+            return texts_in_image
 
         height, width, _ = image.shape
 
@@ -146,13 +147,12 @@ class TextRecognitionNode:
         text_images = cutout_rectangles(image, positions)
         recognised_texts_in_image = [self.text_recognition.text_recognition(image, position) for image, position in text_images]
         connected_texts_in_image = connect_texts(recognised_texts_in_image)
-        rospy.loginfo("Found {0} connected texts in current image".format(len(connected_texts_in_image)))
+        final_texts_in_image = connected_texts_in_image #filter(lambda text_in_image: text_in_image.text is None, connected_texts_in_image)
+        rospy.loginfo("Found {0} connected texts in current image".format(len(final_texts_in_image)))
 
-        for t in connected_texts_in_image:
-            print t.text
-
-        if any(connected_texts_in_image):
+        if any(final_texts_in_image):
             self.text_publisher.publish(
+                header=Header(stamp=rospy.Time.now()),
                 origin_image_width=UInt32(width),
                 origin_image_height=UInt32(height),
                 texts_in_image=
@@ -167,7 +167,6 @@ class TextRecognitionNode:
                             height=text_with_pos.height
                         )
                     )
-                    for text_with_pos in connected_texts_in_image
+                    for text_with_pos in final_texts_in_image
                 ]
             )
-
