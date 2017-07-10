@@ -56,7 +56,7 @@ def find_frontier_points_in_map(start, grid_map):
 
 
 def find_frontier_points_in_occupancy_grid(occupancy_grid):
-    grid_map = occupancy_grid.data
+    grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.height, occupancy_grid.info.width))
     origin = occupancy_grid.info.origin
     resolution = occupancy_grid.info.resolution
     start = pose_to_map_point(origin, resolution)
@@ -73,7 +73,7 @@ def find_closest_frontier_point_in_occupancy_grid(occupancy_grid, min_distance):
     :return:
     :rtype: geometry_msgs.msg.Pose
     """
-    grid_map = occupancy_grid.data
+    grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.height, occupancy_grid.info.width))
     origin = occupancy_grid.info.origin
     resolution = occupancy_grid.info.resolution
     start = pose_to_map_point(origin, resolution)
