@@ -91,8 +91,8 @@ class ExploreRandomState(DriverExploreState):
         super(ExploreRandomState, self).__init__(driver)
         print('Init Explore Random state...')
         self.duration = duration
-        self.driver_random_enable_publisher = rospy.Publisher('/iana/driver_random/enable', std_msgs.msg.Empty)
-        self.driver_random_disable_publisher = rospy.Publisher('/iana/driver_random/disable', std_msgs.msg.Empty)
+        self.driver_random_enable_publisher = rospy.Publisher('/iana/driver_random/enable', std_msgs.msg.Empty, queue_size=10)
+        self.driver_random_disable_publisher = rospy.Publisher('/iana/driver_random/disable', std_msgs.msg.Empty, queue_size=10)
         self.driver_random_enable_publisher.publish()
         print('Init Explore Random state done!')
 
