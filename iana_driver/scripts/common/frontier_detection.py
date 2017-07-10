@@ -6,24 +6,24 @@ from collections import deque
 
 
 def pose_to_map_point(pose, resolution):
-    return pose.x / resolution, pose.y / resolution
+    return pose.position.x / resolution, pose.position.y / resolution
 
 
 def pose_to_relative_map_point(pose, origin, resolution):
-    return origin.x + pose.x / resolution, origin.y + pose.y / resolution
+    return origin.position.x + pose.position.x / resolution, origin.position.y + pose.position.y / resolution
 
 
 def map_point_to_relative_pose(point, origin, resolution):
     pose = geometry_msgs.msg.Pose()
-    pose.x = origin.x + point[0] * resolution
-    pose.y = origin.y + point[1] * resolution
+    pose.position.x = origin.position.x + point[0] * resolution
+    pose.position.y = origin.position.y + point[1] * resolution
     return pose
 
 
 def map_point_to_relative_pose_with_euclidean_distance(point, origin, resolution):
     pose = map_point_to_relative_pose(point, origin, resolution)
-    a = pose.x - origin.x
-    b = pose.y - origin.y
+    a = pose.position.x - origin.position.x
+    b = pose.position.y - origin.position.y
     distance = np.sqrt(a*a+b*b)
     return pose, distance
 

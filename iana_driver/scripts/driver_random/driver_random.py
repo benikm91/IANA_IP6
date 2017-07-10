@@ -7,7 +7,7 @@ import std_msgs.msg
 import geometry_msgs.msg
 
 from common.sensor_state import SensorState
-from driver_random.driver_random_state import DriverIdleState, DriverForwardState
+from driver_random_state import DriverIdleState, DriverForwardState
 
 
 class DriverRandom(object):
