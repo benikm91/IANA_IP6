@@ -81,7 +81,7 @@ def find_closest_frontier_point_in_occupancy_grid(occupancy_grid, min_distance):
     rospy.loginfo("find_closest_frontier_point_in_occupancy_grid started")
     grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.height, occupancy_grid.info.width))
     rospy.loginfo("grid_map = {}".format(grid_map))
-    rospy.loginfo("# bigger than 0: {}".format(np.where(grid_map > 0).size()))
+    rospy.loginfo("# bigger than 0: {}".format((grid_map > 0).sum()))
     origin = occupancy_grid.info.origin
     resolution = occupancy_grid.info.resolution
     start = pose_to_map_point(origin, resolution)
