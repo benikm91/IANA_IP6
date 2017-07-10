@@ -3,7 +3,9 @@
 import rospy
 
 import cv2
-import time
+
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 
 
 capture_device = 0
@@ -16,26 +18,22 @@ video_capture.set(4, height)
 interrupted = False
 pos_frame = video_capture.get(1)
 
-# license removed for brevity
-import rospy
-
-from sensor_msgs.msg import Image
-from cv_bridge import CvBridge
-
 bridge = CvBridge()
+
 
 def publish_images():
     pub = rospy.Publisher('image', Image, queue_size=1)
     rospy.init_node('notebook_camera', anonymous=True)
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(1)
     while not rospy.is_shutdown():
         ret, frame = video_capture.read()
         if ret:
             image_message = bridge.cv2_to_imgmsg(frame, encoding="passthrough")
+            image_message.header.stamp = rospy.Time.now()
             pub.publish(image_message)
         else:
             # The next frame is not ready, so we try to read it again
-            video_capture.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, pos_frame - 1)
+            video_capture.set(cv2.CAP_PROP_POS_FRAMES, pos_frame - 1)
         rate.sleep()
 
 if __name__ == '__main__':

@@ -23,9 +23,9 @@ if __name__ == '__main__':
                 return frame
 
             text_recognition_image = get_image(msg, "bgr8")
-            text_recognition.recognise_text(text_recognition_image)
+            text_recognition.recognise_text(text_recognition_image, msg.header.stamp)
 
-        rospy.Subscriber("/image", Image, detect_text, TextRecognitionNode(publisher))
+        rospy.Subscriber("/image", Image, detect_text, TextRecognitionNode(publisher), queue_size = 1)
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
