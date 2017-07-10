@@ -17,6 +17,7 @@ from driver_explore_state import ExploreFrontiersState
 class DriverExplore(object):
 
     def __init__(self):
+        rospy.loginfo("Starting Driver Explore...")
         self.enabled = False
         self.occupancy_grid = None
         self.state = ExploreFrontiersState(self)
@@ -29,7 +30,10 @@ class DriverExplore(object):
         if not self.move_base_action.wait_for_server(rospy.Duration(30)):
             rospy.logerr('Failed to connect to /move_base action')
 
+        rospy.loginfo("Init completed")
+
     def enable(self, msg):
+        rospy.loginfo("Explore Driver enabled")
         self.enabled = True
         self.state.on_enable()
 

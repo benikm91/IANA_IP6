@@ -39,7 +39,7 @@ def find_frontier_points_in_map(start, grid_map):
         [-1, 1]
     ]
     frontiers = []
-    rospy.rosinfo("start: {} = {}".format(start, grid_map[start]))
+    rospy.loginfo("start: {} = {}".format(start, grid_map[start]))
     if grid_map[start] == unknown or grid_map[start] >= occupied_threshold:
         return frontiers
     queue = deque()
@@ -74,19 +74,19 @@ def find_closest_frontier_point_in_occupancy_grid(occupancy_grid, min_distance):
     :return:
     :rtype: geometry_msgs.msg.Pose
     """
-    rospy.rosinfo("find_closest_frontier_point_in_occupancy_grid started")
+    rospy.loginfo("find_closest_frontier_point_in_occupancy_grid started")
     grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.height, occupancy_grid.info.width))
-    rospy.rosinfo("grid_map = {}".format(grid_map))
+    rospy.loginfo("grid_map = {}".format(grid_map))
     origin = occupancy_grid.info.origin
     resolution = occupancy_grid.info.resolution
     start = pose_to_map_point(origin, resolution)
     frontiers = find_frontier_points_in_map(start, grid_map)
-    rospy.rosinfo("frontiers = {}".format(frontiers))
+    rospy.loginfo("frontiers = {}".format(frontiers))
     frontiers_with_distance = [map_point_to_relative_pose_with_euclidean_distance(x, origin, resolution) for x in frontiers]
     frontiers_with_distance.sort(cmp=lambda a, b: a[1] - b[1])
     for pose_with_distance in frontiers_with_distance:
         if pose_with_distance[1] >= min_distance:
-            rospy.rosinfo("pose = {}".format(pose_with_distance[0]))
+            rospy.loginfo("pose = {}".format(pose_with_distance[0]))
             return pose_with_distance[0]
-    rospy.rosinfo("No pose!!!")
+    rospy.loginfo("No pose!!!")
     return None
