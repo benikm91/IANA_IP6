@@ -19,7 +19,9 @@ def combine(image_msg, texts_in_image_msg, publisher):
         cv2.rectangle(image, pt1, pt2, (0, 255, 0), 5)
         # Write some Text
         font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(image, text_in_image.text.data, (x, y), font, 1, (255, 255, 255), 2)
+        # TODO check if this join statement should be in iana_text_recognition
+        text = ''.join(e for e in text_in_image.text.data if e.isalnum())
+        cv2.putText(image, text, (x, y), font, 1, (255, 255, 255), 2)
 
     publisher.publish(bridge.cv2_to_imgmsg(image))
 
