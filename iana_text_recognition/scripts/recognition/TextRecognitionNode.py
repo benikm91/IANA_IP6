@@ -42,8 +42,8 @@ class TextDetection(object):
         morph_kernel_grad_shape = (2, 2)
         morph_kernel_close_shape = (9, 1)
         threshold_min_text_ratio = 0.5  # How much percent of the pixels are foreground
-        threshold_min_height = 8  # Min height of bounding box
-        threshold_min_width = 8  # Min width of bounding box
+        threshold_min_height = 20  # Min height of bounding box
+        threshold_min_width = 100  # Min width of bounding box
 
         morph_grad_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, morph_kernel_grad_shape)
         morph_close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, morph_kernel_close_shape)
@@ -102,7 +102,7 @@ class TextRecognitionNode:
         self.text_detection = TextDetection()
         self.text_recognition = TextRecognition()
 
-    def recognise_text(self, image):
+    def recognise_text(self, image, time_stamp):
         """
         :param image
         :type image numpy.array
@@ -150,23 +150,23 @@ class TextRecognitionNode:
         final_texts_in_image = connected_texts_in_image #filter(lambda text_in_image: text_in_image.text is None, connected_texts_in_image)
         rospy.loginfo("Found {0} connected texts in current image".format(len(final_texts_in_image)))
 
-        if any(final_texts_in_image):
-            self.text_publisher.publish(
-                header=Header(stamp=rospy.Time.now()),
-                origin_image_width=UInt32(width),
-                origin_image_height=UInt32(height),
-                texts_in_image=
-                [
-                    TextWithROI(
-                        # TODO check if unicode necessary and possible in ROS ??
-                        text=String(text_with_pos.text.encode('ascii', 'ignore')),
-                        roi=RegionOfInterest(
-                            x_offset=text_with_pos.x,
-                            y_offset=text_with_pos.y,
-                            width=text_with_pos.width,
-                            height=text_with_pos.height
-                        )
+        # if any(final_texts_in_image):
+        self.text_publisher.publish(
+            header=Header(stamp=time_stamp),
+            origin_image_width=UInt32(width),
+            origin_image_height=UInt32(height),
+            texts_in_image=
+            [
+                TextWithROI(
+                    # TODO check if unicode necessary and possible in ROS ??
+                    text=String(text_with_pos.text.encode('ascii', 'ignore')),
+                    roi=RegionOfInterest(
+                        x_offset=text_with_pos.x,
+                        y_offset=text_with_pos.y,
+                        width=text_with_pos.width,
+                        height=text_with_pos.height
                     )
-                    for text_with_pos in final_texts_in_image
-                ]
-            )
+                )
+                for text_with_pos in final_texts_in_image
+            ]
+        )
