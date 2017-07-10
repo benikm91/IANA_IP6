@@ -14,7 +14,7 @@ def pose_to_map_point(pose, resolution):
 
 
 def pose_to_relative_map_point(pose, origin, resolution):
-    return int(origin.position.x + pose.position.x / resolution), int(origin.position.y + pose.position.y / resolution)
+    return int((pose.position.x) / resolution), int((pose.position.y) / resolution)
 
 
 def map_point_to_relative_pose(point, origin, resolution):
@@ -43,7 +43,7 @@ def find_frontier_points_in_map(start, grid_map):
         [-1, 1]
     ]
     frontiers = []
-    rospy.loginfo("start: {} = {}".format(start, grid_map[start]))
+    rospy.loginfo("find frontier points, start with {} = {}".format(start, grid_map[start]))
     if grid_map[start] == unknown or grid_map[start] >= occupied_threshold:
         return frontiers
     queue = deque()
@@ -69,7 +69,7 @@ def find_frontier_points_in_occupancy_grid(occupancy_grid):
     return [map_point_to_relative_pose(x, origin, resolution) for x in frontiers]
 
 
-def find_closest_frontier_point_in_occupancy_grid(occupancy_grid, min_distance):
+def find_closest_frontier_point_in_occupancy_grid(occupancy_grid, odometry, min_distance):
     """
     :param occupancy_grid:
     :type occupancy_grid: nav_msgs.msg.OccupancyGrid
@@ -78,13 +78,12 @@ def find_closest_frontier_point_in_occupancy_grid(occupancy_grid, min_distance):
     :return:
     :rtype: geometry_msgs.msg.Pose
     """
-    rospy.loginfo("find_closest_frontier_point_in_occupancy_grid started")
+    rospy.loginfo("find_closest_frontier_point_in_occupancy_grid")
     grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.height, occupancy_grid.info.width))
-    rospy.loginfo("grid_map = {}".format(grid_map))
-    rospy.loginfo("# bigger than 0: {}".format((grid_map > 0).sum()))
+    robot_pose = odometry.pose
     origin = occupancy_grid.info.origin
     resolution = occupancy_grid.info.resolution
-    start = pose_to_map_point(origin, resolution)
+    start = pose_to_relative_map_point(robot_pose, origin, resolution)
     frontiers = find_frontier_points_in_map(start, grid_map)
     rospy.loginfo("frontiers = {}".format(frontiers))
     frontiers_with_distance = [map_point_to_relative_pose_with_euclidean_distance(x, origin, resolution) for x in frontiers]

@@ -20,11 +20,13 @@ class DriverExplore(object):
         rospy.loginfo("Starting Driver Explore...")
         self.enabled = False
         self.occupancy_grid = None
+        self.odometry = None
         self.state = ExploreFrontiersState(self)
 
         rospy.Subscriber("/iana/driver_explorer/enable", std_msgs.msg.Empty, self.enable)
         rospy.Subscriber("/iana/driver_explorer/disable", std_msgs.msg.Empty, self.disable)
         rospy.Subscriber("/map", nav_msgs.msg.OccupancyGrid, self.update_map)
+        rospy.Subscriber("/odom", nav_msgs.msg.Odometry, self.update_odometry)
 
         rospy.loginfo("Init completed")
 
@@ -40,6 +42,10 @@ class DriverExplore(object):
     def update_map(self, occupancy_grid):
         self.occupancy_grid = occupancy_grid
         self.state.on_map_updated()
+
+    def update_odometry(self, odometry):
+        self.odometry = odometry
+        self.state.on_odometry_updated()
 
     def update(self, delta_time):
         if self.enabled:

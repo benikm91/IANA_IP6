@@ -35,6 +35,9 @@ class DriverExploreState(object):
     def on_map_updated(self):
         raise NotImplementedError()
 
+    def on_odometry_updated(self):
+        raise NotImplementedError()
+
 
 class ExploreFrontiersState(DriverExploreState):
 
@@ -52,7 +55,7 @@ class ExploreFrontiersState(DriverExploreState):
         if self.driver.occupancy_grid is None:
             print('Occupancy grid empty!')
             return None
-        return find_closest_frontier_point_in_occupancy_grid(self.driver.occupancy_grid, 1)
+        return find_closest_frontier_point_in_occupancy_grid(self.driver.occupancy_grid, self.driver.odometry, 1)
 
     def goal_reached(self, state, result):
         print('Explore Frontier goal reached!')
@@ -85,6 +88,9 @@ class ExploreFrontiersState(DriverExploreState):
     def on_map_updated(self):
         print('Map updated!')
 
+    def on_odometry_updated(self):
+        pass
+
 
 class ExploreRandomState(DriverExploreState):
     def __init__(self, driver, duration):
@@ -111,3 +117,6 @@ class ExploreRandomState(DriverExploreState):
 
     def on_map_updated(self):
         print('Map updated!')
+
+    def on_odometry_updated(self):
+        pass
