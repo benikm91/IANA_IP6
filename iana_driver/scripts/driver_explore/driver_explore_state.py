@@ -40,31 +40,35 @@ class ExploreFrontiersState(DriverExploreState):
 
     def __init__(self, driver):
         super(ExploreFrontiersState, self).__init__(driver)
+        print('Init Explore Frontier state...')
         self.goal_pending = False
         self.move_base_action = actionlib.SimpleActionClient('/move_base', move_base_msgs.msg.MoveBaseAction)
         if not self.move_base_action.wait_for_server(rospy.Duration(30)):
             rospy.logerr('Failed to connect to /move_base action')
+        print('Init Explore Frontier state done!')
 
     def next_frontier_pose(self):
+        print('Find next frontier point...')
         if self.driver.occupancy_grid is None:
+            print('Occupancy grid empty!')
             return None
-        closest_frontier_pose = find_closest_frontier_point_in_occupancy_grid(self.driver.occupancy_grid, 1)
-        if closest_frontier_pose is None:
-            return None
-        return closest_frontier_pose
+        return find_closest_frontier_point_in_occupancy_grid(self.driver.occupancy_grid, 1)
 
     def goal_reached(self, state, result):
+        print('Explore Frontier goal reached!')
         self.goal_pending = False
 
     def update(self, delta_time):
         if self.goal_pending is False:
             target_pose = self.next_frontier_pose()
             if target_pose is None:
+                print('Can\'t find target pose: go to random state')
                 # can't find any valid frontier point!
                 return ExploreRandomState(self.driver, 30)
             target_pose_stamped = geometry_msgs.msg.PoseStamped()
             target_pose_stamped.header.frame_id = 'map'
             target_pose_stamped.pose = target_pose
+            print('New goal: {}'.format(target_pose_stamped))
             goal = move_base_msgs.msg.MoveBaseGoal(target_pose=target_pose_stamped)
             self.move_base_action.send_goal(goal, self.goal_reached)
             self.goal_pending = True
@@ -74,25 +78,29 @@ class ExploreFrontiersState(DriverExploreState):
         pass
 
     def on_disable(self):
+        print('Driver frontier disabled')
         self.move_base_action.cancel_goal()
         self.goal_pending = False
 
     def on_map_updated(self):
-        pass
+        print('Map updated!')
 
 
 class ExploreRandomState(DriverExploreState):
     def __init__(self, driver, duration):
         super(ExploreRandomState, self).__init__(driver)
+        print('Init Explore Random state...')
         self.duration = duration
         self.driver_random_enable_publisher = rospy.Publisher('/iana/driver_random/enable', std_msgs.msg.Empty)
         self.driver_random_disable_publisher = rospy.Publisher('/iana/driver_random/disable', std_msgs.msg.Empty)
         self.driver_random_enable_publisher.publish()
+        print('Init Explore Random state done!')
 
     def update(self, delta_time):
         self.duration -= delta_time
         if self.duration <= 0:
-            return ExploreRandomState(self.driver)
+            print('Explore time expired: go to Explore Frontier state.')
+            return ExploreFrontiersState(self.driver)
         return self
 
     def on_enable(self):
@@ -102,4 +110,4 @@ class ExploreRandomState(DriverExploreState):
         self.driver_random_disable_publisher.publish()
 
     def on_map_updated(self):
-        pass
+        print('Map updated!')

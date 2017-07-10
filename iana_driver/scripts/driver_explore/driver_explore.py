@@ -26,10 +26,6 @@ class DriverExplore(object):
         rospy.Subscriber("/iana/driver_explorer/disable", std_msgs.msg.Empty, self.disable)
         rospy.Subscriber("/map", nav_msgs.msg.OccupancyGrid, self.update_map)
 
-        self.move_base_action = actionlib.SimpleActionClient('/move_base', move_base_msgs.msg.MoveBaseAction)
-        if not self.move_base_action.wait_for_server(rospy.Duration(30)):
-            rospy.logerr('Failed to connect to /move_base action')
-
         rospy.loginfo("Init completed")
 
     def enable(self, msg):
@@ -47,4 +43,4 @@ class DriverExplore(object):
 
     def update(self, delta_time):
         if self.enabled:
-            self.state.update(delta_time)
+            self.state = self.state.update(delta_time)

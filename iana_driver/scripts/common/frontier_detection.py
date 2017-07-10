@@ -6,11 +6,11 @@ from collections import deque
 
 
 def pose_to_map_point(pose, resolution):
-    return pose.position.x / resolution, pose.position.y / resolution
+    return int(pose.position.x / resolution), int(pose.position.y / resolution)
 
 
 def pose_to_relative_map_point(pose, origin, resolution):
-    return origin.position.x + pose.position.x / resolution, origin.position.y + pose.position.y / resolution
+    return int(origin.position.x + pose.position.x / resolution), int(origin.position.y + pose.position.y / resolution)
 
 
 def map_point_to_relative_pose(point, origin, resolution):
