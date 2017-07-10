@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import rospy
-from scripts.driver_explore.driver_explore import DriverExplore
+from driver_explore.driver_explore import DriverExplore
 
 if __name__ == '__main__':
     try:

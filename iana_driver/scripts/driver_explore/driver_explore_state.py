@@ -11,7 +11,7 @@ import geometry_msgs.msg
 import actionlib_msgs.msg
 import nav_msgs.msg
 
-from scripts.common.frontier_detection import find_closest_frontier_point_in_occupancy_grid
+from common.frontier_detection import find_closest_frontier_point_in_occupancy_grid
 
 class DriverExploreState(object):
 

@@ -17,8 +17,10 @@ class NavigationController(object):
         if not self.move_base_action.wait_for_server(rospy.Duration(30)):
             rospy.logerr('Failed to connect to /move_base action')
 
-        self.driver_random_enable_publisher = rospy.Publisher('/iana/driver_random/enable', std_msgs.msg.Empty, queue_size=10)
-        self.driver_random_disable_publisher = rospy.Publisher('/iana/driver_random/disable', std_msgs.msg.Empty, queue_size=10)
+        # self.driver_random_enable_publisher = rospy.Publisher('/iana/driver_random/enable', std_msgs.msg.Empty, queue_size=10)
+        # self.driver_random_disable_publisher = rospy.Publisher('/iana/driver_random/disable', std_msgs.msg.Empty, queue_size=10)
+        self.driver_explore_enable_publisher = rospy.Publisher('/iana/driver_explore/enable', std_msgs.msg.Empty, queue_size=10)
+        self.driver_explore_disable_publisher = rospy.Publisher('/iana/driver_explore/disable', std_msgs.msg.Empty, queue_size=10)# explore
 
         self.explore_action_server.start()
         self.go_to_action_server.start()
@@ -29,7 +31,7 @@ class NavigationController(object):
         until = rospy.Time(goal.until.data.secs, goal.until.data.nsecs)
 
         # start random driver
-        self.driver_random_enable_publisher.publish()
+        self.driver_explore_enable_publisher.publish()
 
         # check for preempted until time's up
         interval = 0.1
@@ -37,7 +39,7 @@ class NavigationController(object):
         rospy.loginfo('Explore for {} seconds'.format((until - rospy.get_rostime()).to_sec()))
         while not rospy.get_rostime() >= until and not preempted:
             if self.explore_action_server.is_preempt_requested():
-                self.driver_random_disable_publisher.publish()
+                self.driver_explore_disable_publisher.publish()
                 self.explore_action_server.set_preempted()
                 preempted = True
             else:
@@ -47,7 +49,7 @@ class NavigationController(object):
 
         if not preempted:
             rospy.logerr('Explore goal reached!')
-            self.driver_random_disable_publisher.publish()
+            self.driver_explore_disable_publisher.publish()
             self.explore_action_server.set_succeeded()
 
     def go_to(self, goal):
