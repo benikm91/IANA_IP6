@@ -11,7 +11,7 @@ import geometry_msgs.msg
 import actionlib_msgs.msg
 import nav_msgs.msg
 
-from driver_explore.driver_explore_state import ExploreFrontiersState
+from driver_explore_state import ExploreFrontiersState
 
 
 class DriverExplore(object):
