@@ -14,7 +14,7 @@ def pose_to_map_point(pose, resolution):
 
 
 def pose_to_relative_map_point(pose, origin, resolution):
-    return int((pose.position.x) / resolution), int((pose.position.y) / resolution)
+    return int((pose.position.x - origin.position.x) / resolution), int((pose.position.y - origin.position.y) / resolution)
 
 
 def map_point_to_relative_pose(point, origin, resolution):
