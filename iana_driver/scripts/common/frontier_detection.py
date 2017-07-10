@@ -75,6 +75,7 @@ def find_closest_frontier_point_in_occupancy_grid(occupancy_grid, min_distance):
     :rtype: geometry_msgs.msg.Pose
     """
     rospy.loginfo("find_closest_frontier_point_in_occupancy_grid started")
+    rospy.loginfo("map data = {}".format(occupancy_grid.data))
     grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.height, occupancy_grid.info.width))
     rospy.loginfo("grid_map = {}".format(grid_map))
     origin = occupancy_grid.info.origin
