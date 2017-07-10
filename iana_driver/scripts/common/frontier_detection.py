@@ -58,6 +58,7 @@ def find_frontier_points_in_map(start, grid_map):
                 queue.append(coord)
             elif grid_map[coord] == unknown:
                 frontiers.append(coord)
+    return frontiers
 
 
 def find_frontier_points_in_occupancy_grid(occupancy_grid):
