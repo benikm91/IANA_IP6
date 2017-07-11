@@ -112,7 +112,7 @@ class ExploreRandomState(DriverExploreState):
 
 class IdleState(DriverExploreState):
     def __init__(self, driver):
-        super().__init__(driver)
+        super(IdleState, self).__init__(driver)
 
     def update(self, delta_time):
         return self
