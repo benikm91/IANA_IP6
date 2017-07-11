@@ -82,7 +82,7 @@ def find_closest_frontier_point_in_occupancy_grid(occupancy_grid, odometry, min_
     :rtype: geometry_msgs.msg.Pose
     """
     rospy.loginfo("Find closest frontier point in occupancy grid")
-    grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.height, occupancy_grid.info.width))
+    grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.width, occupancy_grid.info.height))
     robot_pose = odometry.pose.pose
     origin = occupancy_grid.info.origin
     resolution = occupancy_grid.info.resolution
@@ -108,7 +108,7 @@ def find_random_frontier_point_in_occupancy_grid(occupancy_grid, odometry, min_d
     :rtype: geometry_msgs.msg.Pose
     """
     rospy.loginfo("Find random frontier point in occupancy grid")
-    grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.height, occupancy_grid.info.width))
+    grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.width, occupancy_grid.info.height))
     robot_pose = odometry.pose.pose
     origin = occupancy_grid.info.origin
     resolution = occupancy_grid.info.resolution
