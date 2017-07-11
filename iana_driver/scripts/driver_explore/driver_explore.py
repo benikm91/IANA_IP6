@@ -23,8 +23,8 @@ class DriverExplore(object):
         self.odometry = None
         self.state = ExploreFrontiersState(self)
 
-        rospy.Subscriber("/iana/driver_explorer/enable", std_msgs.msg.Empty, self.enable)
-        rospy.Subscriber("/iana/driver_explorer/disable", std_msgs.msg.Empty, self.disable)
+        rospy.Subscriber("/iana/driver_explore/enable", std_msgs.msg.Empty, self.enable)
+        rospy.Subscriber("/iana/driver_explore/disable", std_msgs.msg.Empty, self.disable)
         rospy.Subscriber("/map", nav_msgs.msg.OccupancyGrid, self.update_map)
         rospy.Subscriber("/odom", nav_msgs.msg.Odometry, self.update_odometry)
 
