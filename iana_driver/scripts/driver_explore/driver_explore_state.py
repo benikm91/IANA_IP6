@@ -11,7 +11,9 @@ import geometry_msgs.msg
 import actionlib_msgs.msg
 import nav_msgs.msg
 
-from common.frontier_detection import find_closest_frontier_point_in_occupancy_grid
+from common.frontier_detection import find_closest_frontier_point_in_occupancy_grid, \
+    find_random_frontier_point_in_occupancy_grid
+
 
 class DriverExploreState(object):
 
@@ -55,7 +57,8 @@ class ExploreFrontiersState(DriverExploreState):
         if self.driver.occupancy_grid is None:
             print('Occupancy grid empty!')
             return None
-        return find_closest_frontier_point_in_occupancy_grid(self.driver.occupancy_grid, self.driver.odometry, 1)
+        return find_random_frontier_point_in_occupancy_grid(self.driver.occupancy_grid, self.driver.odometry, 1)
+        #return find_closest_frontier_point_in_occupancy_grid(self.driver.occupancy_grid, self.driver.odometry, 1)
 
     def goal_reached(self, state, result):
         print('Explore Frontier goal reached!')
