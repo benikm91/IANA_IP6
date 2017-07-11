@@ -33,20 +33,21 @@ class DriverExplore(object):
     def enable(self, msg):
         rospy.loginfo("Explore Driver enabled")
         self.enabled = True
-        self.state.on_enable()
+        self.state = self.state.on_enable()
 
     def disable(self, msg):
+        print('Explore Driver disabled')
         self.enabled = False
-        self.state.on_disable()
+        self.state = self.state.on_disable()
 
     def update_map(self, occupancy_grid):
+        print('Map updated!')
         self.occupancy_grid = occupancy_grid
-        self.state.on_map_updated()
+        self.state = self.state.on_map_updated()
 
     def update_odometry(self, odometry):
         self.odometry = odometry
-        self.state.on_odometry_updated()
+        self.state = self.state.on_odometry_updated()
 
     def update(self, delta_time):
-        if self.enabled:
-            self.state = self.state.update(delta_time)
+        self.state = self.state.update(delta_time)

@@ -29,16 +29,16 @@ class DriverExploreState(object):
         raise NotImplementedError()
 
     def on_enable(self):
-        raise NotImplementedError()
+        return self
 
     def on_disable(self):
-        raise NotImplementedError()
+        return self
 
     def on_map_updated(self):
-        raise NotImplementedError()
+        return self
 
     def on_odometry_updated(self):
-        raise NotImplementedError()
+        return self
 
 
 class ExploreFrontiersState(DriverExploreState):
@@ -80,19 +80,11 @@ class ExploreFrontiersState(DriverExploreState):
             self.goal_pending = True
         return self
 
-    def on_enable(self):
-        pass
-
     def on_disable(self):
         print('Driver frontier disabled')
         self.move_base_action.cancel_goal()
         self.goal_pending = False
-
-    def on_map_updated(self):
-        print('Map updated!')
-
-    def on_odometry_updated(self):
-        pass
+        return IdleState(self.driver)
 
 
 class ExploreRandomState(DriverExploreState):
@@ -109,17 +101,21 @@ class ExploreRandomState(DriverExploreState):
         self.duration -= delta_time
         if self.duration <= 0:
             print('Explore time expired: go to Explore Frontier state.')
+            self.driver_random_disable_publisher.publish()
             return ExploreFrontiersState(self.driver)
         return self
 
-    def on_enable(self):
-        self.driver_random_enable_publisher.publish()
-
     def on_disable(self):
         self.driver_random_disable_publisher.publish()
+        return IdleState(self.driver)
 
-    def on_map_updated(self):
-        print('Map updated!')
 
-    def on_odometry_updated(self):
-        pass
+class IdleState(DriverExploreState):
+    def __init__(self, driver):
+        super().__init__(driver)
+
+    def update(self, delta_time):
+        return self
+
+    def on_enable(self):
+        return ExploreFrontiersState(self.driver)
