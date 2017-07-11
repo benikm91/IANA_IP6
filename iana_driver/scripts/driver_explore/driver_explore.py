@@ -13,6 +13,8 @@ import nav_msgs.msg
 
 from driver_explore_state import ExploreFrontiersState
 
+from driver_explore.driver_explore_state import IdleState
+
 
 class DriverExplore(object):
 
@@ -21,7 +23,7 @@ class DriverExplore(object):
         self.enabled = False
         self.occupancy_grid = None
         self.odometry = None
-        self.state = ExploreFrontiersState(self)
+        self.state = IdleState(self)
 
         rospy.Subscriber("/iana/driver_explore/enable", std_msgs.msg.Empty, self.enable)
         rospy.Subscriber("/iana/driver_explore/disable", std_msgs.msg.Empty, self.disable)
