@@ -14,13 +14,14 @@ def pose_to_map_point(pose, resolution):
 
 
 def pose_to_relative_map_point(pose, origin, resolution):
-    return int((pose.position.x - origin.position.x) / resolution), int((pose.position.y - origin.position.y) / resolution)
+    return int((pose.position.y - origin.position.y) / resolution), int((pose.position.x - origin.position.x) / resolution)
 
 
 def map_point_to_relative_pose(point, origin, resolution):
     pose = geometry_msgs.msg.Pose()
-    pose.position.x = origin.position.x + point[0] * resolution
-    pose.position.y = origin.position.y + point[1] * resolution
+    pose.position.x = origin.position.x + point[1] * resolution
+    pose.position.y = origin.position.y + point[0] * resolution
+    pose.orientation.w = 1
     return pose
 
 
@@ -108,7 +109,7 @@ def find_random_frontier_point_in_occupancy_grid(occupancy_grid, odometry, min_d
     :rtype: geometry_msgs.msg.Pose
     """
     rospy.loginfo("Find random frontier point in occupancy grid")
-    grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.width, occupancy_grid.info.height))
+    grid_map = np.reshape(occupancy_grid.data, (occupancy_grid.info.height, occupancy_grid.info.width))
     robot_pose = odometry.pose.pose
     origin = occupancy_grid.info.origin
     resolution = occupancy_grid.info.resolution
@@ -116,7 +117,8 @@ def find_random_frontier_point_in_occupancy_grid(occupancy_grid, odometry, min_d
     frontiers = find_frontier_points_in_map(start, grid_map)
     frontiers_with_distance = [map_point_to_relative_pose_with_euclidean_distance(x, origin, resolution) for x in frontiers]
     if len(frontiers_with_distance) > 0:
-        frontier_pose = np.random.choice(frontiers_with_distance)
+        frontier_pose_idx = np.random.choice(range(len(frontiers_with_distance)))
+        frontier_pose = frontiers_with_distance[frontier_pose_idx]
         rospy.loginfo("Chosen frontier point: {}".format(frontier_pose[0]))
         return frontier_pose[0]
     rospy.loginfo("No frontier point!")
