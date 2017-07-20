@@ -18,3 +18,12 @@ class Quaternion(object):
 
     def __str__(self):
         return "Quaternion({0}, {1})".format(self.q, self.w)
+
+    def __eq__(self, other):
+        def approx_eq(f, s, threshold=0.1):
+            return abs(f - s) < threshold
+        if other is None:
+            return False
+        if not isinstance(other, Quaternion):
+            return False
+        return self.q == other.q and approx_eq(self.w, other.w)

@@ -36,6 +36,7 @@ class _BroadcastServerProtocol(WebSocketServerProtocol):
     def onOpen(self):
         self.factory.register(self)
         self.refresh_map(self.factory.current_map)
+        self.refresh_robot_position(self.factory.current_robot_pose)
 
     def onClose(self, wasClean, code, reason):
         self.factory.unregister(self)
@@ -84,6 +85,13 @@ class _BroadcastServerProtocol(WebSocketServerProtocol):
                 str(map_data.origin_y)
             ) + ','.join((str(0) if i == -1 else str(i)) for i in map_data.map))
 
+    def refresh_robot_position(self, pose):
+        self.sendMessage("refresh_robot_position {0},{1},{2}".format(
+            str(int(pose.position.x)),
+            str(int(pose.position.y)),
+            str(int(pose.position.z))
+        ))
+
 
 class _BroadcastServerFactory(WebSocketServerFactory):
     protocol = _BroadcastServerProtocol
@@ -92,6 +100,7 @@ class _BroadcastServerFactory(WebSocketServerFactory):
         WebSocketServerFactory.__init__(self, url)
         self.clients = []
         self.current_map = None
+        self.current_robot_pose = None
 
     def register(self, client):
         if client not in self.clients:
@@ -110,6 +119,13 @@ class _BroadcastServerFactory(WebSocketServerFactory):
         self.current_map = map_data
         for c in self.clients:
             c.refresh_map(self.current_map)
+
+    def refresh_robot_position(self, pose):
+        if self.current_robot_pose == pose:
+            return
+        self.current_robot_pose = pose
+        for c in self.clients:
+            c.refresh_robot_position(pose)
 
 
 class WebSocketIO(IanaIO):
@@ -151,6 +167,10 @@ class WebSocketIO(IanaIO):
         root = File(dirname(dirname(dirname(abspath(__file__)))))
         cv2.imwrite(root.path+'/preview_image.png', preview_image)
         return protocol.request_name()
+
+    def refresh_robot_position(self, pose):
+        self.factory.refresh_robot_position(pose)
+
 
     def refresh_map(self, resolution, origin, width, height, origin_x, origin_y, map):
         self.factory.refresh_map(MapData(resolution, origin, width, height, origin_x, origin_y, map))

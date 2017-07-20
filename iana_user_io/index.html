@@ -20,6 +20,8 @@
 
          let current_pose = null;
 
+         let current_robot_pose = null;
+
          let ip = "127.0.0.1";
 
          function request_name() {
@@ -54,6 +56,11 @@
                 if (e.data.startsWith(refresh_map_command)) {
                     let map_data = e.data.substring(refresh_map_command.length).split(",");
                     refresh_map(map_data[0], map_data[1], map_data[2], map_data[3], map_data[4], map_data.slice(5));
+                }
+                let refresh_robot_position_command = "refresh_robot_position ";
+                if (e.data.startsWith(refresh_robot_position_command)) {
+                    let data = e.data.substring(refresh_robot_position_command.length).split(",");
+                    refresh_robot_position(data[0], data[1], data[2])
                 }
                if (typeof e.data === "string") { }
             };
@@ -116,8 +123,28 @@
              draw_current_map();
          }
 
+         function transform_to_map(x, y) {
+             return Object.freeze({x: parseInt((x - current_pose.x) / current_resolution), y: parseInt((y - current_pose.y) / current_resolution)});
+         }
+
+         function refresh_robot_position(x, y, z) {
+             console.log(x, y);
+             console.log(current_pose);
+             current_robot_pose = transform_to_map(x, y);
+             console.log("Refresh robot position");
+             console.log(current_robot_pose);
+             draw_current_map();
+         }
+
+         function is_on_map(obj) {
+             return obj !== null &&
+                obj.x >= 0 && obj.y >= 0 &&
+                current_width > obj.x && current_height > obj.y;
+         }
+
          function draw_current_map()
          {
+             if (current_width === null) return;
              let canvas = document.querySelector('#map');
              canvas.width = current_width;
              canvas.height = current_height;
@@ -125,16 +152,30 @@
              context.clearRect(0, 0, canvas.width, canvas.height);
              let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
              let imageIndex = 0;
+             function colorPixel(x, y, color) {
+                 let i = ((y * canvas.width + x)) * 4;
+                 imageData.data[i]     = color[0];
+                 imageData.data[i + 1] = color[1];
+                 imageData.data[i + 2] = color[2];
+                 imageData.data[i + 3] = 255;
+             }
+             function colorPixelM(x, y, color) {
+                 colorPixel(x, y, [color, color, color])
+             }
              for (let y = canvas.height - 1; y >= 0; y--)
                  for (let x = 0; x < canvas.width; x++) {
                     let mapIndex = (y * canvas.width + x);
                     let color = 255 - parseInt(current_map[mapIndex] * 2.55);
-                    imageData.data[imageIndex++] = color;
-                    imageData.data[imageIndex++] = color;
-                    imageData.data[imageIndex++] = color;
-                    imageData.data[imageIndex++] = 255;
+                    colorPixelM(x, y, color);
                  }
-
+             if (current_robot_pose !== null && is_on_map(current_robot_pose)) {
+                 let color = [ 255, 0, 0 ];
+                 colorPixel(current_robot_pose.x, current_robot_pose.y, color);
+                 colorPixel(current_robot_pose.x + 1, current_robot_pose.y, color);
+                 colorPixel(current_robot_pose.x, current_robot_pose.y + 1, color);
+                 colorPixel(current_robot_pose.x - 1, current_robot_pose.y, color);
+                 colorPixel(current_robot_pose.x, current_robot_pose.y - 1, color);
+             }
              context.save();
              context.scale(1, -1); // flip vertically
              context.putImageData(imageData, 0, 0);
@@ -290,7 +331,9 @@
             <div class="row">
                 <div class="col-md-9 command">
                     <div>
-                        <canvas id="map"></canvas>
+                        <canvas id="map">
+                            <div id="robot_position_marker">X</div>
+                        </canvas>
                     </div>
                 </div>
                 <div class="col-md-3">
