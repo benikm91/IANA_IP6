@@ -39,7 +39,7 @@ class IanaIO(object):
     def start(self):
         pass
 
-    def request_name(self):
+    def request_name(self, preview_image):
         pass
 
     def refresh_map(self, resolution, origin, width, height, origin_x, origin_y, map):

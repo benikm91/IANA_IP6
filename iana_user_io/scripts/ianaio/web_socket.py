@@ -86,6 +86,8 @@ class _BroadcastServerProtocol(WebSocketServerProtocol):
             ) + ','.join((str(0) if i == -1 else str(i)) for i in map_data.map))
 
     def refresh_robot_position(self, pose):
+        if pose is None:
+            return
         self.sendMessage("refresh_robot_position {0},{1},{2}".format(
             str(int(pose.position.x)),
             str(int(pose.position.y)),

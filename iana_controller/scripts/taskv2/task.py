@@ -7,6 +7,10 @@ class Task(object):
         super(Task, self).__init__()
         self.terminated = threading.Event()
 
+    @property
+    def name(self):
+        raise NotImplementedError()
+
     def update(self, elapsed):
         raise NotImplementedError()
 

@@ -12,6 +12,10 @@ class GoodbyeUnknownPersonTask(Task):
         self.say_action.wait_for_server()
         self.goal = SayGoal("Bye! Bye!")
 
+    @property
+    def name(self):
+        return "Goodbye unknown person task"
+
     def update(self, elapsed):
         pass
 

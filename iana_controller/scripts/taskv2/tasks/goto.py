@@ -15,31 +15,36 @@ class GoToTask(Task):
             rospy.logerr('Failed to connect to /iana/navigation/go_to')
             self.terminated.set()
         self.goal = iana_navigation.msg.GoToGoal(target_pose=target_pose)
+        self.target_pose = target_pose
         self.running = threading.Event()
+
+    @property
+    def name(self):
+        return "Go to {} {} Task".format(self.target_pose.x, self.target_pose.y)
 
     def update(self, elapsed):
         pass
 
     def on_start(self):
-	self.running.set()
+        self.running.set()
         self.go_to_action.send_goal(self.goal, self._goal_reached_callback)
-	rospy.logerr('Goto started!')
+        rospy.logerr('Goto started!')
 
     def on_resume(self):
         self.on_start()
 
     def on_interrupt(self):
-	self.running.clear()
+        self.running.clear()
         self.go_to_action.cancel_goal()
 
     def on_shutdown(self):
-	self.runnning.clear()
+        self.running.clear()
         self.go_to_action.cancel_goal()
-	self.terminated.set()
+        self.terminated.set()
 
     def interruptable_by(self, task):
         return True
 
     def _goal_reached_callback(self, state, result):
-	if self.running.is_set():
-        	self.terminated.set()
+        if self.running.is_set():
+            self.terminated.set()
