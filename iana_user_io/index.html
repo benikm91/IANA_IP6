@@ -12,13 +12,15 @@
          let startX = null;
          let startY = null;
 
+         let current_tasks = [];
+
          let current_width = null;
          let current_height = null;
          let current_map = null;
 
          let current_resolution = null;
 
-         let current_pose = null;
+         let current_map_pose = null;
 
          let current_robot_pose = null;
 
@@ -61,6 +63,11 @@
                 if (e.data.startsWith(refresh_robot_position_command)) {
                     let data = e.data.substring(refresh_robot_position_command.length).split(",");
                     refresh_robot_position(data[0], data[1], data[2])
+                }
+                let refresh_tasks_command = "refresh_tasks ";
+                if (e.data.startsWith(refresh_tasks_command)) {
+                    current_tasks = e.data.substring(refresh_tasks_command.length).split(",");
+                    show_tasks(current_tasks)
                 }
                if (typeof e.data === "string") { }
             };
@@ -119,17 +126,17 @@
              current_height = height;
              current_width = width;
              current_resolution = resolution;
-             current_pose = Object.freeze({x: parseFloat(pose_x), y: parseFloat(pose_y)});
+             current_map_pose = Object.freeze({x: parseFloat(pose_x), y: parseFloat(pose_y)});
              draw_current_map();
          }
 
          function transform_to_map(x, y) {
-             return Object.freeze({x: parseInt((x - current_pose.x) / current_resolution), y: parseInt((y - current_pose.y) / current_resolution)});
+             return Object.freeze({x: parseInt((x - current_map_pose.x) / current_resolution), y: parseInt((y - current_map_pose.y) / current_resolution)});
          }
 
          function refresh_robot_position(x, y, z) {
-             console.log(x, y);
-             console.log(current_pose);
+             if (current_map_pose === null)
+                 return;
              current_robot_pose = transform_to_map(x, y);
              console.log("Refresh robot position");
              console.log(current_robot_pose);
@@ -275,7 +282,7 @@
 
                  console.log(toEulerianAngle(q, qw));
 
-                 goto(startX * current_resolution + current_pose.x, (current_height - startY) * current_resolution + current_pose.y, q, qw);
+                 goto(startX * current_resolution + current_map_pose.x, (current_height - startY) * current_resolution + current_map_pose.y, q, qw);
 
                  draw_current_map();
                  startX = null;
@@ -309,6 +316,17 @@
             yaw = Math.atan2(t3, t4);
 
             return Object.freeze({roll: roll, pitch: pitch, yaw: yaw});
+        }
+
+        function show_tasks(tasks) {
+            let tasks_element = document.querySelector('#tasks');
+            let task_template = document.querySelector('#task_template').querySelector('.task');
+            tasks_element.innerHTML = '';
+            tasks.forEach(task => {
+                let task_element = task_template.cloneNode(true);
+                task_element.innerHTML = task;
+                tasks_element.appendChild(task_element);
+            });
         }
 
       </script>
@@ -355,6 +373,13 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div id="tasks">
+        </div>
+        <div id="task_template" style="display: none">
+            <div class="task">
+                Exploring...
             </div>
         </div>
    </body>

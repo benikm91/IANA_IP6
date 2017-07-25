@@ -51,3 +51,14 @@ body,
 }
 
 .overlay input { color: black; }
+
+#tasks {
+    position: fixed;
+    bottom: 0;
+}
+
+.task {
+    border: 1px solid black;
+    max-width: 500px;
+    padding: 20px 50px;
+}
