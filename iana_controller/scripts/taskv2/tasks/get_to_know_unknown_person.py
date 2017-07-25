@@ -16,6 +16,10 @@ class GetToKnowUnknownPersonTask(Task):
         self.face_vectors = msg.face_vectors
         self.preview_image = msg.preview_image
 
+    @property
+    def name(self):
+        return "Get to know unknown Person"
+
     def update(self, elapsed):
         pass
 

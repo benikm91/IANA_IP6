@@ -12,6 +12,10 @@ class GreetKnownPersonTask(Task):
         self.say_action.wait_for_server()
         self.person = msg.person
 
+    @property
+    def name(self):
+        return "Greet known person task"
+
     def update(self, elapsed):
         pass
 

@@ -25,3 +25,10 @@ class Pose(object):
 
     def __str__(self):
         return "Pose({0}, {1})".format(self.position, self.orientation)
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        if not isinstance(other, Pose):
+            return False
+        return self.position == other.position and self.orientation == other.orientation

@@ -9,6 +9,7 @@ from twisted.web.server import Site
 from twisted.web.static import File
 
 import cv2
+import rospy
 import settings
 from ianaio.iana_io import IanaIO
 
@@ -36,13 +37,14 @@ class _BroadcastServerProtocol(WebSocketServerProtocol):
     def onOpen(self):
         self.factory.register(self)
         self.refresh_map(self.factory.current_map)
+        self.refresh_robot_position(self.factory.current_robot_pose)
 
     def onClose(self, wasClean, code, reason):
         self.factory.unregister(self)
 
     def onMessage(self, payload, isBinary):
         if isBinary:
-            print("Binary message received: {0} bytes".format(len(payload)))
+            rospy.logdebug("Binary message received: {0} bytes".format(len(payload)))
         else:
             temp = payload.decode('utf8').split()
             command_name = temp[0]
@@ -55,7 +57,7 @@ class _BroadcastServerProtocol(WebSocketServerProtocol):
                 if command_name == "name":
                     self.set_name(*params)
                 else:
-                    print("Command \"{0}\" not found".format(command_name))
+                    rospy.logdebug("Command \"{0}\" not found".format(command_name))
 
         self.sendMessage(payload, isBinary)
 
@@ -84,6 +86,20 @@ class _BroadcastServerProtocol(WebSocketServerProtocol):
                 str(map_data.origin_y)
             ) + ','.join((str(0) if i == -1 else str(i)) for i in map_data.map))
 
+    def refresh_robot_position(self, pose):
+        if pose is None:
+            return
+        self.sendMessage("refresh_robot_position {0},{1},{2}".format(
+            str(int(pose.position.x)),
+            str(int(pose.position.y)),
+            str(int(pose.position.z))
+        ))
+
+    def refresh_tasks(self, tasks):
+        if tasks is None:
+            return
+        self.sendMessage("refresh_tasks " + ','.join(tasks))
+
 
 class _BroadcastServerFactory(WebSocketServerFactory):
     protocol = _BroadcastServerProtocol
@@ -92,16 +108,18 @@ class _BroadcastServerFactory(WebSocketServerFactory):
         WebSocketServerFactory.__init__(self, url)
         self.clients = []
         self.current_map = None
+        self.current_robot_pose = None
+        self.current_tasks = None
 
     def register(self, client):
         if client not in self.clients:
             self.clients.append(client)
-            print("registered new client {}".format(client.peer))
+            rospy.loginfo("registered new client {}".format(client.peer))
 
     def unregister(self, client):
         if client in self.clients:
             self.clients.remove(client)
-            print("unregistered client {}".format(client.peer))
+            rospy.loginfo("unregistered client {}".format(client.peer))
 
     def request_name(self):
         pass
@@ -111,6 +129,19 @@ class _BroadcastServerFactory(WebSocketServerFactory):
         for c in self.clients:
             c.refresh_map(self.current_map)
 
+    def refresh_robot_position(self, pose):
+        if self.current_robot_pose == pose:
+            return
+        self.current_robot_pose = pose
+        for c in self.clients:
+            c.refresh_robot_position(pose)
+
+    def refresh_tasks(self, tasks):
+        #if self.current_tasks == tasks:
+        #   return
+        self.current_tasks = tasks
+        for c in self.clients:
+            c.refresh_tasks(tasks)
 
 class WebSocketIO(IanaIO):
 
@@ -152,5 +183,11 @@ class WebSocketIO(IanaIO):
         cv2.imwrite(root.path+'/preview_image.png', preview_image)
         return protocol.request_name()
 
+    def refresh_robot_position(self, pose):
+        self.factory.refresh_robot_position(pose)
+
     def refresh_map(self, resolution, origin, width, height, origin_x, origin_y, map):
         self.factory.refresh_map(MapData(resolution, origin, width, height, origin_x, origin_y, map))
+
+    def refresh_tasks(self, tasks):
+        self.factory.refresh_tasks(tasks)

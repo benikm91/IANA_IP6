@@ -1,6 +1,7 @@
 import threading
 from Queue import LifoQueue, Queue
 
+import copy
 import rospy
 import time
 
@@ -151,3 +152,15 @@ class TaskSystem(object):
                 self.pushed_in_tasks.get().on_shutdown()
 
         rospy.loginfo('Task system successfully shutdown')
+
+    def get_all_tasks(self):
+
+        result = list()
+        for items in [
+                self.pushed_in_tasks.queue,
+                self.interrupted_tasks.queue,
+                self.pending_tasks.tasks
+            ]:
+            for item in items:
+                result.append(item)
+        return result

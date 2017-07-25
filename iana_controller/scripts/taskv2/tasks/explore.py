@@ -17,13 +17,17 @@ class ExploreTask(Task):
         self.goal = iana_navigation.msg.ExploreGoal(until=until)
         self.running = threading.Event()
 
+    @property
+    def name(self):
+        return "Explore Task"
+
     def update(self, elapsed):
         pass
 
     def on_start(self):
         rospy.logerr('Start exploring')
-	self.running.set()
-	self.explore_action.send_goal(self.goal, self._goal_reached_callback)
+        self.running.set()
+        self.explore_action.send_goal(self.goal, self._goal_reached_callback)
 
     def on_resume(self):
         rospy.logerr('resume exploring')
@@ -32,19 +36,19 @@ class ExploreTask(Task):
     def on_interrupt(self):
         rospy.logerr('interrupt exploring')
         self.running.clear()
-	self.explore_action.cancel_goal()
+        self.explore_action.cancel_goal()
 
     def on_shutdown(self):
         rospy.logerr('shutdown exploring')
         self.running.clear()
         self.explore_action.cancel_goal()
-	self.terminated.set()
+        self.terminated.set()
 
     def interruptable_by(self, task):
         return True
 
     def _goal_reached_callback(self, state, result):
         if self.running.is_set():
-		rospy.logerr('exploring goal reached: terminated set!')
-		self.terminated.set()
+            rospy.logerr('exploring goal reached: terminated set!')
+            self.terminated.set()
 
