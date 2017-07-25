@@ -3,6 +3,7 @@
 import rospy
 
 from action.get_name_server import GetNameActionServer
+from iana_controller.srv import GetTasks
 from ianaio.iana_io import IanaTalker
 from ianaio.web_socket import WebSocketIO
 from nav_msgs.msg import OccupancyGrid, Odometry
@@ -37,7 +38,13 @@ if __name__ == '__main__':
         map_sub = rospy.Subscriber("map", OccupancyGrid, map_callback)
         robot_position_sub = rospy.Subscriber("odom", Odometry, robot_position_callback)
 
-        rospy.spin()
+        get_tasks = rospy.ServiceProxy('get_tasks', GetTasks)
+        get_tasks.wait_for_service(3)
+
+        rate = rospy.Rate(1)
+        while not rospy.is_shutdown():
+            tasks = get_tasks().tasks
+            websocket_io.refresh_tasks(tasks)
     except rospy.ROSInterruptException:
         pass
 
