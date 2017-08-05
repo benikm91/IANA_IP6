@@ -11,6 +11,7 @@ class FaceTracker(object):
     def __init__(self, fov, resolution, hold_position_time, pant_tilt_pub):
         super(FaceTracker, self).__init__()
         self.fov = fov
+        self.offset = ((180 - fov[0]) / 2.0, (180 - fov[1]) / 2.0)
         self.resolution = resolution
         self.hold_position_time = hold_position_time
         self.pant_tilt_pub = pant_tilt_pub
@@ -31,8 +32,8 @@ class FaceTracker(object):
             face = faces_msg.faces[0]
             position_x = face.x + (face.width / 2.0)
             position_y = face.x + (face.height / 2.0)
-            pan = (position_x / self.resolution[0]) * fov_h
-            tilt = (position_y / self.resolution[1]) * fov_v
+            pan = (position_x / self.resolution[0]) * self.fov[0] + self.offset[0]
+            tilt = (position_y / self.resolution[1]) * self.fov[1] + self.offset[1]
             rospy.logerr(pan)
             self.rotated = True
             self.rotate_back_timer = self.hold_position_time
