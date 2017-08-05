@@ -8,8 +8,8 @@ import std_msgs.msg
 
 class FaceTracker(object):
 
-    def __init__(self, fov, resolution, hold_position_time, pant_tilt_pub) -> None:
-        super().__init__()
+    def __init__(self, fov, resolution, hold_position_time, pant_tilt_pub):
+        super(FaceTracker, self).__init__()
         self.fov = fov
         self.resolution = resolution
         self.hold_position_time = hold_position_time
