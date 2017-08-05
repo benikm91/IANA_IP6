@@ -10,8 +10,8 @@ void setup() {
   Serial.println("Guten Tag!");
   servo_pan.attach(10);
   servo_tilt.attach(11);
-  angles[0] = 40;
-  angles[1] = 40;
+  angles[0] = 90;
+  angles[1] = 90;
   servo_pan.write(angles[0]);
   servo_tilt.write(angles[1]);
 }
@@ -36,9 +36,9 @@ void loop() {
         Serial.print(",");
       }
       Serial.println("]");
+      servo_pan.write(angles[0]);
+      servo_tilt.write(angles[1]);
     }
   }
-  servo_pan.write(angles[0]);
-  servo_tilt.write(angles[1]);
 }
 

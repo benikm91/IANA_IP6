@@ -52,8 +52,8 @@ if __name__ == '__main__':
     try:
         rospy.init_node('iana_face_tracker', anonymous=True)
 
-        fov_h = rospy.get_param("fov_h", 110)  # zed default (degree)
-        fov_v = rospy.get_param("fov_v", 45)  # zed default (degree)
+        fov_h = rospy.get_param("fov_h", 96)  # zed default (degree)
+        fov_v = rospy.get_param("fov_v", 54)  # zed default (degree)
         camera_img_width = rospy.get_param("camera_img_width", 1920)  # zed default
         camera_img_height = rospy.get_param("camera_img_height", 1080)  # zed default
         hold_position_time = rospy.get_param("hold_position_time", 3.0)  # seconds

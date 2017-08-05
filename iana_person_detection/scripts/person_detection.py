@@ -27,7 +27,7 @@ if __name__ == '__main__':
     from person_detection.face_recognition.labeling.UnknownFaceLabeler import UnknownFaceLabeler
     from person_detection.grouping.FaceGrouper import FaceGrouper
     from person_detection.grouping.SessionMemory import SessionMemory
-    from iana_person_detection.msg import KnownPersonEntered, UnknownPersonEntered, UnknownPersonLeft, KnownPersonLeft
+    from iana_person_detection.msg import KnownPersonEntered, UnknownPersonEntered, UnknownPersonLeft, KnownPersonLeft, FaceBoundingBoxes
 
     from person_detection.cache.PersonCache import PersonCache
 
