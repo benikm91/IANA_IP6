@@ -56,6 +56,8 @@ add_message_files(
   KnownPersonLeft.msg
   UnknownPersonEntered.msg
   UnknownPersonLeft.msg
+  BoundingBox.msg
+  FaceBoundingBoxes.msg
 )
 
 ## Generate services in the 'srv' folder
