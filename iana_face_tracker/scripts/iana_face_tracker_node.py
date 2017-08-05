@@ -25,11 +25,12 @@ class FaceTracker(object):
     def disable(self, msg):
         self.enabled = False
 
-    def on_faces_detected(self, faces):
-        rospy.logerr(faces)
-        if self.enabled:
-            position_x = faces[0].x + (faces[0].width / 2.0)
-            position_y = faces[0].x + (faces[0].height / 2.0)
+    def on_faces_detected(self, faces_msg):
+        rospy.logerr(faces_msg)
+        if self.enabled and len(faces_msg.faces) > 0:
+            face = faces_msg.faces[0]
+            position_x = face.x + (face.width / 2.0)
+            position_y = face.x + (face.height / 2.0)
             tilt = (position_x / self.resolution[0]) * fov_h
             pan = (position_y / self.resolution[1]) * fov_v
             self.rotated = True
