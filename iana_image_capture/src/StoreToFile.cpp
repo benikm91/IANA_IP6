@@ -73,11 +73,11 @@ namespace Iana
 
 
             // store to yaml file
-            std::ostringstream yamlFileName;
+            /*std::ostringstream yamlFileName;
             yamlFileName << m_folderName << m_nextImageIndex << "rgb_image_raw_" << ".yml";
             cv::FileStorage fs(yamlFileName.str(), cv::FileStorage::WRITE);
             fs << "rgb_image_raw" << cvImagePtr->image;
-            fs.release();
+            fs.release();*/
 
             m_nextImageIndex++;
         }
