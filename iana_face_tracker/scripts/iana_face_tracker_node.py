@@ -19,13 +19,14 @@ class FaceTracker(object):
         self.rotated = False
         self.rotate_back_timer = 0.0
 
-    def enable(self):
+    def enable(self, msg):
         self.enabled = True
 
-    def disable(self):
+    def disable(self, msg):
         self.enabled = False
 
     def on_faces_detected(self, faces):
+        rospy.logerr(faces)
         if self.enabled:
             position_x = faces[0].x + (faces[0].width / 2.0)
             position_y = faces[0].x + (faces[0].height / 2.0)
