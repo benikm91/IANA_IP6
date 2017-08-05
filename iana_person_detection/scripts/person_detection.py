@@ -63,6 +63,7 @@ if __name__ == '__main__':
         unknown_face_labeler=unknownFaceLabeler,
         face_grouper=faceGrouper,
         session_memory=sessionMemory,
+        faces_detected_publisher=rospy.Publisher('/iana/faces_detected', FaceBoundingBoxes, queue_size=10),
         known_person_publisher=rospy.Publisher('/iana/person_detection/known/entered', KnownPersonEntered, queue_size=10),
         unknown_person_publisher=rospy.Publisher('/iana/person_detection/unknown/entered', UnknownPersonEntered, queue_size=10),
         person_cache=person_cache

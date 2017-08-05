@@ -4,14 +4,14 @@ from std_msgs.msg import Header
 
 import cv2
 
-from iana_person_detection.msg import UnknownPersonEntered, FaceVector
+from iana_person_detection.msg import UnknownPersonEntered, FaceVector, FaceBoundingBoxes, BoundingBox
 from cv_bridge import CvBridge
 
 bridge = CvBridge()
 
 class PersonDetection(object):
 
-    def  __init__(self, face_detection, face_alignment, face_embedder, face_labeler, face_filter, unknown_face_labeler, face_grouper, session_memory, known_person_publisher, unknown_person_publisher, person_cache):
+    def  __init__(self, face_detection, face_alignment, face_embedder, face_labeler, face_filter, unknown_face_labeler, face_grouper, session_memory, faces_detected_publisher, known_person_publisher, unknown_person_publisher, person_cache):
         """
         :type face_detection: FaceDetection.FaceDetection
         :type face_alignment: FaceAlignment.FaceAlignment
@@ -32,6 +32,7 @@ class PersonDetection(object):
         self.unknown_face_labeler = unknown_face_labeler
         self.face_grouper = face_grouper
         self.session_memory = session_memory
+        self.faces_detected_publisher = faces_detected_publisher
         self.known_person_publisher = known_person_publisher
         self.unknown_person_publisher = unknown_person_publisher
         self.person_cache = person_cache
@@ -96,8 +97,17 @@ class PersonDetection(object):
         boundboxes = map(resize_bounding_box, boundboxes)
 
         faces = []
+        face_bounding_boxes_msg = FaceBoundingBoxes()
         for boundbox in boundboxes:
             faces.append(person_image[boundbox.top():boundbox.bottom(),boundbox.left():boundbox.right()])
+            bounding_box = BoundingBox()
+            bounding_box.x = boundbox.left()
+            bounding_box.y = boundbox.top()
+            bounding_box.width = boundbox.right() - boundbox.left()
+            bounding_box.height = boundbox.bottom() - boundbox.top()
+            face_bounding_boxes_msg.faces.append(bounding_box)
+
+        self.faces_detected_publisher.publish(face_bounding_boxes_msg)
 
         aligned_faces = self.face_alignment.align_faces(person_image, boundboxes)
         embeddings = self.face_embedder.embed(aligned_faces)
