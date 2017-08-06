@@ -39,10 +39,10 @@ def find_frontier_points_in_map(start, grid_map):
     unknown = -1
     occupied_threshold = 50
     neighbours = [
-        [1, 1],
-        [1, -1],
-        [-1, -1],
-        [-1, 1]
+        [1, 0],
+        [0, 1],
+        [-1, 0],
+        [0, -1]
     ]
     frontiers = []
     if grid_map[start] == unknown or grid_map[start] >= occupied_threshold:
