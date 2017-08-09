@@ -15,7 +15,7 @@ class FaceTracker(object):
         self.resolution = resolution
         self.hold_position_time = hold_position_time
         self.pant_tilt_pub = pant_tilt_pub
-        self.enabled = False
+        self.enabled = True
         self.state = (90, 90)
         self.rotated = False
         self.rotate_back_timer = 0.0
