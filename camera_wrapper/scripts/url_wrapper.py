@@ -13,7 +13,7 @@ bridge = CvBridge()
 def publish_images():
     pub = rospy.Publisher('image', Image, queue_size=1)
     rospy.init_node('url_wrapper', anonymous=True, log_level=rospy.INFO)
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(1)
 
     rospy.loginfo("setup started")
     url = rospy.get_param("url", "http://admin:@192.168.0.20:80/video1.mjpg")
@@ -28,6 +28,7 @@ def publish_images():
         if ret:
             rospy.loginfo("Next image")
             image_message = bridge.cv2_to_imgmsg(frame, encoding="passthrough")
+            image_message.header.stamp = rospy.Time.now()
             pub.publish(image_message)
         else:
             rospy.logwarn("No next image since last time")

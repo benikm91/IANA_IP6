@@ -26,12 +26,12 @@ filter = Config(
 grouper = Config(
     known_threshold = 2,
     unknown_threshold = 5,
-    memory_span_known = 10,
-    memory_span_unknown = 10
+    memory_span_known = 20,
+    memory_span_unknown = 20
 )
 session_memory = Config(
-    memory_span_known = 10,
-    memory_span_unknown = 10
+    memory_span_known = 20,
+    memory_span_unknown = 20
 )
 iana = Config(
     memory_span = 60 * 60 * 15

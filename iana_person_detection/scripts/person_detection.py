@@ -112,8 +112,8 @@ if __name__ == '__main__':
 
     try:
         rospy.init_node('person_detection', anonymous=True)
-        face_detection_image = message_filters.Subscriber("/face_image", Image)
-        person_detection_image = message_filters.Subscriber("/person_image", Image)
+        face_detection_image = message_filters.Subscriber("/face_image", Image, queue_size=1)
+        person_detection_image = message_filters.Subscriber("/person_image", Image, queue_size=1)
 
         message_filters.TimeSynchronizer([face_detection_image, person_detection_image], 10).registerCallback(detect_person)
 
