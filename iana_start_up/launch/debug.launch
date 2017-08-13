@@ -10,4 +10,9 @@
 		<param name="target_frame_name" value="/map" />	
 		<remap from="/trajectory" to="/odom_path" />	
 	</node>
+<!--
+	<node name="map_server" pkg="map_server" type="map_saver">
+		<param name="f" value="~/map/ourmap" />
+	</node>
+-->
 </launch>

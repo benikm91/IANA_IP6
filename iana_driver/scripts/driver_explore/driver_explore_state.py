@@ -48,7 +48,6 @@ class ExploreFrontiersState(DriverExploreState):
         rospy.loginfo('Init Explore Frontier state...')
         self.goal_pending = False
         self.tries = 0
-        self.max_tries = 3
         self.move_base_action = actionlib.SimpleActionClient('/move_base', move_base_msgs.msg.MoveBaseAction)
         if not self.move_base_action.wait_for_server(rospy.Duration(30)):
             rospy.logerr('Failed to connect to /move_base action')
@@ -57,10 +56,20 @@ class ExploreFrontiersState(DriverExploreState):
     def next_frontier_pose(self):
         rospy.loginfo('Find next frontier point...')
         if self.driver.occupancy_grid is None:
-            rospy.loginfo('Occupancy grid empty!')
+            rospy.logwarn('Occupancy grid empty!')
             return None
-        return find_random_frontier_point_in_occupancy_grid(self.driver.occupancy_grid, self.driver.odometry, 1)
-        #return find_closest_frontier_point_in_occupancy_grid(self.driver.occupancy_grid, self.driver.odometry, 1)
+        elif self.driver.frontier_selection == "random":
+            return find_random_frontier_point_in_occupancy_grid(
+                self.driver.occupancy_grid, self.driver.odometry, self.driver.min_distance
+            )
+        elif self.driver.frontier_selection == "closest":
+            return find_closest_frontier_point_in_occupancy_grid(
+                self.driver.occupancy_grid, self.driver.odometry, self.driver.min_distance
+            )
+        else:
+            return find_random_frontier_point_in_occupancy_grid(
+                self.driver.occupancy_grid, self.driver.odometry, self.driver.min_distance
+            )
 
     def goal_reached(self, state, result):
         rospy.loginfo('Explore Frontier goal reached!')
@@ -71,7 +80,7 @@ class ExploreFrontiersState(DriverExploreState):
         self.goal_pending = False
 
     def update(self, delta_time):
-        if self.tries >= self.max_tries:
+        if self.tries >= self.driver.nav_max_tries:
             rospy.loginfo('Too many failed tries for goto action: go to random state')
             return ExploreRandomState(self.driver, 30)
         if self.goal_pending is False:

@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  iana_person_detection
 )
 
 ## System dependencies are found with CMake's conventions
@@ -106,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES iana_face_tracker
-#  CATKIN_DEPENDS iana_camera_pan_tilt roscpp rospy std_msgs
+  CATKIN_DEPENDS rospy std_msgs iana_person_detection
 #  DEPENDS system_lib
 )
 

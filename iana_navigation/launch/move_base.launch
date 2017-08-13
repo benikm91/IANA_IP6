@@ -15,18 +15,18 @@
     <rosparam file="$(find iana_navigation)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find iana_navigation)/param/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find iana_navigation)/param/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find iana_navigation)/param/base_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find iana_navigation)/param/dwa_local_planner_params.yaml" command="load" />
     <rosparam file="$(find iana_navigation)/param/move_base_params.yaml" command="load" />
     <rosparam file="$(find iana_navigation)/param/global_planner_params.yaml" command="load" />
     <rosparam file="$(find iana_navigation)/param/navfn_global_planner_params.yaml" command="load" />
   </node>
 
-  <node pkg="nodelet" type="nodelet" name="kobuki_safety_controller" args="load kobuki_safety_controller/SafetyControllerNodelet mobile_base_nodelet_manager">
+<!--  <node pkg="nodelet" type="nodelet" name="kobuki_safety_controller" args="load kobuki_safety_controller/SafetyControllerNodelet mobile_base_nodelet_manager">
     <remap from="kobuki_safety_controller/cmd_vel" to="cmd_vel_mux/input/safety_controller"/>
     <remap from="kobuki_safety_controller/events/bumper" to="mobile_base/events/bumper"/>
     <remap from="kobuki_safety_controller/events/cliff" to="mobile_base/events/cliff"/>
     <remap from="kobuki_safety_controller/events/wheel_drop" to="mobile_base/events/wheel_drop"/>
-  </node>
+  </node> -->
 
 
 <!--  <node pkg="nodelet" type="nodelet" name="navigation_velocity_smoother" args="load yocs_velocity_smoother/VelocitySmootherNodelet mobile_base_nodelet_manager">

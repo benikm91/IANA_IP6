@@ -23,6 +23,10 @@ class DriverExplore(object):
         self.odometry = None
         self.state = IdleState(self)
 
+        self.frontier_selection = rospy.get_param("frontier_selection", "random")  # random or closest
+        self.min_distance = rospy.get_param("min_distance", 1)
+        self.nav_max_tries = rospy.get_param("nav_max_tries", 3)
+
         rospy.Subscriber("/iana/driver_explore/enable", std_msgs.msg.Empty, self.enable)
         rospy.Subscriber("/iana/driver_explore/disable", std_msgs.msg.Empty, self.disable)
         rospy.Subscriber("/map", nav_msgs.msg.OccupancyGrid, self.update_map)

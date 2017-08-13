@@ -27,7 +27,7 @@ if __name__ == '__main__':
     from person_detection.face_recognition.labeling.UnknownFaceLabeler import UnknownFaceLabeler
     from person_detection.grouping.FaceGrouper import FaceGrouper
     from person_detection.grouping.SessionMemory import SessionMemory
-    from iana_person_detection.msg import KnownPersonEntered, UnknownPersonEntered, UnknownPersonLeft, KnownPersonLeft
+    from iana_person_detection.msg import KnownPersonEntered, UnknownPersonEntered, UnknownPersonLeft, KnownPersonLeft, FaceBoundingBoxes
 
     from person_detection.cache.PersonCache import PersonCache
 
@@ -65,6 +65,7 @@ if __name__ == '__main__':
         unknown_face_labeler=unknownFaceLabeler,
         face_grouper=faceGrouper,
         session_memory=sessionMemory,
+        faces_detected_publisher=rospy.Publisher('/iana/faces_detected', FaceBoundingBoxes, queue_size=10),
         known_person_publisher=rospy.Publisher('/iana/person_detection/known/entered', KnownPersonEntered, queue_size=10),
         unknown_person_publisher=rospy.Publisher('/iana/person_detection/unknown/entered', UnknownPersonEntered, queue_size=10),
         person_cache=person_cache
@@ -85,15 +86,16 @@ if __name__ == '__main__':
             return frame
 
         with lock:
-            face_detection_image = get_image(face_detection_image_message, "mono8")
+            face_detection_image = get_image(face_detection_image_message, "bgr8")
             person_detection_image = get_image(person_detection_image_message, "bgr8")
 
-            start_x, end_x = rospy.get_param('start_x', 200), rospy.get_param('end_x', 700)
+            start_x, end_x = rospy.get_param('start_x', -1), rospy.get_param('end_x', 700)
             start_y, end_y = rospy.get_param('start_y', 0), rospy.get_param('end_y', 300)
 
-            scale_factor = rospy.get_param('scale_factor', 1)
+            scale_factor = 0.5 #rospy.get_param('~scale_factor', 1)
 
-            face_detection_image = face_detection_image[start_y:end_y, start_x:end_x]
+	    if start_x != -1:
+                face_detection_image = face_detection_image[start_y:end_y, start_x:end_x]
             face_detection_image = cv2.resize(face_detection_image, (0, 0), fx=scale_factor, fy=scale_factor)
 
             # TODO take time from image recording time
@@ -110,8 +112,8 @@ if __name__ == '__main__':
 
     try:
         rospy.init_node('person_detection', anonymous=True)
-        face_detection_image = message_filters.Subscriber("/face_image", Image)
-        person_detection_image = message_filters.Subscriber("/person_image", Image)
+        face_detection_image = message_filters.Subscriber("/face_image", Image, queue_size=1)
+        person_detection_image = message_filters.Subscriber("/person_image", Image, queue_size=1)
 
         message_filters.TimeSynchronizer([face_detection_image, person_detection_image], 10).registerCallback(detect_person)
 
