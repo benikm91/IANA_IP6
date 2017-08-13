@@ -2,7 +2,6 @@ import rospy
 import actionlib
 
 import std_msgs.msg
-import iana_driver.msg
 import iana_navigation.msg
 import move_base_msgs.msg
 

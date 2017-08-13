@@ -4,9 +4,9 @@ from iana_speech.msg import SayAction, SayGoal
 from iana_user_io.msg import GetNameAction, GetNameGoal
 from iana_person_data.srv import InsertNewPerson
 
-from taskv2.task import Task
+from task.task import Task
 
-from taskv2.tasks.goodbye_unknown_person import GoodbyeUnknownPersonTask
+from task.tasks.goodbye_unknown_person import GoodbyeUnknownPersonTask
 
 
 class GetToKnowUnknownPersonTask(Task):

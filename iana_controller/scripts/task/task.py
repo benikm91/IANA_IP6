@@ -7,16 +7,23 @@ class Task(object):
         super(Task, self).__init__()
         self.terminated = threading.Event()
 
-    def start(self):
+    @property
+    def name(self):
         raise NotImplementedError()
 
-    def interrupt(self):
+    def update(self, elapsed):
         raise NotImplementedError()
 
-    def resume(self):
+    def on_start(self):
         raise NotImplementedError()
 
-    def shutdown(self):
+    def on_resume(self):
+        raise NotImplementedError()
+
+    def on_interrupt(self):
+        raise NotImplementedError()
+
+    def on_shutdown(self):
         raise NotImplementedError()
 
     def interruptable_by(self, task):

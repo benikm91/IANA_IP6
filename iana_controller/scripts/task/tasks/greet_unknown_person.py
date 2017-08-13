@@ -12,16 +12,23 @@ class GreetUnknownPersonTask(Task):
         self.say_action.wait_for_server()
         self.goal = SayGoal("Oh hello there")
 
-    def start(self):
+    @property
+    def name(self):
+        return "Greet unknown person task"
+
+    def update(self, elapsed):
+        pass
+
+    def on_start(self):
         self.say_action.send_goal(self.goal, self._goal_reached_callback)
 
-    def resume(self):
-        self.start()
+    def on_resume(self):
+        self.on_start()
 
-    def interrupt(self):
+    def on_interrupt(self):
         self.say_action.cancel_goal()
 
-    def shutdown(self):
+    def on_shutdown(self):
         self.say_action.cancel_goal()
 
     def interruptable_by(self, task):

@@ -1,5 +1,5 @@
-from taskv2.task_receiver import TaskReceiver
-from taskv2.task_system import TaskSystem
+from task.task_receiver import TaskReceiver
+from task.task_system import TaskSystem
 
 
 class IanaController(object):
