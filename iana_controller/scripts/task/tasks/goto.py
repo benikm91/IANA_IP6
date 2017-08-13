@@ -20,7 +20,7 @@ class GoToTask(Task):
 
     @property
     def name(self):
-        return "Go to {} {} Task".format(self.target_pose.x, self.target_pose.y)
+        return "Go to {} {} Task".format(self.target_pose.pose.x, self.target_pose.pose.y)
 
     def update(self, elapsed):
         pass
