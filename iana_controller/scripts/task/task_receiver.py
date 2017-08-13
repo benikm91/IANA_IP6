@@ -7,7 +7,7 @@ from tasks.greet_known_person import GreetKnownPersonTask
 from tasks.get_to_know_unknown_person import GetToKnowUnknownPersonTask
 from tasks.explore import ExploreTask
 from tasks.goto import GoToTask
-from task.tasks.goodbye_known_person import GoodbyeKnownPersonTask
+from tasks.goodbye_known_person import GoodbyeKnownPersonTask
 
 
 class TaskReceiver(object):
