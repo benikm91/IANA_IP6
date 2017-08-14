@@ -8,7 +8,7 @@ import time
 
 class FaceTracker(object):
 
-    def __init__(self, fov, resolution, hold_position_time, pant_tilt_pub):
+    def __init__(self, fov, resolution, hold_position_time, pant_tilt_pub, state):
         super(FaceTracker, self).__init__()
         self.fov = fov
         # self.offset = ((180 - fov[0]) / 2.0, (180 - fov[1]) / 2.0)
@@ -16,7 +16,7 @@ class FaceTracker(object):
         self.hold_position_time = hold_position_time
         self.pant_tilt_pub = pant_tilt_pub
         self.enabled = True
-        self.state = (90, 110)
+        self.state = state
         self.rotated = False
         self.rotate_back_timer = 0.0
         self.last_updated = -1
@@ -36,7 +36,7 @@ class FaceTracker(object):
             position_y = face.x + (face.height / 2.0)
             # pan = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] + self.offset[0] + (self.state[0] - 90)))
             # tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] + self.offset[1] + (self.state[1] - 90)))
-            pan  = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] - (self.fov[0] / 2.0) + self.state[0]))
+            pan = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] - (self.fov[0] / 2.0) + self.state[0]))
             tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] - (self.fov[0] / 2.0) + self.state[1]))
             rospy.logerr(pan)
             self.publish_pan_tilt(pan, tilt)
@@ -70,10 +70,13 @@ if __name__ == '__main__':
         camera_img_width = rospy.get_param("camera_img_width", 1280)  # zed default
         camera_img_height = rospy.get_param("camera_img_height", 720)  # zed default
         hold_position_time = rospy.get_param("hold_position_time", 5.0)  # seconds
+        initial_pan = rospy.get_param("initial_pan", 90)  # seconds
+        initial_tilt = rospy.get_param("initial_tilt", 110)  # seconds
 
         pant_tilt_pub = rospy.Publisher("/iana/camera/set_pan_tilt", iana_camera_pan_tilt.msg.PanTilt, queue_size=1)
+        pant_tilt_pub.publish(initial_pan, initial_tilt)
 
-        face_tracker = FaceTracker((fov_h, fov_v), (camera_img_width, camera_img_height), hold_position_time, pant_tilt_pub)
+        face_tracker = FaceTracker((fov_h, fov_v), (camera_img_width, camera_img_height), hold_position_time, pant_tilt_pub, (initial_pan, initial_tilt))
 
         rospy.Subscriber("/iana/face_tracker/enable", std_msgs.msg.Empty, face_tracker.enable, queue_size=10)
         rospy.Subscriber("/iana/face_tracker/disable", std_msgs.msg.Empty, face_tracker.disable, queue_size=10)
