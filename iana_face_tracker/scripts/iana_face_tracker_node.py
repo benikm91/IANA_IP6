@@ -33,7 +33,7 @@ class FaceTracker(object):
         if self.enabled and len(faces_msg.faces) > 0 and self.last_updated < faces_msg.header.stamp.to_sec():
             face = faces_msg.faces[0]
             position_x = face.x + (face.width / 2.0)
-            position_y = face.x + (face.height / 2.0)
+            position_y = self.resolution[1] - (face.x + (face.height / 2.0))
             # pan = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] + self.offset[0] + (self.state[0] - 90)))
             # tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] + self.offset[1] + (self.state[1] - 90)))
             pan = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] - (self.fov[0] / 2.0) + self.state[0]))

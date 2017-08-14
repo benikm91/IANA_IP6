@@ -41,10 +41,9 @@ void loop() {
       servo_pan.write(angles[0]);
       servo_tilt.write(angles[1]);
     }*/
-    if (Serial.readBytes((char*)&angles, sizeof(angles[0]) * 2) == sizeof(angles[0]) * 2)
+    if (Serial.readBytes((char*)&goal, sizeof(goal[0]) * 2) != sizeof(goal[0]) * 2)
     {
-      servo_pan.write(angles[0]);
-      servo_tilt.write(angles[1]);
+      // TODO: error :)
     }
   }
   
