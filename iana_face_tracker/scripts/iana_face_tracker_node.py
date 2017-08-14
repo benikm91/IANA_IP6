@@ -11,7 +11,7 @@ class FaceTracker(object):
     def __init__(self, fov, resolution, hold_position_time, pant_tilt_pub):
         super(FaceTracker, self).__init__()
         self.fov = fov
-        self.offset = ((180 - fov[0]) / 2.0, (180 - fov[1]) / 2.0)
+        # self.offset = ((180 - fov[0]) / 2.0, (180 - fov[1]) / 2.0)
         self.resolution = resolution
         self.hold_position_time = hold_position_time
         self.pant_tilt_pub = pant_tilt_pub
@@ -29,12 +29,15 @@ class FaceTracker(object):
 
     def on_faces_detected(self, faces_msg):
         rospy.logerr(faces_msg)
+        rospy.logerr("last_update={}, message_stamp={}".format(self.last_updated, faces_msg.header.stamp.to_sec()))
         if self.enabled and len(faces_msg.faces) > 0 and self.last_updated < faces_msg.header.stamp.to_sec():
             face = faces_msg.faces[0]
             position_x = face.x + (face.width / 2.0)
             position_y = face.x + (face.height / 2.0)
-            pan = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] + self.offset[0] + (self.state[0] - 90)))
-            tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] + self.offset[1] + (self.state[1] - 90)))
+            # pan = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] + self.offset[0] + (self.state[0] - 90)))
+            # tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] + self.offset[1] + (self.state[1] - 90)))
+            pan  = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] - (self.fov[0] / 2.0) + self.state[0]))
+            tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] - (self.fov[0] / 2.0) + self.state[1]))
             rospy.logerr(pan)
             self.rotated = True
             self.rotate_back_timer = self.hold_position_time
