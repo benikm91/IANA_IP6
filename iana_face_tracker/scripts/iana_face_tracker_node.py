@@ -16,7 +16,7 @@ class FaceTracker(object):
         self.hold_position_time = hold_position_time
         self.pant_tilt_pub = pant_tilt_pub
         self.enabled = True
-        self.state = (90, 90)
+        self.state = (90, 110)
         self.rotated = False
         self.rotate_back_timer = 0.0
         self.last_updated = -1
@@ -39,11 +39,9 @@ class FaceTracker(object):
             pan  = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] - (self.fov[0] / 2.0) + self.state[0]))
             tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] - (self.fov[0] / 2.0) + self.state[1]))
             rospy.logerr(pan)
-            self.rotated = True
+            self.publish_pan_tilt(pan, tilt)
             self.rotate_back_timer = self.hold_position_time
-            self.pant_tilt_pub.publish(pan, tilt)
-            self.state = (pan, tilt)
-            self.last_updated = time.time()
+            self.rotated = True
 
     def on_pan_tilt(self, pan_tilt):
         self.state = (pan_tilt.tilt, pan_tilt.pan)
@@ -51,11 +49,16 @@ class FaceTracker(object):
     def update(self, delta_time):
         if self.rotated:
             if self.rotate_back_timer <= 0.0:
-                self.pant_tilt_pub.publish(90, 90)
+                self.publish_pan_tilt(90, 110)
                 self.rotated = False
                 self.rotate_back_timer = 0.0
             else:
                 self.rotate_back_timer -= delta_time
+
+    def publish_pan_tilt(self, pan, tilt):
+        self.pant_tilt_pub.publish(90, 110)
+        self.state = (90, 110)
+        self.last_updated = time.time()
 
 
 if __name__ == '__main__':
