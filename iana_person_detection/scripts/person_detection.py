@@ -102,8 +102,7 @@ if __name__ == '__main__':
                 face_detection_image = face_detection_image[start_y:end_y, start_x:end_x]
             face_detection_image = cv2.resize(face_detection_image, (0, 0), fx=scale_factor, fy=scale_factor)
 
-            # TODO take time from image recording time
-            pd.detect_person(face_detection_image, person_detection_image, time.time())
+            pd.detect_person(face_detection_image, person_detection_image, face_detection_image_message.header.stamp.to_sec())
 
     def insert_new_person(person):
         person_cache.insert(person)

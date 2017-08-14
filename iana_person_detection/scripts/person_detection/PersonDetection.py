@@ -98,6 +98,7 @@ class PersonDetection(object):
 
         faces = []
         face_bounding_boxes_msg = FaceBoundingBoxes()
+        face_bounding_boxes_msg.header.stamp = rospy.Time.from_sec(record_timestamp)
         for boundbox in boundboxes:
             faces.append(person_image[boundbox.top():boundbox.bottom(),boundbox.left():boundbox.right()])
             bounding_box = BoundingBox()
