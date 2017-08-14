@@ -94,13 +94,12 @@ if __name__ == '__main__':
 
             scale_factor = 0.5 #rospy.get_param('~scale_factor', 1)
 
-	    if start_x != -1:
+            if start_x != -1:
                 face_detection_image = face_detection_image[start_y:end_y, start_x:end_x]
             face_detection_image = cv2.resize(face_detection_image, (0, 0), fx=scale_factor, fy=scale_factor)
 
             # TODO take time from image recording time
             pd.detect_person(face_detection_image, person_detection_image, time.time())
-
 
     def insert_new_person(person):
         person_cache.insert(person)
@@ -115,7 +114,7 @@ if __name__ == '__main__':
         face_detection_image = message_filters.Subscriber("/face_image", Image, queue_size=1)
         person_detection_image = message_filters.Subscriber("/person_image", Image, queue_size=1)
 
-        message_filters.TimeSynchronizer([face_detection_image, person_detection_image], 10).registerCallback(detect_person)
+        message_filters.TimeSynchronizer([face_detection_image, person_detection_image], queue_size=1).registerCallback(detect_person)
 
         rospy.Subscriber("/new_person", Person, insert_new_person)
 

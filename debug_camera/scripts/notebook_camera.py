@@ -13,10 +13,13 @@ width = 800
 height = 600
 
 video_capture = cv2.VideoCapture(capture_device)
+video_capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 video_capture.set(3, width)
 video_capture.set(4, height)
 interrupted = False
 pos_frame = video_capture.get(1)
+
+print pos_frame
 
 bridge = CvBridge()
 
@@ -26,7 +29,12 @@ def publish_images():
     rospy.init_node('notebook_camera', anonymous=True)
     rate = rospy.Rate(1)
     while not rospy.is_shutdown():
-        ret, frame = video_capture.read()
+
+        # Linux buffers 5 frames from a video capture device. So to get the newest, we retrieve the 5 "newest" frames.
+        ret, frame = False, None
+        for i in range(0, 5):
+            ret, frame = video_capture.read()
+
         if ret:
             image_message = bridge.cv2_to_imgmsg(frame, encoding="passthrough")
             image_message.header.stamp = rospy.Time.now()
