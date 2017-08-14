@@ -85,6 +85,10 @@ if __name__ == '__main__':
             frame = bridge.imgmsg_to_cv2(message, desired_encoding=encoding)
             return frame
 
+        age = face_detection_image_message.header.stamp - rospy.get_rostime()
+        if age.to_sec() > rospy.get_param('~/ignore_images_older_than', 1):
+            return
+
         with lock:
             face_detection_image = get_image(face_detection_image_message, "bgr8")
             person_detection_image = get_image(person_detection_image_message, "bgr8")
