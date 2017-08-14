@@ -56,8 +56,8 @@ class FaceTracker(object):
                 self.rotate_back_timer -= delta_time
 
     def publish_pan_tilt(self, pan, tilt):
-        self.pant_tilt_pub.publish(90, 110)
-        self.state = (90, 110)
+        self.pant_tilt_pub.publish(pan, tilt)
+        self.state = (pan, tilt)
         self.last_updated = time.time()
 
 
@@ -73,7 +73,7 @@ if __name__ == '__main__':
         initial_pan = rospy.get_param("initial_pan", 90)  # seconds
         initial_tilt = rospy.get_param("initial_tilt", 110)  # seconds
 
-        pant_tilt_pub = rospy.Publisher("/iana/camera/set_pan_tilt", iana_camera_pan_tilt.msg.PanTilt, queue_size=5)
+        pant_tilt_pub = rospy.Publisher("/iana/camera/set_pan_tilt", iana_camera_pan_tilt.msg.PanTilt, queue_size=5, latch=True)
         pant_tilt_pub.publish(initial_pan, initial_tilt)
         rospy.logerr("published initial pan, tilt = {}".format((initial_pan, initial_tilt)))
 
