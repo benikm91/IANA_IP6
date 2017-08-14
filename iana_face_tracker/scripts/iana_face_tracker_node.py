@@ -73,14 +73,15 @@ if __name__ == '__main__':
         initial_pan = rospy.get_param("initial_pan", 90)  # seconds
         initial_tilt = rospy.get_param("initial_tilt", 110)  # seconds
 
-        pant_tilt_pub = rospy.Publisher("/iana/camera/set_pan_tilt", iana_camera_pan_tilt.msg.PanTilt, queue_size=1)
+        pant_tilt_pub = rospy.Publisher("/iana/camera/set_pan_tilt", iana_camera_pan_tilt.msg.PanTilt, queue_size=5)
         pant_tilt_pub.publish(initial_pan, initial_tilt)
+        rospy.logerr("published initial pan, tilt = {}".format((initial_pan, initial_tilt)))
 
         face_tracker = FaceTracker((fov_h, fov_v), (camera_img_width, camera_img_height), hold_position_time, pant_tilt_pub, (initial_pan, initial_tilt))
 
         rospy.Subscriber("/iana/face_tracker/enable", std_msgs.msg.Empty, face_tracker.enable, queue_size=10)
         rospy.Subscriber("/iana/face_tracker/disable", std_msgs.msg.Empty, face_tracker.disable, queue_size=10)
-        rospy.Subscriber("/iana/faces_detected", iana_person_detection.msg.FaceBoundingBoxes, face_tracker.on_faces_detected, queue_size=1)
+        rospy.Subscriber("/iana/faces_detected", iana_person_detection.msg.FaceBoundingBoxes, face_tracker.on_faces_detected, queue_size=5)
         # rospy.Subscriber("/iana/camera/pan_tilt", iana_camera_pan_tilt.msg.PanTilt, face_tracker.on_pan_tilt, queue_size=1)
 
         rate = rospy.Rate(2)
