@@ -2,7 +2,9 @@
 	<env name="ROSCONSOLE_CONFIG_FILE" value="$(find iana_start_up)/config/custom_rosconsole.conf" />
 	<node name="iana_user_io" pkg="iana_user_io" type="web_socket_node.py" />
 
-	<node name="iana_person_data" pkg="iana_person_data" type="person_data_node.py" />
+	<node name="iana_person_data" pkg="iana_person_data" type="person_data_node.py">
+		<param name="database_file" value="/usr/local/iana/database.db" />
+	</node>
 
 	<node name="iana_camera_pan_tilt" pkg="iana_camera_pan_tilt" type="arduino_controller.py" />
 	

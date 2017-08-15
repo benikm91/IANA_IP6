@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+
 import rospy
+
+rospy.init_node('person_data_node', anonymous=True)
+
 from data_access.face_feature_dao_sqlalchemy import FaceFeatureDaoSQLAlchemy
 from data_access.person_dao_sqlalchemy import PersonDaoSQLAlchemy
 from data_access.table_object.base import Base
@@ -25,7 +29,6 @@ if __name__ == '__main__':
     person_data = PersonData(person_service)
 
     try:
-        rospy.init_node('person_data_node', anonymous=True)
 
         def handle_insert_and_notify(request):
             person = person_data.handle_insert(request)
