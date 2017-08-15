@@ -37,6 +37,7 @@ class _BroadcastServerProtocol(WebSocketServerProtocol):
     def onOpen(self):
         self.factory.register(self)
         self.refresh_map(self.factory.current_map)
+        self.refresh_tasks(self.factory.current_tasks)
         self.refresh_robot_position(self.factory.current_robot_pose)
 
     def onClose(self, wasClean, code, reason):
@@ -137,11 +138,12 @@ class _BroadcastServerFactory(WebSocketServerFactory):
             c.refresh_robot_position(pose)
 
     def refresh_tasks(self, tasks):
-        #if self.current_tasks == tasks:
-        #   return
+        if self.current_tasks == tasks:
+            return
         self.current_tasks = tasks
         for c in self.clients:
             c.refresh_tasks(tasks)
+
 
 class WebSocketIO(IanaIO):
 

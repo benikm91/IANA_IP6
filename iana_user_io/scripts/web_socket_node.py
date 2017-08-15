@@ -38,13 +38,15 @@ if __name__ == '__main__':
         map_sub = rospy.Subscriber("map", OccupancyGrid, map_callback)
         robot_position_sub = rospy.Subscriber("odom", Odometry, robot_position_callback)
 
-        get_tasks = rospy.ServiceProxy('get_tasks', GetTasks)
-        get_tasks.wait_for_service(3)
-
         rate = rospy.Rate(1)
         while not rospy.is_shutdown():
-            tasks = get_tasks().tasks
-            websocket_io.refresh_tasks(tasks)
+            get_tasks = rospy.ServiceProxy('get_tasks', GetTasks)
+            try:
+                tasks = get_tasks().tasks
+                websocket_io.refresh_tasks(tasks)
+            except rospy.service.ServiceException:
+                pass
+            rate.sleep()
     except rospy.ROSInterruptException:
         pass
 
