@@ -156,11 +156,12 @@ class TaskSystem(object):
     def get_all_tasks(self):
 
         result = list()
+        if self.current_task is not None:
+            result.append(self.current_task)
         for items in [
                 self.pushed_in_tasks.queue,
                 self.interrupted_tasks.queue,
-                self.pending_tasks.tasks, 
-                [ self.current_task ]
+                self.pending_tasks.tasks,
             ]:
             for item in items:
                 result.append(item)
