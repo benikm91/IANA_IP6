@@ -11,6 +11,8 @@
         <include file="$(find iana_start_up)/launch/rplidar-gmapping.launch" />
 
 	<include file="$(find iana_navigation)/launch/move_base.launch" />
+        
+	<include file="$(find zed_wrapper)/launch/zed.launch" />
 
 	<include file="$(find iana_start_up)/launch/iana.launch" />
 

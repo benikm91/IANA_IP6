@@ -5,8 +5,6 @@
 	<node name="iana_person_data" pkg="iana_person_data" type="person_data_node.py" />
 
 	<node name="iana_camera_pan_tilt" pkg="iana_camera_pan_tilt" type="arduino_controller.py" />
-        
-	<include file="$(find zed_wrapper)/launch/zed.launch" />
 	
 	<node name="iana_person_detection" pkg="iana_person_detection" type="person_detection.py" output="screen">
 		<remap from="/face_image" to="/zed/rgb/image_raw_color" />
