@@ -8,19 +8,19 @@ from task.task import Task
 
 class GoToTask(Task):
 
-    def __init__(self, target_pose):
+    def __init__(self, msg):
         super(GoToTask, self).__init__()
         self.go_to_action = actionlib.SimpleActionClient('iana/navigation/go_to', iana_navigation.msg.GoToAction)
         if not self.go_to_action.wait_for_server(rospy.Duration(1)):
             rospy.logerr('Failed to connect to /iana/navigation/go_to')
             self.terminated.set()
-        self.goal = iana_navigation.msg.GoToGoal(target_pose=target_pose)
-        self.target_pose = target_pose
+        self.goal = iana_navigation.msg.GoToGoal(target_pose=msg.target_pose)
+        self.target_pose = msg.target_pose
         self.running = threading.Event()
 
     @property
     def name(self):
-        return "Go to {} {} Task".format(self.target_pose.pose.x, self.target_pose.pose.y)
+        return "Go to {} {} Task".format(self.target_pose.pose.position.x, self.target_pose.pose.position.y)
 
     def update(self, elapsed):
         pass

@@ -23,10 +23,10 @@ class TaskReceiver(object):
         rospy.Subscriber('/iana/person_detection/known/left', KnownPersonLeft, self.known_person_left, queue_size=10)
 
     def explore(self, msg):
-        self.task_list.submit(ExploreTask(msg.until))
+        self.task_list.submit(ExploreTask(msg))
 
     def go_to(self, msg):
-        self.task_list.submit(GoToTask(msg.target_pose))
+        self.task_list.submit(GoToTask(msg))
 
     def unknown_person_entered(self, msg):
         self.task_list.submit(GetToKnowUnknownPersonTask(msg))
