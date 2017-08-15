@@ -86,7 +86,7 @@ if __name__ == '__main__':
             return frame
 
         age = rospy.get_rostime() - face_detection_image_message.header.stamp
-        if age.to_sec() > rospy.get_param('~/ignore_images_older_than', 1):
+        if age.to_sec() > rospy.get_param('~ignore_images_older_than', 1):
             return
 
         with lock:
@@ -96,7 +96,7 @@ if __name__ == '__main__':
             start_x, end_x = rospy.get_param('start_x', -1), rospy.get_param('end_x', 700)
             start_y, end_y = rospy.get_param('start_y', 0), rospy.get_param('end_y', 300)
 
-            scale_factor = 0.5 #rospy.get_param('~scale_factor', 1)
+            scale_factor = rospy.get_param('~scale_factor', 1)
 
             if start_x != -1:
                 face_detection_image = face_detection_image[start_y:end_y, start_x:end_x]

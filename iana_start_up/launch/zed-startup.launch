@@ -1,0 +1,23 @@
+<launch>
+
+	<include file="$(find kobuki_node)/launch/robot_with_tf.launch" />
+
+	<include file="$(find kobuki_bumper2pc)/launch/standalone.launch" />
+
+	<include file="$(find zed_wrapper)/launch/zed.launch" />
+
+	<node pkg="tf" type="static_transform_publisher" name="zed_tf_broadcaster" args="0 0 0 0 0 0 base_link camera_depth_image 100" />
+	
+	<node name="depthimage_to_laserscan" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan">
+		<param name="~output_frame_id" type="str" value="camera_depth_image" />	
+		<param name="~scan_height" value="10" />
+		<remap from="/image" to="/zed/depth/depth_registered"/>
+	</node>
+
+        <include file="$(find iana_start_up)/launch/zed-gmapping.launch" />
+
+	<include file="$(find iana_navigation)/launch/move_base.launch" />
+
+	<include file="$(find iana_start_up)/launch/iana.launch" />
+
+</launch>
