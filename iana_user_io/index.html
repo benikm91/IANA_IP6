@@ -322,7 +322,8 @@
             let tasks_element = document.querySelector('#tasks');
             let task_template = document.querySelector('#task_template').querySelector('.task');
             tasks_element.innerHTML = '';
-            tasks.forEach(task => {
+
+            tasks.filter(task => task !== "").forEach(task => {
                 let task_element = task_template.cloneNode(true);
                 task_element.innerHTML = task;
                 tasks_element.appendChild(task_element);
