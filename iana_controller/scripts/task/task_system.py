@@ -159,7 +159,8 @@ class TaskSystem(object):
         for items in [
                 self.pushed_in_tasks.queue,
                 self.interrupted_tasks.queue,
-                self.pending_tasks.tasks
+                self.pending_tasks.tasks, 
+                [ self.current_task ]
             ]:
             for item in items:
                 result.append(item)
