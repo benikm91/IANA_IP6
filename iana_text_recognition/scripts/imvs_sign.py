@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import cv2
+
 import rospy
-from recognition.TextRecognitionNode import TextRecognitionNode
+from recognition.room_text_recognition_node import RoomTextRecognitionNode
 
 from sensor_msgs.msg import Image
 
@@ -12,7 +12,7 @@ bridge = CvBridge()
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('imvs_sign', anonymous=True)
+        rospy.init_node('imvs_sign_text_recognition', anonymous=True)
         publisher = rospy.Publisher('/texts_in_image', TextsInImage, queue_size=1)
 
         def detect_text(msg, text_recognition):
@@ -25,7 +25,7 @@ if __name__ == '__main__':
             text_recognition_image = get_image(msg, "bgr8")
             text_recognition.recognise_text(text_recognition_image, msg.header.stamp)
 
-        rospy.Subscriber("/image", Image, detect_text, TextRecognitionNode(publisher), queue_size = 1)
+        rospy.Subscriber("/image", Image, detect_text, RoomTextRecognitionNode(publisher), queue_size = 1)
         rospy.spin()
     except rospy.ROSInterruptException:
         pass

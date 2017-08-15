@@ -3,6 +3,7 @@ import Image
 from tesserocr import PyTessBaseAPI
 
 import cv2
+import numpy as np
 from extract_roi import text_detection
 from extract_roi3 import number_detection, cutout_rectangles
 
@@ -28,7 +29,27 @@ def number_recognition(img):
     morph_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
     img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, morph_kernel)
 
-    img = cv2.dilate(img, (20, 20))
+    cv2.imshow('lala', img)
+    cv2.waitKey(0)
+
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
+    img = cv2.dilate(img, kernel)
+
+    cv2.imshow('lala', img)
+    cv2.waitKey(0)
+
+    # http://www.pyimagesearch.com/2017/02/20/text-skew-correction-opencv-python/
+    coords = np.column_stack(np.where(img == 0))
+    angle = cv2.minAreaRect(coords)[-1]
+
+    if angle < -45:
+        angle = -(90 + angle)
+    else:
+        angle = -angle
+
+    (h, w) = img.shape[:2]
+    M = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
+    img = cv2.warpAffine(img, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
 
     cv2.imshow('lala', img)
     cv2.waitKey(0)
@@ -38,10 +59,11 @@ def number_recognition(img):
     with PyTessBaseAPI() as api:
         api.InitFull(lang='deu', variables= {
             'user_words_suffix': 'user-words',
+            #'psm':   str(7),
         })
         api.SetImage(Image.fromarray(img))
         result = api.GetUTF8Text()
-        return result
+        return  result
 
 
 def text_recognition(img):
@@ -83,9 +105,10 @@ def connect_texts(texts):
 
 
 def debug_image(img, rects):
+    lala = img
     for rect in rects:
-        cv2.rectangle(img, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
-    cv2.imshow("img", img)
+        cv2.rectangle(lala, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
+    cv2.imshow("img", lala)
     cv2.waitKey(0)
 
 
@@ -102,6 +125,18 @@ cv2.waitKey(0)
 
 text_highlight_img = cv2.copyMakeBorder(img,0,0,0,0,cv2.BORDER_REPLICATE)
 
+rects = number_detection(img)
+rects.sort(key=lambda r: r[1])
+# debug_image(img, rects)
+text_images = cutout_rectangles(img, rects)
+print "Number of texts found: {0}".format(len(text_images))
+texts = list()
+for text_image in text_images:
+    texts.append(number_recognition(text_image))
+for text in texts:
+    print text
+cv2.waitKey(0)
+
 rects = text_detection(img)
 rects.sort(key=lambda r: r[1])
 debug_image(img, rects)
@@ -114,18 +149,5 @@ texts = connect_texts(texts)
 for text in texts:
     print text
 cv2.waitKey(0)
-
-rects = number_detection(img)
-rects.sort(key=lambda r: r[1])
-debug_image(img, rects)
-text_images = cutout_rectangles(img, rects)
-print "Number of texts found: {0}".format(len(text_images))
-texts = list()
-for text_image in text_images:
-    texts.append(number_recognition(text_image))
-for text in texts:
-    print text
-cv2.waitKey(0)
-
 
 cv2.destroyAllWindows()

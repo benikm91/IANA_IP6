@@ -25,14 +25,14 @@ def text_detection(rgb, debug = False):
 
     show_debug_img("gray", gray)
 
-    morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, morph_kernel_grad_shape)
-    grad = cv2.morphologyEx(gray, cv2.MORPH_GRADIENT, morph_kernel)
-
-    show_debug_img("grad", grad)
-
-    _, bw = cv2.threshold(grad, 0.0, 255.0, cv2.THRESH_OTSU + cv2.THRESH_BINARY)
+    _, bw = cv2.threshold(gray, 0.0, 255.0, cv2.THRESH_OTSU + cv2.THRESH_BINARY)
 
     show_debug_img("bw", bw)
+
+    morph_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, morph_kernel_grad_shape)
+    bw = cv2.morphologyEx(bw, cv2.MORPH_GRADIENT, morph_kernel)
+
+    show_debug_img("grad", bw)
 
     morph_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, morph_kernel_close_shape)
     connected = cv2.morphologyEx(bw, cv2.MORPH_CLOSE, morph_kernel)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     rects = text_detection(large, True)
     for rect in rects:
-        cv2.rectangle(large, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 2)
+        cv2.rectangle(large, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 10)
     cv2.imshow("final", large)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

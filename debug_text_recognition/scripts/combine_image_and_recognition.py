@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 import cv2
 import rospy
 import message_filters
@@ -19,8 +20,7 @@ def combine(image_msg, texts_in_image_msg, publisher):
         cv2.rectangle(image, pt1, pt2, (0, 255, 0), 5)
         # Write some Text
         font = cv2.FONT_HERSHEY_SIMPLEX
-        # TODO check if this join statement should be in iana_text_recognition
-        text = ''.join(e for e in text_in_image.text.data if e.isalnum())
+        text = text_in_image.text.data
         cv2.putText(image, text, (x, y), font, 1, (255, 255, 255), 2)
 
     publisher.publish(bridge.cv2_to_imgmsg(image))
@@ -33,7 +33,7 @@ if __name__ == '__main__':
         debug_image_publisher = rospy.Publisher("/debug_image", Image, queue_size=1)
         texts_in_image = message_filters.Subscriber("/texts_in_image", TextsInImage)
 
-        message_filters.TimeSynchronizer([image, texts_in_image], 20).registerCallback(combine, debug_image_publisher)
+        message_filters.TimeSynchronizer([image, texts_in_image], 100).registerCallback(combine, debug_image_publisher)
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
