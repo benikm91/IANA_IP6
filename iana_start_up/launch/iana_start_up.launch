@@ -9,12 +9,12 @@
 	<include file="$(find zed_wrapper)/launch/zed.launch" />
 	
 	<node name="iana_person_detection" pkg="iana_person_detection" type="person_detection.py" output="screen">
-		<remap from="/face_image" to="/zed/left/image_rect_color" />
-		<remap from="/person_image" to="/zed/left/image_rect_color" />
-		<param name="_scale_factor" value="0.2"></param>
+		<remap from="/face_image" to="/zed/rgb/image_raw_color" />
+		<remap from="/person_image" to="/zed/rgb/image_raw_color" />
+		<param name="scale_factor" value="0.5"></param>
 	</node>
-	
-    <!-- IANA COMPONENTS -->
+    
+	<!-- IANA COMPONENTS -->
 	<node name="iana_speech" pkg="iana_speech" type="iana_speech_node.py" />
 	<node name="iana_navigation" pkg="iana_navigation" type="iana_navigation_node.py" />
  	<node name="iana_driver_random" pkg="iana_driver" type="driver_random_node.py" />	
