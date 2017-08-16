@@ -57,6 +57,7 @@ class ArduinoController(object):
                 self.serial.timeout = self.read_timeout
                 try:
                     result = self.serial.read(1)
+                    rospy.logerr("pan tilt: received result = {}".format(result))
                     success = len(result) == 1 and result[0] == 0
                 except serial.SerialException:
                     rospy.loginfo("ignore SerialException while reading from serial port")
