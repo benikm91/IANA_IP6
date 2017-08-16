@@ -39,7 +39,7 @@ class ArduinoController(object):
         while not success and (time.time() - start_time) < self.write_timeout:
             self.serial.timeout = self.write_timeout
             self.serial.write(bytearray(struct.pack('I' * len(self.state), *self.state)))
-            if self.serial.in_waiting() <= 1:
+            if self.serial.in_waiting <= 1:
                 self.serial.timeout = self.read_timeout
                 result = self.serial.read(1)
                 success = len(result) == 1 and result[0] == 0
