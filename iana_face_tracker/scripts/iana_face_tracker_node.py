@@ -11,7 +11,6 @@ class FaceTracker(object):
     def __init__(self, fov, resolution, hold_position_time, pant_tilt_pub, state):
         super(FaceTracker, self).__init__()
         self.fov = fov
-        # self.offset = ((180 - fov[0]) / 2.0, (180 - fov[1]) / 2.0)
         self.resolution = resolution
         self.hold_position_time = hold_position_time
         self.pant_tilt_pub = pant_tilt_pub
@@ -28,20 +27,20 @@ class FaceTracker(object):
         self.enabled = False
 
     def on_faces_detected(self, faces_msg):
-        rospy.logerr(faces_msg)
-        rospy.logerr("last_update={}, message_stamp={}".format(self.last_updated, faces_msg.header.stamp.to_sec()))
         if self.enabled and len(faces_msg.faces) > 0 and self.last_updated < faces_msg.header.stamp.to_sec():
             face = faces_msg.faces[0]
             position_x = face.x + (face.width / 2.0)
             position_y = self.resolution[1] - (face.y + (face.height / 2.0))
-            # pan = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] + self.offset[0] + (self.state[0] - 90)))
-            # tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] + self.offset[1] + (self.state[1] - 90)))
+            rospy.loginfo("look at face with position ({})".format((position_x, position_y)))
             pan = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] - (self.fov[0] / 2.0) + self.state[0]))
             tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] - (self.fov[0] / 2.0) + self.state[1]))
-            rospy.logerr(pan)
             self.publish_pan_tilt(pan, tilt)
             self.rotate_back_timer = self.hold_position_time
             self.rotated = True
+        else:
+            rospy.logwarn("last update timestamp({}) is newer than message timestamp ({}). Frame dropped.".format(
+                self.last_updated, faces_msg.header.stamp.to_sec()
+            ))
 
     def on_pan_tilt(self, pan_tilt):
         self.state = (pan_tilt.tilt, pan_tilt.pan)
@@ -56,6 +55,7 @@ class FaceTracker(object):
                 self.rotate_back_timer -= delta_time
 
     def publish_pan_tilt(self, pan, tilt):
+        rospy.loginfo("published pan, tilt = {}".format((pan, tilt)))
         self.pant_tilt_pub.publish(pan, tilt)
         self.state = (pan, tilt)
         self.last_updated = time.time()

@@ -76,7 +76,7 @@ class DriverTurningState(DriverRandomState):
         self.turned_angle = 0.0
         self.direction = direction
         self.current_velocity = current_velocity
-        self.target_velocity = self.driver.max_linear_velocity
+        self.target_velocity = self.driver.max_angular_velocity
 
     def update(self, delta_time):
         # update

@@ -73,6 +73,8 @@ class ExploreFrontiersState(DriverExploreState):
 
     def goal_reached(self, state, result):
         rospy.loginfo('Explore Frontier goal reached!')
+        rospy.logerr("Explore goal reached!")
+        rospy.logerr("state ({}) == SUCCEEDED ({})".format(state, actionlib_msgs.msg.GoalStatus.SUCCEEDED))
         if state != actionlib_msgs.msg.GoalStatus.SUCCEEDED:
             self.tries += 1
         else:
