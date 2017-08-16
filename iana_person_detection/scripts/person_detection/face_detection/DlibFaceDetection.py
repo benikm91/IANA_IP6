@@ -16,5 +16,14 @@ class DlibFaceDetector(FaceDetection):
         self.img_dim = img_dim
         self.align = openface.AlignDlib(predictor_path)
 
+    def dlib_rectangle_to_bounding_box(self, rect):
+        """
+        :param rect:
+        :type rect: rectangle
+        :return: (x, y, width, height)
+        """
+        return rect.left(), rect.top(), rect.width(), rect.height()
+
     def detect_faces(self, image):
-        return sorted(self.align.getAllFaceBoundingBoxes(image), key=lambda rec: rec.width() * rec.height(), reverse=True)
+        bounding_boxes = map(self.dlib_rectangle_to_bounding_box, self.align.getAllFaceBoundingBoxes(image))
+        return sorted(bounding_boxes, key=lambda rec: rec[2] * rec[3], reverse=True)

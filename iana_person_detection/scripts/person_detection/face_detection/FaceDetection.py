@@ -8,6 +8,6 @@ class FaceDetection(object):
         :param image: Image to detect faces in
         :type image: numpy.ndarray
         :return:
-        :rtype: [rectangle]
+        :rtype: [ (x, y, width, height) ]
         """
         pass

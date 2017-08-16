@@ -1,5 +1,6 @@
 import dlib
 import rospy
+import time
 from std_msgs.msg import Header
 
 import cv2
@@ -85,27 +86,25 @@ class PersonDetection(object):
             face_height, face_width, _ = face_image.shape
             person_height, person_width, _ = person_image.shape
             w_resize_factor = person_width / face_width
-            h_resize_factor = person_height / face_height 
-            return dlib.rectangle(
-                bounding_box.left() * w_resize_factor,
-                bounding_box.top() * h_resize_factor,
-                bounding_box.right() * w_resize_factor,
-                bounding_box.bottom() * h_resize_factor
-            )
+            h_resize_factor = person_height / face_height
+            x, y, width, height = bounding_box
+            return x * w_resize_factor, y * h_resize_factor, width * w_resize_factor, height * h_resize_factor
 
+        start_time = time.time()
         boundboxes = self.face_detection.detect_faces(face_image)
+        print "Face Detection time needed", time.time() - start_time
         boundboxes = map(resize_bounding_box, boundboxes)
 
         faces = []
         face_bounding_boxes_msg = FaceBoundingBoxes()
         face_bounding_boxes_msg.header.stamp = rospy.Time.from_sec(record_timestamp)
-        for boundbox in boundboxes:
-            faces.append(person_image[boundbox.top():boundbox.bottom(),boundbox.left():boundbox.right()])
+        for x, y, width, height in boundboxes:
+            faces.append(person_image[y:y+height,x:x+width])
             bounding_box = BoundingBox()
-            bounding_box.x = boundbox.left()
-            bounding_box.y = boundbox.top()
-            bounding_box.width = boundbox.right() - boundbox.left()
-            bounding_box.height = boundbox.bottom() - boundbox.top()
+            bounding_box.x = x
+            bounding_box.y = y
+            bounding_box.width = width
+            bounding_box.height = height
             face_bounding_boxes_msg.faces.append(bounding_box)
 
         self.faces_detected_publisher.publish(face_bounding_boxes_msg)

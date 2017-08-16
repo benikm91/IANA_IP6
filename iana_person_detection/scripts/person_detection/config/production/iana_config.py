@@ -7,9 +7,12 @@ camera = Config(
     width=800,
     height=600
 )
-face_detection = Config(
+dlib_face_detection = Config(
     predictor_path=pkg_resources.resource_filename('res', 'models/dlib/shape_predictor_68_face_landmarks.dat'),
-    img_dim=96,
+    img_dim=96
+)
+haar_face_detection = Config(
+    model=pkg_resources.resource_filename('res', 'models/opencv/haarcascade_frontalface_default.xml')
 )
 face_embedder = Config(
     network_model=pkg_resources.resource_filename('res', 'models/openface/nn4.small2.v1.t7'),
