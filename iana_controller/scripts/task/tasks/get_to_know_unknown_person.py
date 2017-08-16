@@ -16,6 +16,28 @@ class GetToKnowUnknownPersonTask(Task):
         self.face_vectors = msg.face_vectors
         self.preview_image = msg.preview_image
         self.get_name_action = actionlib.SimpleActionClient('/get_name', GetNameAction)
+        self.get_name_action.wait_for_server()
+        self.say_action = actionlib.SimpleActionClient('/iana/speech/say', SayAction)
+        self.say_action.wait_for_server()
+
+        rospy.wait_for_service('insert_new_person')
+        self.insert_new_person = rospy.ServiceProxy('/insert_new_person', InsertNewPerson)
+
+    def _receive_name(self, state, result):
+        name = result.name
+        if name == -1:
+            return
+
+        rospy.loginfo('Insert new person with name "{0}"'.format(name))
+        person = self.insert_new_person(name, self.face_vectors).person
+
+        # check person result
+        if person is None:
+            rospy.logerr('Error while inserting new person')
+        elif person.name != name:
+            rospy.logerr('Inserted Person has wrong name. Name "{0}" given, got "{1}".'.format(name, person.name))
+
+        self.terminated.set()
 
     @property
     def name(self):
@@ -25,45 +47,9 @@ class GetToKnowUnknownPersonTask(Task):
         pass
 
     def on_start(self):
-
-        def greet_person():
-            say_action.send_goal(SayGoal("Oh hello there. Please tell me who you are!"))
-
-        def ask_and_receive_name():
-            self.get_name_action.send_goal(GetNameGoal(preview_image=self.preview_image))
-            if self.get_name_action.wait_for_result():
-                return self.get_name_action.get_result()
-            else:
-                return -1
-
-        rospy.loginfo('Setting up services and actions.')
-
-        # setup -> init needed actions and services.
-        self.get_name_action.wait_for_server()
-        say_action = actionlib.SimpleActionClient('/iana/speech/say', SayAction)
-        say_action.wait_for_server()
-        rospy.wait_for_service('insert_new_person')
-        insert_new_person = rospy.ServiceProxy('/insert_new_person', InsertNewPerson)
-
-        rospy.loginfo('Greet unknown person.')
-        greet_person()
-
         rospy.loginfo('Ask and receive unknown persons name.')
-
-        name = ask_and_receive_name().name
-        if name == -1:
-            return
-
-        rospy.loginfo('Insert new person with name "{0}"'.format(name))
-        person = insert_new_person(name, self.face_vectors).person
-
-        # check person result
-        if person is None:
-            rospy.logerr('Error while inserting new person')
-        elif person.name != name:
-            rospy.logerr('Inserted Person has wrong name. Name "{0}" given, got "{1}".'.format(name, person.name))
-
-        self.terminated.set()
+        self.say_action.send_goal(SayGoal("Oh hello there. Please tell me who you are!"))
+        self.get_name_action.send_goal(GetNameGoal(preview_image=self.preview_image), self._receive_name)
 
     def on_resume(self):
         self.terminated.set()

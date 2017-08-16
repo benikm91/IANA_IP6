@@ -9,9 +9,8 @@ class SpeechController(object):
 
     def __init__(self):
         self.speech_action = actionlib.SimpleActionServer('/iana/speech/say',
-                                                           SayAction, execute_cb=self.say,
-                                                           auto_start=False)
-        self.speech_action.start()
+                                                           SayAction,
+                                                           execute_cb=self.say)
 
     def say(self, msg):
         message = msg.message
