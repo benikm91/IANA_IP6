@@ -21,7 +21,8 @@ class ExploreRandomTask(Task):
         return "Explore Task (Only Random)"
 
     def update(self, elapsed):
-        if time.time() > self.until:
+        until = rospy.Time(self.until.data.secs, self.until.data.nsecs)
+        if rospy.get_rostime() > self.until:
             self.terminated.set()
 
     def on_start(self):
