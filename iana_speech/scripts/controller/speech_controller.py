@@ -1,5 +1,6 @@
 import os
 
+import rospy
 import actionlib
 from iana_speech.msg import SayAction
 
@@ -14,4 +15,5 @@ class SpeechController(object):
 
     def say(self, msg):
         message = msg.message
+        rospy.loginfo("IANA says: \"message\"")
         os.system("say %(message)s" % locals())
