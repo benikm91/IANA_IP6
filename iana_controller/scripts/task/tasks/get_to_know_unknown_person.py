@@ -15,6 +15,7 @@ class GetToKnowUnknownPersonTask(Task):
         super(GetToKnowUnknownPersonTask, self).__init__()
         self.face_vectors = msg.face_vectors
         self.preview_image = msg.preview_image
+        self.get_name_action = actionlib.SimpleActionClient('/get_name', GetNameAction)
 
     @property
     def name(self):
@@ -29,15 +30,16 @@ class GetToKnowUnknownPersonTask(Task):
             say_action.send_goal(SayGoal("Oh hello there. Please tell me who you are!"))
 
         def ask_and_receive_name():
-            get_name_action.send_goal(GetNameGoal(preview_image=self.preview_image))
-            get_name_action.wait_for_result()
-            return get_name_action.get_result()
+            self.get_name_action.send_goal(GetNameGoal(preview_image=self.preview_image))
+            if self.get_name_action.wait_for_result():
+                return self.get_name_action.get_result()
+            else:
+                return -1
 
         rospy.loginfo('Setting up services and actions.')
 
         # setup -> init needed actions and services.
-        get_name_action = actionlib.SimpleActionClient('/get_name', GetNameAction)
-        get_name_action.wait_for_server()
+        self.get_name_action.wait_for_server()
         say_action = actionlib.SimpleActionClient('/iana/speech/say', SayAction)
         say_action.wait_for_server()
         rospy.wait_for_service('insert_new_person')
@@ -47,7 +49,10 @@ class GetToKnowUnknownPersonTask(Task):
         greet_person()
 
         rospy.loginfo('Ask and receive unknown persons name.')
+
         name = ask_and_receive_name().name
+        if name == -1:
+            return
 
         rospy.loginfo('Insert new person with name "{0}"'.format(name))
         person = insert_new_person(name, self.face_vectors).person
@@ -67,6 +72,7 @@ class GetToKnowUnknownPersonTask(Task):
         self.terminated.set()
 
     def on_shutdown(self):
+        self.get_name_action.cancel_goal()
         self.terminated.set()
 
     def interruptable_by(self, task):
