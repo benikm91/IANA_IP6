@@ -14,7 +14,7 @@ class ExploreRandomTask(Task):
         if not self.explore_random_action.wait_for_server(rospy.Duration(1)):
             rospy.logerr('Failed to connect to /iana/navigation/explore_random')
             self.terminated.set()
-        self.goal = iana_navigation.msg.ExplorerandomGoal(until=msg.until)
+        self.goal = iana_navigation.msg.ExploreRandomGoal(until=msg.until)
         self.running = threading.Event()
 
     @property
