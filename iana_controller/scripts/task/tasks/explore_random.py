@@ -1,49 +1,53 @@
 import threading
 import rospy
-import time
+import actionlib
+import iana_navigation.msg
 
 from task.task import Task
-
-import std_msgs.msg
 
 
 class ExploreRandomTask(Task):
 
     def __init__(self, msg):
         super(ExploreRandomTask, self).__init__()
-        self.driver_random_enable_publisher = rospy.Publisher('/iana/driver_random/enable', std_msgs.msg.Empty, queue_size=10, latch=True)
-        self.driver_random_disable_publisher = rospy.Publisher('/iana/driver_random/disable', std_msgs.msg.Empty, queue_size=10, latch=True)
+        self.explore_random_action = actionlib.SimpleActionClient('/iana/navigation/explore_random', iana_navigation.msg.ExploreRandomAction)
+        if not self.explore_random_action.wait_for_server(rospy.Duration(1)):
+            rospy.logerr('Failed to connect to /iana/navigation/explore_random')
+            self.terminated.set()
+        self.goal = iana_navigation.msg.ExplorerandomGoal(until=msg.until)
         self.running = threading.Event()
-        self.until = msg.until
 
     @property
     def name(self):
-        return "Explore Task (Only Random)"
+        return "Explore Random Task"
 
     def update(self, elapsed):
-        until = rospy.Time(self.until.data.secs, self.until.data.nsecs)
-        if rospy.get_rostime() > until:
-            self.terminated.set()
+        pass
 
     def on_start(self):
-        rospy.loginfo('start random exploring')
+        rospy.logerr('start random exploring')
         self.running.set()
-        self.driver_random_enable_publisher.publish()
+        self.explore_random_action.send_goal(self.goal, self._goal_reached_callback)
 
     def on_resume(self):
-        rospy.loginfo('resume random exploring')
+        rospy.logerr('resume random exploring')
         self.on_start()
 
     def on_interrupt(self):
-        rospy.loginfo('interrupt random exploring')
+        rospy.logerr('interrupt random exploring')
         self.running.clear()
-        self.driver_random_disable_publisher.publish()
+        self.explore_random_action.cancel_goal()
 
     def on_shutdown(self):
-        rospy.loginfo('shutdown random exploring')
+        rospy.logerr('shutdown random exploring')
         self.running.clear()
-        self.driver_random_disable_publisher.publish()
+        self.explore_random_action.cancel_goal()
         self.terminated.set()
 
     def interruptable_by(self, task):
         return True
+
+    def _goal_reached_callback(self, state, result):
+        if self.running.is_set():
+            rospy.logerr('random exploring goal reached: terminated set!')
+            self.terminated.set()

@@ -10,18 +10,20 @@ class NavigationController(object):
 
     def __init__(self):
         self.explore_action_server = actionlib.SimpleActionServer('/iana/navigation/explore', iana_navigation.msg.ExploreAction, execute_cb=self.explore, auto_start=False)
+        self.explore_random_action_server = actionlib.SimpleActionServer('/iana/navigation/explore_random', iana_navigation.msg.ExploreAction, execute_cb=self.explore_random, auto_start=False)
         self.go_to_action_server = actionlib.SimpleActionServer('/iana/navigation/go_to', iana_navigation.msg.GoToAction, execute_cb=self.go_to, auto_start=False)
 
         self.move_base_action = actionlib.SimpleActionClient('/move_base', move_base_msgs.msg.MoveBaseAction)
         if not self.move_base_action.wait_for_server(rospy.Duration(30)):
             rospy.logerr('Failed to connect to /move_base action')
 
-        # self.driver_random_enable_publisher = rospy.Publisher('/iana/driver_random/enable', std_msgs.msg.Empty, queue_size=10)
-        # self.driver_random_disable_publisher = rospy.Publisher('/iana/driver_random/disable', std_msgs.msg.Empty, queue_size=10)
+        self.driver_random_enable_publisher = rospy.Publisher('/iana/driver_random/enable', std_msgs.msg.Empty, queue_size=10)
+        self.driver_random_disable_publisher = rospy.Publisher('/iana/driver_random/disable', std_msgs.msg.Empty, queue_size=10)
         self.driver_explore_enable_publisher = rospy.Publisher('/iana/driver_explore/enable', std_msgs.msg.Empty, queue_size=10)
         self.driver_explore_disable_publisher = rospy.Publisher('/iana/driver_explore/disable', std_msgs.msg.Empty, queue_size=10)# explore
 
         self.explore_action_server.start()
+        self.explore_random_action_server.start()
         self.go_to_action_server.start()
         rospy.loginfo('navigation controller initialized!')
 
@@ -29,7 +31,7 @@ class NavigationController(object):
         rospy.loginfo('Explore action received!')
         until = rospy.Time(goal.until.data.secs, goal.until.data.nsecs)
 
-        # start random driver
+        # start explore driver
         self.driver_explore_enable_publisher.publish()
 
         # check for preempted until time's up
@@ -50,6 +52,32 @@ class NavigationController(object):
             rospy.logerr('Explore goal reached!')
             self.driver_explore_disable_publisher.publish()
             self.explore_action_server.set_succeeded()
+
+    def explore_random(self, goal):
+        rospy.loginfo('Explore Random action received!')
+        until = rospy.Time(goal.until.data.secs, goal.until.data.nsecs)
+
+        # start random driver
+        self.driver_random_enable_publisher.publish()
+
+        # check for preempted until time's up
+        interval = 0.1
+        preempted = False
+        rospy.loginfo('Explore for {} seconds'.format((until - rospy.get_rostime()).to_sec()))
+        while not rospy.get_rostime() >= until and not preempted:
+            if self.explore_random_action_server.is_preempt_requested():
+                self.driver_random_disable_publisher.publish()
+                self.explore_random_action_server.set_preempted()
+                preempted = True
+            else:
+                duration = min((until - rospy.get_rostime()).to_sec(), interval)
+                if duration > 0:
+                    rospy.sleep(duration)
+
+        if not preempted:
+            rospy.logerr('Explore goal reached!')
+            self.driver_random_disable_publisher.publish()
+            self.explore_random_action_server.set_succeeded()
 
     def go_to(self, goal):
         # send target pose to move base
