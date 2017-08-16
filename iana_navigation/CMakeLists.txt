@@ -65,6 +65,7 @@ add_action_files(
   DIRECTORY action
   FILES
   Explore.action
+  ExploreRandom.action
   GoTo.action
 )
 
