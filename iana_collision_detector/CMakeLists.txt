@@ -202,7 +202,7 @@ include_directories(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_executable(look_ahead_kinect src/LookAheadKinectOne.cpp)
-target_link_libraries(look_ahead_kinect ${catkin_LIBRARIES})
+add_executable(look_ahead_kinect_one src/LookAheadKinectOne.cpp)
+target_link_libraries(look_ahead_kinect_one ${catkin_LIBRARIES})
 add_executable(look_ahead_rplidar src/LookAheadRPLidar.cpp)
 target_link_libraries(look_ahead_rplidar ${catkin_LIBRARIES})

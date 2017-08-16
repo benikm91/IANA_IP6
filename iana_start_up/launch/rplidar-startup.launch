@@ -6,6 +6,8 @@
 
 	<node pkg="tf" type="static_transform_publisher" name="base_to_laser_broadcaster" args="0 0 0 3.14159 0 0 base_link laser 100" />
 
+	<node name="iana_collision_detector" pkg="iana_collision_detector" type="look_ahead_rplidar" />
+	
 	<include file="$(find iana_start_up)/launch/rplidar.launch" />
 
         <include file="$(find iana_start_up)/launch/rplidar-gmapping.launch" />
