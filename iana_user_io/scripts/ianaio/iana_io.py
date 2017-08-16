@@ -8,6 +8,7 @@ class IanaTalker(object):
 
     def __init__(self):
         self.explore_pub = rospy.Publisher('/iana/user_command/explore', Explore, queue_size=10)
+        self.explore_random_pub = rospy.Publisher('/iana/user_command/explore_random', Explore, queue_size=10)
         self.goto_pub = rospy.Publisher('/iana/user_command/go_to', GoTo, queue_size=10)
 
     def start(self):
@@ -17,6 +18,11 @@ class IanaTalker(object):
         time = Time()
         time.data = rospy.Time.now() + rospy.Duration(int(seconds))
         self.explore_pub.publish(time)
+
+    def explore_random(self, seconds):
+        time = Time()
+        time.data = rospy.Time.now() + rospy.Duration(int(seconds))
+        self.explore_random_pub.publish(time)
 
     def goto(self, x, y, qx, qy, qz, qw):
         target_pose = PoseStamped()

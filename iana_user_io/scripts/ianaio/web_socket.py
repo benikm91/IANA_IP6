@@ -152,6 +152,7 @@ class WebSocketIO(IanaIO):
         global commands
         commands = dict(
             explore=publisher.explore,
+            explore_random=publisher.explore_random,
             goto=publisher.goto,
         )
         self.factory = None

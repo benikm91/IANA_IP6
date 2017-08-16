@@ -99,6 +99,17 @@
             }
          }
 
+         function explore_random() {
+            if (isopen) {
+                const explore_time = document.querySelector('input[name="explore_random_time"]').value;
+                const command = `explore_random ${explore_time}`;
+                console.log(command);
+                socket.send(command);
+            } else {
+                console.warn("Connection not opened.");
+            }
+         }
+
          function goto_target() {
              const x = document.querySelector('input[name="goto_x"]').value;
              const y = document.querySelector('input[name="goto_y"]').value;
@@ -380,6 +391,12 @@
                                 <label for="explore_time">Seconds: </label> <input type="text" id="explore_time" name="explore_time" value="60" />
                             </div>
                             <button class="btn btn-primary" onclick='explore();'>Explore Modus</button>
+                        </div>
+                        <div class="command col-md-12">
+                            <div>
+                                <label for="explore_time">Seconds: </label> <input type="text" id="explore_random_time" name="explore_random_time" value="60" />
+                            </div>
+                            <button class="btn btn-primary" onclick='explore_random();'>Explore Random Modus</button>
                         </div>
                         <div class="command col-md-12">
                             <div>
