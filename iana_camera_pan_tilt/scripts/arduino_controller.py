@@ -44,9 +44,10 @@ class ArduinoController(object):
         pan = min(180, max(1, pan))
         tilt = min(180, max(1, tilt))
         self.state = [pan, tilt]
-        rospy.loginfo("set pan: {}, tilt: {}".format(pan, tilt))
+        rospy.loginfo("Set pan: {}, tilt: {}".format(pan, tilt))
         success = False
         start_time = time.time()
+        self.serial.reset_input_buffer()
         while not success and (time.time() - start_time) < self.write_timeout:
             self.serial.timeout = self.write_timeout - (time.time() - start_time)
             try:
@@ -57,19 +58,21 @@ class ArduinoController(object):
                 self.serial.timeout = self.read_timeout
                 try:
                     result = self.serial.read(1)
-                    rospy.logerr("pan tilt: received result = {}".format(result))
-                    rospy.logerr("pan tilt: bytes = {}".format(bytes(result)))
-                    rospy.logerr("pan tilt: encode = {}".format(result.encode('hex')))
-                    rospy.logerr("pan tilt: int encoded = {}".format(int(result.encode('hex'))))
                     if len(result) > 0:
-                        rospy.logerr("pan tilt: bytes[0] = {}".format(bytes(result)[0]))
-                    success = len(result) == 1 and result[0] == 0
+                        result_code = int(result.encode('hex'))
+                        if result_code == 0:
+                            success = True
+                        else:
+                            rospy.logwarn("Received error code: {}".format(result_code))
+                    else:
+                        rospy.logwarn("Received no result code")
                 except serial.SerialException:
-                    rospy.loginfo("ignore SerialException while reading from serial port")
+                    rospy.loginfo("Ignore SerialException while reading from serial port")
             else:
                 self.serial.reset_input_buffer()
         if success:
             self.pant_tilt_pub.publish(pan, tilt)
+            rospy.loginfo("Successfully sent pan & tilt values to arduino")
         else:
             rospy.logerr("Failed to sent pan & tilt values to arduino")
 
