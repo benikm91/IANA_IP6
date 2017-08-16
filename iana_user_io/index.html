@@ -176,9 +176,9 @@
                     let mapIndex = (y * canvas.width + x);
                     let color = 0;
                     if (parseInt(current_map[mapIndex]) == unknown) {
-                        let color = 125;
+                        color = 125;
                     } else if (parseInt(current_map[mapIndex]) < occupied_threshold) {
-                        let color = 255;
+                        color = 255;
                     }
                     // let color = 255 - parseInt(current_map[mapIndex] * 2.55);
                     colorPixelM(x, y, color);

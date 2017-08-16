@@ -85,7 +85,7 @@ class _BroadcastServerProtocol(WebSocketServerProtocol):
                 str(map_data.height),
                 str(map_data.origin_x),
                 str(map_data.origin_y)
-            ) + ','.join((str(0) if i == -1 else str(i)) for i in map_data.map))
+            ) + ','.join(map_data.map))
 
     def refresh_robot_position(self, pose):
         if pose is None:
