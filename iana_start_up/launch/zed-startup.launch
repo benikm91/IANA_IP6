@@ -7,6 +7,8 @@
 	<include file="$(find zed_wrapper)/launch/zed.launch" />
 
 	<node pkg="tf" type="static_transform_publisher" name="zed_tf_broadcaster" args="0 0 0 0 0 0 base_link camera_depth_image 100" />
+
+	<node name="iana_collision_detector" pkg="iana_collision_detector" type="look_ahead_kinect_one" />
 	
 	<node name="depthimage_to_laserscan" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan">
 		<param name="~output_frame_id" type="str" value="camera_depth_image" />	

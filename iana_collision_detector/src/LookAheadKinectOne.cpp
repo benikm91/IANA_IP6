@@ -6,7 +6,7 @@
 
 namespace Iana
 {
-    class LookAhead
+    class LookAheadKinectOne
     {
       private:
         ros::NodeHandle m_nodeHandle;
@@ -15,10 +15,10 @@ namespace Iana
         float threshold_factor;
 
       public:
-        LookAhead()
+        LookAheadKinectOne()
         {
             m_collisionAheadPublisher = m_nodeHandle.advertise<std_msgs::Float32>("/collision_ahead", 1000);
-            m_depthImageSubscriber = m_nodeHandle.subscribe<sensor_msgs::LaserScan>("/scan", 1000, &LookAhead::DepthImageCallback, this);
+            m_depthImageSubscriber = m_nodeHandle.subscribe<sensor_msgs::LaserScan>("/scan", 1000, &LookAheadKinectOne::DepthImageCallback, this);
             this->threshold_factor = 0.5f;
         }
 
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "look_ahead");
 
-    Iana::LookAhead lookAhead;
+    Iana::LookAheadKinectOne lookAhead;
 
     ros::spin();
 

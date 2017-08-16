@@ -19,7 +19,6 @@
 	<node name="iana_navigation" pkg="iana_navigation" type="iana_navigation_node.py" />
  	<node name="iana_driver_random" pkg="iana_driver" type="driver_random_node.py" />	
 	<node name="iana_driver_explore" pkg="iana_driver" type="driver_explore_node.py" />
-	<node name="iana_collision_detector" pkg="iana_collision_detector" type="look_ahead" />
 	<node name="iana_face_tracker" pkg="iana_face_tracker" type="iana_face_tracker_node.py" />
 	
 
