@@ -36,46 +36,36 @@ class ArduinoController(object):
         self.__set_pan_tilt(pan_tilt.pan, pan_tilt.tilt)
 
     def __set_pan_tilt(self, pan, tilt):
-        if not self.serial.readable() or not self.serial.writable():
-            rospy.logwarn("Probably lost connection to arduino: try reconnect")
-            self.__disconnect_arduino()
-            self.__connect_arduino()
         pan = min(180, max(1, pan))
         tilt = min(180, max(1, tilt))
         self.state = [pan, tilt]
         rospy.loginfo("Set pan: {}, tilt: {}".format(pan, tilt))
         success = False
         start_time = time.time()
-        try:
-            self.serial.reset_input_buffer()
-            while not success and (time.time() - start_time) < self.write_timeout:
-
-                self.serial.timeout = self.write_timeout - (time.time() - start_time)
+        self.serial.reset_input_buffer()
+        while not success and (time.time() - start_time) < self.write_timeout:
+            self.serial.timeout = self.write_timeout - (time.time() - start_time)
+            try:
+                self.serial.write(bytearray(struct.pack('I' * len(self.state), *self.state)))
+            except serial.SerialTimeoutException:
+                rospy.logwarn("SerialTimeoutException while writing to serial port")
+            if self.serial.in_waiting <= 1:
+                self.serial.timeout = self.read_timeout
                 try:
-                    self.serial.write(bytearray(struct.pack('I' * len(self.state), *self.state)))
-                except serial.SerialTimeoutException:
-                    rospy.logwarn("SerialTimeoutException while writing to serial port")
-                if self.serial.in_waiting <= 1:
-                    self.serial.timeout = self.read_timeout
-                    try:
-                        result = self.serial.read(1)
-                        if len(result) > 0:
-                            result_code = int(result.encode('hex'), 16)
-                            if result_code == 0:
-                                success = True
-                                rospy.logwarn("Received return code: {}".format(result_code))
-                            else:
-                                rospy.logwarn("Received error code: {}".format(result_code))
+                    result = self.serial.read(1)
+                    if len(result) > 0:
+                        result_code = int(result.encode('hex'), 16)
+                        if result_code == 0:
+                            success = True
+                            rospy.logwarn("Received return code: {}".format(result_code))
                         else:
-                            rospy.logwarn("Received no result code")
-                    except serial.SerialException:
-                        rospy.loginfo("Ignore SerialException while reading from serial port")
-                else:
-                    self.serial.reset_input_buffer()
-        except:
-            rospy.logwarn("Probably lost connection to arduino: try reconnect")
-            self.__disconnect_arduino()
-            self.__connect_arduino()
+                            rospy.logwarn("Received error code: {}".format(result_code))
+                    else:
+                        rospy.logwarn("Received no result code")
+                except serial.SerialException:
+                    rospy.loginfo("Ignore SerialException while reading from serial port")
+            else:
+                self.serial.reset_input_buffer()
 
         if success:
             self.pant_tilt_pub.publish(pan, tilt)
