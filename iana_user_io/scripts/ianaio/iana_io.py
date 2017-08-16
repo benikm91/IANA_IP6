@@ -1,14 +1,14 @@
 import rospy
 from std_msgs.msg import Time
 from geometry_msgs.msg import PoseStamped
-from iana_controller.msg import Explore, GoTo
+from iana_controller.msg import Explore, ExploreRandom, GoTo
 
 
 class IanaTalker(object):
 
     def __init__(self):
         self.explore_pub = rospy.Publisher('/iana/user_command/explore', Explore, queue_size=10)
-        self.explore_random_pub = rospy.Publisher('/iana/user_command/explore_random', Explore, queue_size=10)
+        self.explore_random_pub = rospy.Publisher('/iana/user_command/explore_random', ExploreRandom, queue_size=10)
         self.goto_pub = rospy.Publisher('/iana/user_command/go_to', GoTo, queue_size=10)
 
     def start(self):
