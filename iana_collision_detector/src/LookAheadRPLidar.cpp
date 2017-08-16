@@ -19,7 +19,7 @@ namespace Iana
       public:
         LookAheadRPLidar()
         {
-            m_collisionAheadPublisher = m_nodeHandle.advertise<std_msgs::Float32>("/collision_ahead", 1000);
+            m_collisionAheadPublisher = m_nodeHandle.advertise<std_msgs::Float32>("/iana/collision_detector/collision_ahead", 1000);
             m_collisionAheadScanPublisher = m_nodeHandle.advertise<sensor_msgs::LaserScan>("/lookAhead/considered_scan", 1000);
             m_depthImageSubscriber = m_nodeHandle.subscribe<sensor_msgs::LaserScan>("/scan", 1000, &LookAheadRPLidar::LaserScanCallback, this);
             this->threshold_factor = 0.5f;
@@ -52,7 +52,7 @@ namespace Iana
 
             std::vector<float> considered_range(n);
             std::copy(ranges.begin(), ranges.begin() + n / 2, considered_range.begin());
-            std::copy(ranges.end() - n / 2, ranges.end(), considered_range.end() - n / 2);
+            std::copy(ranges.end() - n / 2, ranges.end(), considered_range.end());
 
             std_msgs::Float32 minRangeMsg;
             if (!considered_range.empty()) {
