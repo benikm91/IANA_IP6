@@ -13,7 +13,6 @@ void resetInputBuffer();
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("Guten Tag!");
   servo_pan.attach(10);
   servo_tilt.attach(11);
   state[0] = 90;
@@ -26,7 +25,8 @@ void setup() {
 
 
 void loop() {
-  if (Serial.available() == sizeof(received[0]) * 2)
+  
+  if (Serial.available() == (sizeof(received[0]) * 2))
   {    
     if (
       Serial.readBytes((char*)&received, sizeof(received[0]) * 2) == sizeof(received[0]) * 2 &&
@@ -45,10 +45,11 @@ void loop() {
       Serial.write(1);
     }
   }
-  else
+  else if (Serial.available() > (sizeof(received[0]) * 2))
   {
+     int asdfsadf = Serial.available();
      resetInputBuffer();
-     Serial.write(1);
+     Serial.write(asdfsadf);
   }
   
   if (goal[0] != state[0])

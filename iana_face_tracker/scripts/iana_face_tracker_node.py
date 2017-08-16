@@ -27,20 +27,21 @@ class FaceTracker(object):
         self.enabled = False
 
     def on_faces_detected(self, faces_msg):
-        if self.enabled and len(faces_msg.faces) > 0 and self.last_updated < faces_msg.header.stamp.to_sec():
-            face = faces_msg.faces[0]
-            position_x = face.x + (face.width / 2.0)
-            position_y = self.resolution[1] - (face.y + (face.height / 2.0))
-            rospy.loginfo("look at face with position ({})".format((position_x, position_y)))
-            pan = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] - (self.fov[0] / 2.0) + self.state[0]))
-            tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] - (self.fov[0] / 2.0) + self.state[1]))
-            self.publish_pan_tilt(pan, tilt)
-            self.rotate_back_timer = self.hold_position_time
-            self.rotated = True
-        else:
-            rospy.logwarn("last update timestamp({}) is newer than message timestamp ({}). Frame dropped.".format(
-                self.last_updated, faces_msg.header.stamp.to_sec()
-            ))
+        if self.enabled and len(faces_msg.faces) > 0:
+            if self.last_updated < faces_msg.header.stamp.to_sec():
+                face = faces_msg.faces[0]
+                position_x = face.x + (face.width / 2.0)
+                position_y = self.resolution[1] - (face.y + (face.height / 2.0))
+                rospy.loginfo("look at face with position ({})".format((position_x, position_y)))
+                pan = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] - (self.fov[0] / 2.0) + self.state[0]))
+                tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] - (self.fov[1] / 2.0) + self.state[1]))
+                self.publish_pan_tilt(pan, tilt)
+                self.rotate_back_timer = self.hold_position_time
+                self.rotated = True
+            else:
+                rospy.logwarn("received faces but last update timestamp({}) is newer than message timestamp ({}). Frame dropped.".format(
+                    self.last_updated, faces_msg.header.stamp.to_sec()
+                ))
 
     def on_pan_tilt(self, pan_tilt):
         self.state = (pan_tilt.tilt, pan_tilt.pan)
