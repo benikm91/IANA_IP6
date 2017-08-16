@@ -90,7 +90,6 @@ class PersonDetection(object):
             x, y, width, height = bounding_box
             return x * w_resize_factor, y * h_resize_factor, width * w_resize_factor, height * h_resize_factor
 
-        start_time = time.time()
         boundboxes = self.face_detection.detect_faces(face_image)
         boundboxes = map(resize_bounding_box, boundboxes)
 
