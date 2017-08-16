@@ -36,10 +36,11 @@ void loop() {
     {
       goal[0] = received[0];
       goal[1] = received[1];
+      Serial.write(0);
     }
     else 
     {
-      // TODO: error :)
+      Serial.write(1);
     }
   }
   
