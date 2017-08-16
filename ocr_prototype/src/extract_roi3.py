@@ -1,12 +1,6 @@
 import cv2
 import numpy as np
 
-def cutout_rectangles(img, rects):
-    result = list()
-    for rect in rects:
-        result.append(img[rect[1]-10:rect[1]+rect[3]+10, rect[0]-10:rect[0]+rect[2]+10])
-    return result
-
 
 def number_detection(rgb, debug = False):
     def show_debug_img(title, image):
@@ -78,9 +72,10 @@ if __name__ == "__main__":
     cv2.imshow("large", large)
     cv2.waitKey(0)
     rects = number_detection(large, True)
+    lala = large
     for rect in rects:
-        cv2.rectangle(large, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 10)
-    cv2.imshow("final", large)
+        cv2.rectangle(lala, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 10)
+    cv2.imshow("final", lala)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 

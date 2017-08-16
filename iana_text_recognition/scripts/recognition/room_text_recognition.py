@@ -150,7 +150,6 @@ class RoomNumberRecognition(TextRecognition):
     def _pre_processing_on_text_img(self, img):
         _, img = cv2.threshold(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), 0.0, 255.0, cv2.THRESH_OTSU + cv2.THRESH_BINARY)
         img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, self.kernel_remove_background_shape))
-        img = cv2.dilate(img, cv2.getStructuringElement(cv2.MORPH_RECT, self.kernel_thin_text_shape))
         img = deskew(img)
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
         return img
