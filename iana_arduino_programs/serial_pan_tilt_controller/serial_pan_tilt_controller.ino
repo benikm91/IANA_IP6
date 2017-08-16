@@ -26,7 +26,7 @@ void setup() {
 
 
 void loop() {
-  if (Serial.available() == 2)
+  if (Serial.available() == sizeof(received[0]) * 2)
   {    
     if (
       Serial.readBytes((char*)&received, sizeof(received[0]) * 2) == sizeof(received[0]) * 2 &&
