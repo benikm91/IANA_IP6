@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import atexit
 import serial
 import struct
 import rospy
@@ -17,18 +18,12 @@ class ArduinoController(object):
         self.init_timeout = rospy.get_param("init_timeout", 5)
         self.write_timeout = rospy.get_param("write_timeout", 3)
         self.read_timeout = rospy.get_param("read_timeout", 1)
+
         self.state = [self.initial_pan, self.initial_tilt]
 
-        success = False
-        start_time = time.time()
-        while not success and (time.time() - start_time) < self.init_timeout:
-            try:
-                self.serial = serial.Serial(self.serial_port, baudrate=self.serial_baudrate)
-                success = True
-            except serial.serialutil.SerialException:
-                pass
-        if not success:
-            raise Exception("Failed to connect to arduino on port '{}'".format(self.serial_port))
+        self.__connect_arduino()
+
+        atexit.register(self.__disconnect_arduino)
 
         self.pant_tilt_sub = rospy.Subscriber("/iana/camera/set_pan_tilt", PanTilt, self.handle_set_pan_tilt, queue_size=5)
         self.pant_tilt_pub = rospy.Publisher('/iana/camera/pan_tilt', PanTilt, queue_size=10)
@@ -41,6 +36,10 @@ class ArduinoController(object):
         self.__set_pan_tilt(pan_tilt.pan, pan_tilt.tilt)
 
     def __set_pan_tilt(self, pan, tilt):
+        if not self.serial.readable() or not self.serial.writable():
+            rospy.logwarn("Lost connection to arduino: try reconnect")
+            self.__disconnect_arduino()
+            self.__connect_arduino()
         pan = min(180, max(1, pan))
         tilt = min(180, max(1, tilt))
         self.state = [pan, tilt]
@@ -76,6 +75,22 @@ class ArduinoController(object):
             rospy.loginfo("Successfully sent pan & tilt values to arduino")
         else:
             rospy.logerr("Failed to sent pan & tilt values to arduino")
+
+    def __connect_arduino(self):
+        success = False
+        start_time = time.time()
+        while not success and (time.time() - start_time) < self.init_timeout:
+            try:
+                self.serial = serial.Serial(self.serial_port, baudrate=self.serial_baudrate)
+                success = True
+            except serial.serialutil.SerialException:
+                pass
+        if not success:
+            raise Exception("Failed to connect to arduino on port '{}'".format(self.serial_port))
+
+    def __disconnect_arduino(self):
+        self.serial.close()
+        self.serial = None
 
 
 if __name__ == '__main__':
