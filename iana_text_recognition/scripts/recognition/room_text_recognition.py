@@ -9,19 +9,22 @@ import numpy as np
 # http://www.pyimagesearch.com/2017/02/20/text-skew-correction-opencv-python/
 def deskew(img):
     def get_deskew_angle():
-        coords = np.column_stack(np.where(img == 0))
+        a = np.where(img == 0)
+        coords = np.column_stack([ a[1], a[0] ])
         angle = cv2.minAreaRect(coords)[-1]
 
-        if angle < -45:
-            angle = -(90 + angle)
-        else:
-            angle = -angle
+        if (angle < 0):
+            angle += 180
+
+        angle = 90 - angle
+
         return angle
 
     (h, w) = img.shape[:2]
-    M = cv2.getRotationMatrix2D((w // 2, h // 2), get_deskew_angle(), 1.0)
+    M = cv2.getRotationMatrix2D((w // 2, h // 2), -get_deskew_angle(), 1.0)
     img = cv2.warpAffine(img, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
     return img
+
 
 
 class TextInImage:
