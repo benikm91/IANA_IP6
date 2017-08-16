@@ -6,7 +6,7 @@ from iana_camera_pan_tilt.msg import PanTilt
 class Autorotate(object):
     def __init__(self):
         rospy.init_node('autorotate', anonymous=True)
-        self.set_pant_tilt_pub = rospy.Publisher('set_pan_tilt', PanTilt, queue_size=10)
+        self.set_pant_tilt_pub = rospy.Publisher('/iana/camera/set_pan_tilt', PanTilt, queue_size=1)
 
     def run(self):
         rate = rospy.Rate(10)
