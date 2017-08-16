@@ -60,7 +60,6 @@ class ArduinoController(object):
                     rospy.logerr("pan tilt: received result = {}".format(result))
                     rospy.logerr("pan tilt: bytes = {}".format(bytes(result)))
                     rospy.logerr("pan tilt: encode = {}".format(result.encode('hex')))
-                    rospy.logerr("pan tilt: int = {}".format(int(result)))
                     rospy.logerr("pan tilt: int encoded = {}".format(int(result.encode('hex'))))
                     if len(result) > 0:
                         rospy.logerr("pan tilt: bytes[0] = {}".format(bytes(result)[0]))
