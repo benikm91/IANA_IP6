@@ -58,6 +58,9 @@ class ArduinoController(object):
                 try:
                     result = self.serial.read(1)
                     rospy.logerr("pan tilt: received result = {}".format(result))
+                    rospy.logerr("pan tilt: received result = {}".format(bytes(result)))
+                    if len(result) > 0:
+                        rospy.logerr("pan tilt: received result = {}".format(bytes(result)[0]))
                     success = len(result) == 1 and result[0] == 0
                 except serial.SerialException:
                     rospy.loginfo("ignore SerialException while reading from serial port")
