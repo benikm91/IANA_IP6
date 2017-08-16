@@ -62,6 +62,7 @@ class ArduinoController(object):
                         result_code = int(result.encode('hex'))
                         if result_code == 0:
                             success = True
+                            rospy.logwarn("Received return code: {}".format(result_code))
                         else:
                             rospy.logwarn("Received error code: {}".format(result_code))
                     else:
