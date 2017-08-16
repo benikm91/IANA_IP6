@@ -13,7 +13,7 @@ class ArduinoController(object):
 
         self.serial_port = rospy.get_param("serial_port", '/dev/ttyACM0')
         self.serial_baudrate = rospy.get_param("serial_baudrate", 9600)
-        self.write_timeout = rospy.get_param("write_timeout", 1)
+        self.write_timeout = rospy.get_param("write_timeout", 3)
         self.read_timeout = rospy.get_param("read_timeout", 1)
 
         rospy.Subscriber("/iana/camera/set_pan_tilt", PanTilt, self.handle_set_pan_tilt, queue_size=5)
@@ -37,12 +37,15 @@ class ArduinoController(object):
         success = False
         start_time = time.time()
         while not success and (time.time() - start_time) < self.write_timeout:
-            self.serial.timeout = self.write_timeout
+            self.serial.timeout = self.write_timeout - (time.time() - start_time)
             self.serial.write(bytearray(struct.pack('I' * len(self.state), *self.state)))
             if self.serial.in_waiting <= 1:
                 self.serial.timeout = self.read_timeout
-                result = self.serial.read(1)
-                success = len(result) == 1 and result[0] == 0
+                try:
+                    result = self.serial.read(1)
+                    success = len(result) == 1 and result[0] == 0
+                except serial.SerialException:
+                    rospy.loginfo("ignore SerialException on read")
             else:
                 self.serial.reset_input_buffer()
         if success:
