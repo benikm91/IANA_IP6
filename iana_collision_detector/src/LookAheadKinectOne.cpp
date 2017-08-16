@@ -17,7 +17,7 @@ namespace Iana
       public:
         LookAheadKinectOne()
         {
-            m_collisionAheadPublisher = m_nodeHandle.advertise<std_msgs::Float32>("/collision_ahead", 1000);
+            m_collisionAheadPublisher = m_nodeHandle.advertise<std_msgs::Float32>("/iana/collision_detector/collision_ahead", 1000);
             m_depthImageSubscriber = m_nodeHandle.subscribe<sensor_msgs::LaserScan>("/scan", 1000, &LookAheadKinectOne::DepthImageCallback, this);
             this->threshold_factor = 0.5f;
         }
