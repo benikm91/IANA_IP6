@@ -175,9 +175,9 @@
                  for (let x = 0; x < canvas.width; x++) {
                     let mapIndex = (y * canvas.width + x);
                     let color = 0;
-                    if (current_map[mapIndex] == unknown) {
+                    if (parseInt(current_map[mapIndex]) == unknown) {
                         let color = 125;
-                    } else if (current_map[mapIndex] < occupied_threshold) {
+                    } else if (parseInt(current_map[mapIndex]) < occupied_threshold) {
                         let color = 255;
                     }
                     // let color = 255 - parseInt(current_map[mapIndex] * 2.55);
