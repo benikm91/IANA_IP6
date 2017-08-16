@@ -169,19 +169,39 @@
              function colorPixelM(x, y, color) {
                  colorPixel(x, y, [color, color, color])
              }
+             let unknown = -1;
+             let occupied_threshold = 50;
              for (let y = canvas.height - 1; y >= 0; y--)
                  for (let x = 0; x < canvas.width; x++) {
                     let mapIndex = (y * canvas.width + x);
-                    let color = 255 - parseInt(current_map[mapIndex] * 2.55);
+                    let color = 0;
+                    if (current_map[mapIndex] == unknown) {
+                        let color = 125;
+                    } else if (current_map[mapIndex] < occupied_threshold) {
+                        let color = 255;
+                    }
+                    // let color = 255 - parseInt(current_map[mapIndex] * 2.55);
                     colorPixelM(x, y, color);
                  }
              if (current_robot_pose !== null && is_on_map(current_robot_pose)) {
                  let color = [ 255, 0, 0 ];
                  colorPixel(current_robot_pose.x, current_robot_pose.y, color);
                  colorPixel(current_robot_pose.x + 1, current_robot_pose.y, color);
+                 colorPixel(current_robot_pose.x + 2, current_robot_pose.y, color);
+                 colorPixel(current_robot_pose.x + 1, current_robot_pose.y + 1, color);
+                 colorPixel(current_robot_pose.x + 1, current_robot_pose.y - 1, color);
                  colorPixel(current_robot_pose.x, current_robot_pose.y + 1, color);
+                 colorPixel(current_robot_pose.x, current_robot_pose.y + 2, color);
+                 colorPixel(current_robot_pose.x + 1, current_robot_pose.y + 1, color);
+                 colorPixel(current_robot_pose.x - 1, current_robot_pose.y + 1, color);
                  colorPixel(current_robot_pose.x - 1, current_robot_pose.y, color);
+                 colorPixel(current_robot_pose.x - 2, current_robot_pose.y, color);
+                 colorPixel(current_robot_pose.x - 1, current_robot_pose.y + 1, color);
+                 colorPixel(current_robot_pose.x - 1, current_robot_pose.y - 1, color);
                  colorPixel(current_robot_pose.x, current_robot_pose.y - 1, color);
+                 colorPixel(current_robot_pose.x, current_robot_pose.y - 2, color);
+                 colorPixel(current_robot_pose.x + 1, current_robot_pose.y - 1, color);
+                 colorPixel(current_robot_pose.x - 1, current_robot_pose.y - 1, color);
              }
              context.save();
              context.scale(1, -1); // flip vertically
