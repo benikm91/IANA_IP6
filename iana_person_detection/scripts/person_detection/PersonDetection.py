@@ -44,11 +44,11 @@ class PersonDetection(object):
         return h
 
     def known_person_detected(self, person_id, record_timestamp):
-        rospy.logerr("Entered: Known person id={0}".format(person_id))
+        rospy.loginfo("Entered: Known person id={0}".format(person_id))
         self.known_person_publisher.publish(self.person_cache[person_id])
 
     def unknown_person_detected(self, unknown_person_id, face_vectors, preview_image, record_timestamp):
-        rospy.logerr("Entered: Unknown person id={0}".format(unknown_person_id))
+        rospy.loginfo("Entered: Unknown person id={0}".format(unknown_person_id))
         message = UnknownPersonEntered()
         message.person_id = unknown_person_id
         face_vector_messages = []
@@ -90,9 +90,7 @@ class PersonDetection(object):
             x, y, width, height = bounding_box
             return x * w_resize_factor, y * h_resize_factor, width * w_resize_factor, height * h_resize_factor
 
-        start_time = time.time()
         boundboxes = self.face_detection.detect_faces(face_image)
-        print "Face Detection time needed", time.time() - start_time
         boundboxes = map(resize_bounding_box, boundboxes)
 
         faces = []
