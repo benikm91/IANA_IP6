@@ -2,7 +2,7 @@ import rospy
 
 from iana_controller.msg import Explore, ExploreRandom, GoTo
 from iana_person_detection.msg import UnknownPersonEntered, KnownPersonEntered, UnknownPersonLeft, KnownPersonLeft
-from task.tasks.explore_random import ExploreRandomTask
+from tasks.explore_random import ExploreRandomTask
 from tasks.goodbye_unknown_person import GoodbyeUnknownPersonTask
 from tasks.greet_known_person import GreetKnownPersonTask
 from tasks.get_to_know_unknown_person import GetToKnowUnknownPersonTask
