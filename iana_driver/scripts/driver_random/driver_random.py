@@ -22,15 +22,15 @@ class DriverRandom(object):
         self.max_angular_velocity = rospy.get_param("max_angular_velocity", 1)
         self.linear_acceleration = rospy.get_param("linear_acceleration", 0.2)
         self.angular_acceleration = rospy.get_param("angular_acceleration", 0.2)
-        self.collision_info_threshold = rospy.get_param("collision_info_threshold", 2.3)
-        self.collision_warn_threshold = rospy.get_param("collision_warn_threshold", 1.3)
-        self.collision_ahead_threshold = rospy.get_param("collision_ahead_threshold", 0.8)
+        self.collision_info_threshold = rospy.get_param("collision_info_threshold", 2)
+        self.collision_warn_threshold = rospy.get_param("collision_warn_threshold", 0.8)
+        self.collision_ahead_threshold = rospy.get_param("collision_ahead_threshold", 0.2)
 
         self.command_velocity_publisher = rospy.Publisher('/mobile_base/commands/velocity', geometry_msgs.msg.Twist, queue_size=10)
 
         rospy.Subscriber("/iana/driver_random/enable", std_msgs.msg.Empty, self.enable)
         rospy.Subscriber("/iana/driver_random/disable", std_msgs.msg.Empty, self.disable)
-        rospy.Subscriber("/collision_ahead", std_msgs.msg.Float32, self.on_collision_ahead_event)
+        rospy.Subscriber("/iana/collision_detector/collision_ahead", std_msgs.msg.Float32, self.on_collision_ahead_event)
 
         self.enabled = False
         self.state = DriverIdleState(self)
