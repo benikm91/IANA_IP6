@@ -8,13 +8,15 @@ from iana_camera_pan_tilt.msg import PanTilt
 
 class ArduinoController(object):
     def __init__(self):
-        self.state = [90, 90]
         rospy.init_node('arduino_controller', anonymous=True)
 
+        self.initial_pan = rospy.get_param("initial_pan", 90)
+        self.initial_tilt = rospy.get_param("initial_tilt", 90)
         self.serial_port = rospy.get_param("serial_port", '/dev/ttyACM0')
         self.serial_baudrate = rospy.get_param("serial_baudrate", 9600)
         self.write_timeout = rospy.get_param("write_timeout", 3)
         self.read_timeout = rospy.get_param("read_timeout", 1)
+        self.state = [self.initial_pan, self.initial_tilt]
 
         rospy.Subscriber("/iana/camera/set_pan_tilt", PanTilt, self.handle_set_pan_tilt, queue_size=5)
 
@@ -38,18 +40,23 @@ class ArduinoController(object):
         start_time = time.time()
         while not success and (time.time() - start_time) < self.write_timeout:
             self.serial.timeout = self.write_timeout - (time.time() - start_time)
-            self.serial.write(bytearray(struct.pack('I' * len(self.state), *self.state)))
+            try:
+                self.serial.write(bytearray(struct.pack('I' * len(self.state), *self.state)))
+            except serial.SerialTimeoutException:
+                rospy.logwarn("SerialTimeoutException while writing to serial port")
             if self.serial.in_waiting <= 1:
                 self.serial.timeout = self.read_timeout
                 try:
                     result = self.serial.read(1)
                     success = len(result) == 1 and result[0] == 0
                 except serial.SerialException:
-                    rospy.loginfo("ignore SerialException on read")
+                    rospy.loginfo("ignore SerialException while reading from serial port")
             else:
                 self.serial.reset_input_buffer()
         if success:
             self.pant_tilt_pub.publish(pan, tilt)
+        else:
+            rospy.logerr("Failed to sent pan & tilt values to arduino")
 
 
 if __name__ == '__main__':

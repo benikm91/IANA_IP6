@@ -8,7 +8,9 @@ uint32_t goal[2];
 uint32_t received[2];
 uint32_t rotation_speed = 1;
 uint32_t update_delay = 10;
-  
+
+void resetInputBuffer();
+
 void setup() {
   Serial.begin(9600);
   Serial.println("Guten Tag!");
@@ -24,7 +26,7 @@ void setup() {
 
 
 void loop() {
-  if (Serial.available() > 0)
+  if (Serial.available() == 2)
   {    
     if (
       Serial.readBytes((char*)&received, sizeof(received[0]) * 2) == sizeof(received[0]) * 2 &&
@@ -43,6 +45,11 @@ void loop() {
       Serial.write(1);
     }
   }
+  else
+  {
+     resetInputBuffer();
+     Serial.write(1);
+  }
   
   if (goal[0] != state[0])
   {
@@ -58,4 +65,12 @@ void loop() {
   
   delay(update_delay);
 }
+
+void resetInputBuffer()
+{
+  while(Serial.available() > 0) 
+  {
+    char t = Serial.read();
+  }
+} 
 
