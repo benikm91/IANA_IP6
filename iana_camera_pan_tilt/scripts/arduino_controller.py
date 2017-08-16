@@ -24,6 +24,7 @@ class ArduinoController(object):
         while not success and (time.time() - start_time) < self.init_timeout:
             try:
                 self.serial = serial.Serial(self.serial_port, baudrate=self.serial_baudrate)
+                success = True
             except serial.serialutil.SerialException:
                 pass
         if not success:
