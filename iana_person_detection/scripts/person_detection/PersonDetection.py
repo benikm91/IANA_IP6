@@ -92,7 +92,6 @@ class PersonDetection(object):
 
         start_time = time.time()
         boundboxes = self.face_detection.detect_faces(face_image)
-        print "Face Detection time needed", time.time() - start_time
         boundboxes = map(resize_bounding_box, boundboxes)
 
         faces = []
