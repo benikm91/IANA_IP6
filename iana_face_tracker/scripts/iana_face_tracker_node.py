@@ -31,7 +31,7 @@ class FaceTracker(object):
             if self.last_updated < faces_msg.header.stamp.to_sec():
                 face = faces_msg.faces[0]
                 position_x = face.x + (face.width / 2.0)
-                position_y = self.resolution[1] - (face.y + (face.height / 2.0))
+                position_y = self.resolution[1] + (face.y + (face.height / 2.0))
                 rospy.loginfo("look at face with position ({})".format((position_x, position_y)))
                 pan = min(180, max(1, (position_x / self.resolution[0]) * self.fov[0] - (self.fov[0] / 2.0) + self.state[0]))
                 tilt = min(180, max(1, (position_y / self.resolution[1]) * self.fov[1] - (self.fov[0] / 2.0) + self.state[1]))
