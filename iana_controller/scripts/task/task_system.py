@@ -104,6 +104,7 @@ class TaskSystem(object):
             # if there is a current_task: check if terminated
             if self.current_task is not None and self.current_task.terminated.is_set():
                 rospy.loginfo('Current task terminated: {}'.format(self.current_task))
+                self.current_task.on_shutdown()
                 self.current_task = None
 
             with self.tasks_available:
