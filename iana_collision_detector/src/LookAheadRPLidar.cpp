@@ -51,6 +51,7 @@ namespace Iana
             }
 
             std::vector<float> considered_range(n);
+            n++; // because of later integer division.
             std::copy(ranges.begin(), ranges.begin() + n / 2, considered_range.begin());
             std::copy(ranges.end() - n / 2, ranges.end(), considered_range.end() - n / 2);
 
