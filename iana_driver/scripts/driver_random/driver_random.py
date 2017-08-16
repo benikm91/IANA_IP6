@@ -15,9 +15,9 @@ class DriverRandom(object):
     def  __init__(self):
         rospy.loginfo("Starting random driver...")
 
-        self.min_linear_velocity = rospy.get_param("min_linear_velocity", 0.1)
-        self.medium_linear_velocity = rospy.get_param("medium_linear_velocity", 0.25)
-        self.max_linear_velocity = rospy.get_param("max_linear_velocity", 0.5)
+        self.min_linear_velocity = rospy.get_param("min_linear_velocity", 0.05)
+        self.medium_linear_velocity = rospy.get_param("medium_linear_velocity", 0.125)
+        self.max_linear_velocity = rospy.get_param("max_linear_velocity", 0.25)
         self.min_angular_velocity = rospy.get_param("min_angular_velocity", 0.1)
         self.max_angular_velocity = rospy.get_param("max_angular_velocity", 1)
         self.linear_acceleration = rospy.get_param("linear_acceleration", 0.2)
