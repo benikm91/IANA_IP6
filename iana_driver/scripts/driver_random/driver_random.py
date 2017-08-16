@@ -42,14 +42,16 @@ class DriverRandom(object):
     def enable(self, msg):
         if not self.enabled:
             self.state = DriverForwardState(self)
+        rospy.logerr("Driver enabled, self.disabled = {}, state= {}".format(self.enabled, self.state))
         rospy.loginfo("Driver enabled")
         self.enabled = True
 
     def disable(self, msg):
         if self.enabled:
             self.state = DriverIdleState(self)
+        rospy.logerr("Driver disabled, self.disabled = {}, state= {}".format(self.enabled, self.state))
         rospy.loginfo("Driver disabled")
-        self.enabled = False
+        self.disabled = False
 
     def on_collision_ahead_event(self, msg):
         self.distance_to_next_obstacle = msg.data
