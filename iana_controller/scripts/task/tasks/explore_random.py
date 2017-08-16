@@ -11,8 +11,8 @@ class ExploreRandomTask(Task):
 
     def __init__(self, msg):
         super(ExploreRandomTask, self).__init__()
-        self.driver_random_enable_publisher = rospy.Publisher('/iana/driver_random/enable', std_msgs.msg.Empty, queue_size=10)
-        self.driver_random_disable_publisher = rospy.Publisher('/iana/driver_random/disable', std_msgs.msg.Empty, queue_size=10)
+        self.driver_random_enable_publisher = rospy.Publisher('/iana/driver_random/enable', std_msgs.msg.Empty, queue_size=10, latch=True)
+        self.driver_random_disable_publisher = rospy.Publisher('/iana/driver_random/disable', std_msgs.msg.Empty, queue_size=10, latch=True)
         self.running = threading.Event()
         self.until = msg.until
 
