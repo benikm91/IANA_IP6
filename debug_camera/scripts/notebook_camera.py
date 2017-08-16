@@ -27,7 +27,7 @@ bridge = CvBridge()
 def publish_images():
     pub = rospy.Publisher('image', Image, queue_size=1)
     rospy.init_node('notebook_camera', anonymous=True)
-    rate = rospy.Rate(1)
+    rate = rospy.Rate(60)
     while not rospy.is_shutdown():
 
         # Linux buffers 5 frames from a video capture device. So to get the newest, we retrieve the 5 "newest" frames.

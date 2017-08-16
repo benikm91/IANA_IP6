@@ -21,6 +21,7 @@ if __name__ == '__main__':
     from person_detection.clusterer.AverageFaceClusterer import AverageFaceClusterer
     from person_detection.face_alignment.InnerEyesBottomLipFaceAlignment import InnerEyesBottomLipFaceAlignment
     from person_detection.face_detection.DlibFaceDetection import DlibFaceDetector
+    from person_detection.face_detection.HaarFaceDetection import HaarFaceDetector
     from person_detection.face_recognition.embedding.OpenFaceEmbedder import OpenFaceEmbedder
     from person_detection.face_recognition.labeling.FaceFilter import FaceFilter
     from person_detection.face_recognition.labeling.FaceLabeler import FaceLabeler
@@ -47,9 +48,10 @@ if __name__ == '__main__':
 
     clusterer = AverageFaceClusterer(threshold_same=iana_config.clusterer.threshold_same)
 
-    detector = DlibFaceDetector(iana_config.face_detection.predictor_path, iana_config.face_detection.img_dim)
+    # detector = DlibFaceDetector(iana_config.face_detection.predictor_path, iana_config.face_detection.img_dim)
+    detector = HaarFaceDetector(iana_config.haar_face_detection.model)
     embedder = OpenFaceEmbedder(iana_config.face_embedder.network_model, iana_config.face_embedder.img_dim, iana_config.face_embedder.cuda)
-    alignment = InnerEyesBottomLipFaceAlignment(iana_config.face_detection.predictor_path, iana_config.face_detection.img_dim)
+    alignment = InnerEyesBottomLipFaceAlignment(iana_config.dlib_face_detection.predictor_path, iana_config.dlib_face_detection.img_dim)
     faceLabeler = FaceLabeler(classifier)
     faceFilter = FaceFilter(iana_config.filter.threshold_known, iana_config.filter.threshold_unknown)
     faceGrouper = FaceGrouper(known_threshold=2, unknown_threshold=5, memory_span_known=10, memory_span_unknown=10)
