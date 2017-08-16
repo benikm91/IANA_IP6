@@ -52,7 +52,7 @@ namespace Iana
 
             std::vector<float> considered_range(n);
             std::copy(ranges.begin(), ranges.begin() + n / 2, considered_range.begin());
-            std::copy(ranges.end() - n / 2, ranges.end(), considered_range.end());
+            std::copy(ranges.end() - n / 2, ranges.end(), considered_range.end() - n / 2);
 
             std_msgs::Float32 minRangeMsg;
             if (!considered_range.empty()) {
