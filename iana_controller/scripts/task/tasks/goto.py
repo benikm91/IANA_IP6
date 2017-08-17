@@ -43,7 +43,7 @@ class GoToTask(Task):
         self.terminated.set()
 
     def interruptable_by(self, task):
-        return True
+        return type(task) is not GoToTask
 
     def _goal_reached_callback(self, state, result):
         if self.running.is_set():
