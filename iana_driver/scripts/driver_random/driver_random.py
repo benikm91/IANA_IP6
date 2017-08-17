@@ -42,14 +42,12 @@ class DriverRandom(object):
     def enable(self, msg):
         if not self.enabled:
             self.state = DriverForwardState(self)
-        rospy.logerr("Driver enabled, self.disabled = {}, state= {}".format(self.enabled, self.state))
         rospy.loginfo("Driver enabled")
         self.enabled = True
 
     def disable(self, msg):
         if self.enabled:
             self.state = DriverIdleState(self)
-        rospy.logerr("Driver disabled, self.enabled = {}, state= {}".format(self.enabled, self.state))
         rospy.loginfo("Driver disabled")
         self.enabled = False
 

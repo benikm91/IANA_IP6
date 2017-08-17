@@ -25,21 +25,21 @@ class ExploreTask(Task):
         pass
 
     def on_start(self):
-        rospy.logerr('Start exploring')
+        rospy.loginfo('Start exploring')
         self.running.set()
         self.explore_action.send_goal(self.goal, self._goal_reached_callback)
 
     def on_resume(self):
-        rospy.logerr('resume exploring')
+        rospy.loginfo('resume exploring')
         self.on_start()
 
     def on_interrupt(self):
-        rospy.logerr('interrupt exploring')
+        rospy.loginfo('interrupt exploring')
         self.running.clear()
         self.explore_action.cancel_goal()
 
     def on_shutdown(self):
-        rospy.logerr('shutdown exploring')
+        rospy.loginfo('shutdown exploring')
         self.running.clear()
         self.explore_action.cancel_goal()
         self.terminated.set()
@@ -49,6 +49,6 @@ class ExploreTask(Task):
 
     def _goal_reached_callback(self, state, result):
         if self.running.is_set():
-            rospy.logerr('exploring goal reached: terminated set!')
+            rospy.loginfo('exploring goal reached: terminated set!')
             self.terminated.set()
 

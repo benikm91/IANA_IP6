@@ -49,7 +49,7 @@ class NavigationController(object):
                     rospy.sleep(duration)
 
         if not preempted:
-            rospy.logerr('Explore goal reached!')
+            rospy.loginfo('Explore goal reached!')
             self.driver_explore_disable_publisher.publish()
             self.explore_action_server.set_succeeded()
 
@@ -75,7 +75,7 @@ class NavigationController(object):
                     rospy.sleep(duration)
 
         if not preempted:
-            rospy.logerr('Explore goal reached!')
+            rospy.loginfo('Explore goal reached!')
             self.driver_random_disable_publisher.publish()
             self.explore_random_action_server.set_succeeded()
 

@@ -25,21 +25,21 @@ class ExploreRandomTask(Task):
         pass
 
     def on_start(self):
-        rospy.logerr('start random exploring')
+        rospy.loginfo('start random exploring')
         self.running.set()
         self.explore_random_action.send_goal(self.goal, self._goal_reached_callback)
 
     def on_resume(self):
-        rospy.logerr('resume random exploring')
+        rospy.loginfo('resume random exploring')
         self.on_start()
 
     def on_interrupt(self):
-        rospy.logerr('interrupt random exploring')
+        rospy.loginfo('interrupt random exploring')
         self.running.clear()
         self.explore_random_action.cancel_goal()
 
     def on_shutdown(self):
-        rospy.logerr('shutdown random exploring')
+        rospy.loginfo('shutdown random exploring')
         self.running.clear()
         self.explore_random_action.cancel_goal()
         self.terminated.set()
@@ -49,5 +49,5 @@ class ExploreRandomTask(Task):
 
     def _goal_reached_callback(self, state, result):
         if self.running.is_set():
-            rospy.logerr('random exploring goal reached: terminated set!')
+            rospy.loginfo('random exploring goal reached: terminated set!')
             self.terminated.set()

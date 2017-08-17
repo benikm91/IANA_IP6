@@ -19,7 +19,6 @@ class Autorotate(object):
             tilt += tilt_direction
             if tilt == angle_range[0] or tilt == angle_range[1]:
                 tilt_direction = -tilt_direction
-            rospy.logerr("pan: {}, tilt: {}".format(pan, tilt))
             rate.sleep()
 
 
