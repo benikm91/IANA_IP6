@@ -35,7 +35,8 @@ if __name__ == '__main__':
     # face_feature_data_access = FaceFeatureDataAccessSQLAlchemy(engine_instance, session_maker)
     get_persons = rospy.ServiceProxy('get_all_persons', GetAllPersons)
 
-    get_persons.wait_for_service(3000)
+    if not get_persons.wait_for_service(3000):
+        rospy.logerr("Could not reach get_all_persons Service.")
 
     persons = get_persons().persons # type: list
     person_cache = PersonCache()
