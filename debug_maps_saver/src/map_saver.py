@@ -18,7 +18,7 @@ def save_map(msg):
 if __name__ == '__main__':
     try:
         rospy.init_node('maps_saver')
-	base_file_name = rospy.get_param('~file')
+        base_file_name = rospy.get_param('~file')
         rospy.Subscriber("/map", OccupancyGrid, save_map)
         rospy.spin()
     except rospy.ROSInterruptException:
