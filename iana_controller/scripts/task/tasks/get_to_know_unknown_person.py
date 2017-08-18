@@ -16,10 +16,10 @@ class GetToKnowUnknownPersonTask(Task):
         self.face_vectors = msg.face_vectors
         self.preview_image = msg.preview_image
         self.get_name_action = actionlib.SimpleActionClient('/get_name', GetNameAction)
-        if not self.get_name_action.wait_for_server(3):
+        if not self.get_name_action.wait_for_server(rospy.Duration(3)):
             rospy.logerr("Can't find get name action.")
         self.say_action = actionlib.SimpleActionClient('/iana/speech/say', SayAction)
-        if not self.say_action.wait_for_server(3):
+        if not self.say_action.wait_for_server(rospy.Duration(3)):
             rospy.logerr("Can't find say action.")
 
         rospy.wait_for_service('insert_new_person')

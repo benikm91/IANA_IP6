@@ -1,3 +1,4 @@
+import rospy
 import actionlib
 from iana_speech.msg import SayAction, SayGoal
 
@@ -9,7 +10,8 @@ class GoodbyeKnownPersonTask(Task):
     def __init__(self, msg):
         super(GoodbyeKnownPersonTask, self).__init__()
         self.say_action = actionlib.SimpleActionClient('/iana/speech/say', SayAction)
-        self.say_action.wait_for_server()
+        if not self.say_action.wait_for_server(rospy.Duration(3)):
+            rospy.logerr("Can't find say action.")
         self.goal = SayGoal("Bye! Bye!")
 
     @property
