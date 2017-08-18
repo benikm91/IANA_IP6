@@ -2,6 +2,8 @@
 
 	<include file="$(find iana_start_up)/launch/startup.launch" />
 
+	<include file="$(find kobuki_keyop)/launch/safe_keyop.launch" />
+
 	<node name="base_link_path_server" pkg="hector_trajectory_server" type="hector_trajectory_server">
 		<param name="source_frame_name" value="/base_link" />
 		<param name="target_frame_name" value="/map" />

@@ -1,3 +1,4 @@
+import threading
 import actionlib
 import rospy
 from iana_speech.msg import SayAction, SayGoal
@@ -24,20 +25,22 @@ class GetToKnowUnknownPersonTask(Task):
 
         rospy.wait_for_service('insert_new_person')
         self.insert_new_person = rospy.ServiceProxy('/insert_new_person', InsertNewPerson)
+        self.running = threading.Event()
 
     def _receive_name(self, state, result):
-        name = result.name
-        if name == -1:
-            return
+        if self.running.is_set():
+            name = result.name
+            if name == -1:
+                return
 
-        rospy.loginfo('Insert new person with name "{0}"'.format(name))
-        person = self.insert_new_person(name, self.face_vectors).person
+            rospy.loginfo('Insert new person with name "{0}"'.format(name))
+            person = self.insert_new_person(name, self.face_vectors).person
 
-        # check person result
-        if person is None:
-            rospy.logerr('Error while inserting new person')
-        elif person.name != name:
-            rospy.logerr('Inserted Person has wrong name. Name "{0}" given, got "{1}".'.format(name, person.name))
+            # check person result
+            if person is None:
+                rospy.logerr('Error while inserting new person')
+            elif person.name != name:
+                rospy.logerr('Inserted Person has wrong name. Name "{0}" given, got "{1}".'.format(name, person.name))
 
         self.terminated.set()
 
@@ -49,6 +52,7 @@ class GetToKnowUnknownPersonTask(Task):
         pass
 
     def on_start(self):
+        self.running.set()
         rospy.loginfo('Ask and receive unknown persons name.')
         self.say_action.send_goal(SayGoal("Oh hello there. Please tell me who you are!"))
         self.get_name_action.send_goal(GetNameGoal(preview_image=self.preview_image), self._receive_name)
@@ -57,9 +61,11 @@ class GetToKnowUnknownPersonTask(Task):
         self.terminated.set()
 
     def on_interrupt(self):
+        self.running.clear()
         self.terminated.set()
 
     def on_shutdown(self):
+        self.running.clear()
         self.get_name_action.cancel_goal()
         self.terminated.set()
 
