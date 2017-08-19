@@ -25,16 +25,7 @@ class DistanceToAverageFaceClassifier(FaceClassifier):
             self.__insert(person_id, feature_vectors)
 
     def update(self, person_id, feature_vectors):
-        known_face = self.faces[person_id]
-        if known_face is None:
-            self.__insert(person_id, feature_vectors)
-        else:
-            face_embedding_count = len(feature_vectors)
-            face_embedding_sum = np.sum(np.array(feature_vectors), axis=0)
-            feature_vectors_count = known_face.feature_vectors_count + face_embedding_count #+ 1
-            known_face.centroid = np.true_divide(
-                (known_face.centroid * known_face.feature_vectors_count) + face_embedding_sum, feature_vectors_count)
-            known_face.feature_vectors_count = feature_vectors_count
+        self.__insert(person_id, feature_vectors)
 
     def predict(self, face_embedding):
         closest_face, min_dist = self.__get_closest(face_embedding)

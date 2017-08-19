@@ -38,3 +38,15 @@ class FaceFeatureDaoSQLAlchemy(FaceFeatureDao):
             to_update.face_features = pickle.dumps(data + face_features)
         session.commit()
 
+    def update(self, person_id, face_features):
+        if not face_features is list:
+            face_features = list(face_features)
+        session = self.session_maker()
+        to_update = session.query(PersonFaceFeatures).filter_by(person_id=person_id).first()
+        if to_update is None:
+            return False
+        else:
+            to_update.face_features = pickle.dumps(face_features)
+        session.commit()
+        return True
+

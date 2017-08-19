@@ -28,3 +28,6 @@ class PersonServiceImpl(PersonService):
         person_id = self.person_dao.insert(label)
         self.face_feature_dao.insert(person_id, face_vectors)
         return person_id
+
+    def update_features(self, person_id, face_vectors):
+        return self.face_feature_dao.update(person_id, face_vectors)

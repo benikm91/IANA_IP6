@@ -10,7 +10,7 @@ if __name__ == '__main__':
     import message_filters
 
     from iana_person_data.msg import Person
-    from iana_person_data.srv import GetAllPersons
+    from iana_person_data.srv import GetAllPersons, UpdatePersonFeatures
     from person_detection.config.production import iana_config
     from person_detection.PersonDetection import PersonDetection
 
@@ -71,7 +71,10 @@ if __name__ == '__main__':
         faces_detected_publisher=rospy.Publisher('/iana/faces_detected', FaceBoundingBoxes, queue_size=10),
         known_person_publisher=rospy.Publisher('/iana/person_detection/known/entered', KnownPersonEntered, queue_size=10),
         unknown_person_publisher=rospy.Publisher('/iana/person_detection/unknown/entered', UnknownPersonEntered, queue_size=10),
-        person_cache=person_cache
+        update_person_features_service=rospy.ServiceProxy('/update_person_features', UpdatePersonFeatures),
+        person_cache=person_cache,
+        min_confidence_update=rospy.get_param('min_confidence_update', 0.9),
+        person_max_feature_vector_count=rospy.get_param('person_max_feature_vector_count', 50)
     )
 
     from sensor_msgs.msg import Image
@@ -112,6 +115,11 @@ if __name__ == '__main__':
         with lock:
             classifier.update(person.person_id, map(lambda x: x.face, person.face_vectors))
 
+    def update_person(person):
+        person_cache.insert(person)
+        with lock:
+            classifier.update(person.person_id, map(lambda x: x.face, person.face_vectors))
+
     known_person_left_publisher = rospy.Publisher('/iana/person_detection/known/left', KnownPersonLeft, queue_size=10)
     unknown_person_left_publisher = rospy.Publisher('/iana/person_detection/unknown/left', UnknownPersonLeft, queue_size=10)
 
@@ -123,6 +131,7 @@ if __name__ == '__main__':
         message_filters.TimeSynchronizer([face_detection_image, person_detection_image], queue_size=1).registerCallback(detect_person)
 
         rospy.Subscriber("/new_person", Person, insert_new_person)
+        rospy.Subscriber("/updated_person", Person, update_person)
 
         r = rospy.Rate(2)
         while not rospy.is_shutdown():
@@ -132,7 +141,6 @@ if __name__ == '__main__':
             for unknown_left_id, _ in sessionMemory.unknown_remove_old():
                 rospy.loginfo("Left: Unknown person id={0}".format(unknown_left_id))
                 unknown_person_left_publisher.publish(unknown_left_id)
-
             r.sleep()
 
     except rospy.ROSInterruptException: pass

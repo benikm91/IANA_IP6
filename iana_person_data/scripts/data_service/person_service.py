@@ -18,3 +18,6 @@ class PersonService(object):
         :rtype int
         """
         raise NotImplementedError
+
+    def update_features(self, person_id, face_vectors):
+        raise NotImplementedError

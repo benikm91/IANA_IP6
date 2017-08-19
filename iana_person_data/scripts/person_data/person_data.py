@@ -26,3 +26,7 @@ class PersonData(object):
     def handle_insert(self, request):
         person_id = self.person_service.insert(request.name, map(lambda x: x.face, request.face_vectors))
         return self.person_to_msg(self.person_service.get_with_face_vectors(person_id))
+
+    def handle_update_features(self, request):
+        self.person_service.update_features(request.person_id, map(lambda x: x.face, request.face_vectors))
+        return self.person_to_msg(self.person_service.get_with_face_vectors(request.person_id))

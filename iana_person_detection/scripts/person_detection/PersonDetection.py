@@ -12,7 +12,9 @@ bridge = CvBridge()
 
 class PersonDetection(object):
 
-    def  __init__(self, face_detection, face_alignment, face_embedder, face_labeler, face_filter, unknown_face_labeler, face_grouper, session_memory, faces_detected_publisher, known_person_publisher, unknown_person_publisher, person_cache):
+    def  __init__(self, face_detection, face_alignment, face_embedder, face_labeler, face_filter, unknown_face_labeler,
+                  face_grouper, session_memory, faces_detected_publisher, known_person_publisher, unknown_person_publisher,
+                  update_person_features_service, person_cache, min_confidence_update, person_max_feature_vector_count):
         """
         :type face_detection: FaceDetection.FaceDetection
         :type face_alignment: FaceAlignment.FaceAlignment
@@ -25,6 +27,8 @@ class PersonDetection(object):
         :type known_person_publisher: rospy.Publisher
         :type unknown_person_publisher: rospy.Publisher
         """
+        self.min_confidence_update = min_confidence_update
+        self.person_max_feature_vector_count = person_max_feature_vector_count
         self.face_detection = face_detection
         self.face_alignment = face_alignment
         self.face_embedder = face_embedder
@@ -36,6 +40,7 @@ class PersonDetection(object):
         self.faces_detected_publisher = faces_detected_publisher
         self.known_person_publisher = known_person_publisher
         self.unknown_person_publisher = unknown_person_publisher
+        self.update_person_features_service = update_person_features_service
         self.person_cache = person_cache
 
     def _generate_header(self):
@@ -58,15 +63,35 @@ class PersonDetection(object):
         message.preview_image = bridge.cv2_to_imgmsg(preview_image, encoding="passthrough")
         self.unknown_person_publisher.publish(message)
 
+    def update_person(self, person_id, new_feature_vectors):
+        rospy.loginfo("Update feature vectors for unknown person id={}".format(person_id))
+        face_vector_messages = []
+        for fv in new_feature_vectors:
+            face_vector_messages.append(FaceVector(fv))
+        self.update_person_features_service(person_id, face_vector_messages)
+
     def detect_person(self, face_image, person_image, record_timestamp):
+
+        def handle_update_person(self, person_id, confidence_feature_vectors):
+            good_feature_vectors = [f[0] for f in confidence_feature_vectors if f[1] >= self.min_confidence_update]
+            good_feature_vectors_count = len(good_feature_vectors)
+            if good_feature_vectors_count > 0:
+                person = self.person_cache[person_id]
+                current_feature_vectors = [f.face for f in person.face_vectors]
+                remaining_space = self.person_max_feature_vector_count - len(current_feature_vectors)
+                if good_feature_vectors_count > remaining_space:
+                    del current_feature_vectors[:(good_feature_vectors_count - remaining_space)]
+                new_feature_vectors = current_feature_vectors + good_feature_vectors
+                self.update_person(person_id, new_feature_vectors)
 
         def handle_known_face(self, person_id, confidence, face_vector):
             self.face_grouper.update_known(person_id, confidence, face_vector, record_timestamp)
             if self.face_grouper.known_threshold_reached(person_id):
-                self.face_grouper.known_reset(person_id)
+                face_vectors = self.face_grouper.known_reset(person_id)
                 if not self.session_memory.known_contains(person_id):
                     self.known_person_detected(person_id, record_timestamp)
                 self.session_memory.known_update(person_id, record_timestamp)
+                handle_update_person(self, person_id, face_vectors)
 
         def handle_unknown_face(self, face_vector, preview_image):
             unknown_person_id = self.unknown_face_labeler.label(face_vector)

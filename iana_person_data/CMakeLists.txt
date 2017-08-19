@@ -60,6 +60,7 @@ add_service_files(
   FILES
   InsertNewPerson.srv
   GetAllPersons.srv
+  UpdatePersonFeatures.srv
 )
 
 ## Generate actions in the 'action' folder
