@@ -11,15 +11,22 @@ from extract_roi3 import number_detection
 debug_counter = 0
 def debug_image(title, img):
     global debug_counter
-    cv2.imwrite(str(debug_counter)+title+".png", img)
+    cv2.imshow(str(debug_counter)+title+".png", img)
+    cv2.waitKey(0  )
     debug_counter += 1
 
 
 def cutout_rectangles(img, rects):
     result = list()
-    delta = 0
+    delta = 5
+    height, width = img.shape[:2]
     for rect in rects:
-        result.append(img[rect[1]-5:rect[1]+rect[3]+5, rect[0]-5:rect[0]+rect[2]+5])
+        x = max(rect[1] - delta, 0)
+        xx = min(rect[1] + rect[3] + delta, height - 1)
+        y = max(rect[0] - delta, 0)
+        yy = min(rect[0] + rect[2] + delta, width - 1)
+        print x, xx ,y, yy
+        result.append(img[x:xx, y:yy])
     return result
 
 
@@ -110,7 +117,7 @@ def debug_image_with_rects(name, img, rects):
 # img_path = 'res/dlink_zoom_medium_color_2m.jpg'
 # img_path = 'res/dlink_zoom_medium_high_color_2m.jpg'
 # img_path = 'res/dlink_zoom_medium_medium_high_color_2m.jpg'
-img_path = 'res/dlink_zoom_color_2m.jpg'
+img_path = " _set/01.jpg"
 # img_path = "res/dlink_zoom_medium_high_color_2m.jpg"
 img = cv2.imread(img_path)
 
@@ -120,19 +127,20 @@ text_highlight_img = cv2.copyMakeBorder(img,0,0,0,0,cv2.BORDER_REPLICATE)
 
 rects = number_detection(img)
 rects.sort(key=lambda r: r[1])
+debug_image_with_rects("detected_texts", img, rects )
 # debug_image(img, rects)
 text_images = cutout_rectangles(img, rects)
 print "Number of texts found: {0}".format(len(text_images))
 texts = list()
 for text_image in text_images:
-    debug_image("number_image_01", text_image)
+    #debug_image("number_image_01", text_image)
     _, text_image = cv2.threshold(cv2.cvtColor(text_image, cv2.COLOR_BGR2GRAY), 0.0, 255.0, cv2.THRESH_OTSU + cv2.THRESH_BINARY)
-    debug_image("number_image_02", text_image)
+    #debug_image("number_image_02", text_image)
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (12, 12))
     text_image = cv2.morphologyEx(text_image, cv2.MORPH_CLOSE, kernel)
-    debug_image("number_image_03", text_image)
+    #debug_image("number_image_03", text_image)
     text_image = deskew(text_image)
-    debug_image("number_image_04", text_image)
+    #debug_image("number_image_04", text_image)
     texts.append(number_recognition(text_image))
 for text in texts:
     print text

@@ -67,7 +67,7 @@ if __name__ == "__main__":
     # img_path = "res/dlink_zoom_1_5m_2017-06-27.jpg"
     # img_path = "res/dlink_zoom_medium_high_color_2m.jpg"
     # img_path = "res/dlink_zoom_medium_color_2m.jpg"
-    img_path = "res/dlink_zoom_color_2m.jpg"
+    img_path = "tst_set/08.jpg"
     large = cv2.imread(img_path)
     cv2.imshow("large", large)
     cv2.waitKey(0)
