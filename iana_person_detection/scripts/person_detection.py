@@ -74,7 +74,7 @@ if __name__ == '__main__':
         update_person_features_service=rospy.ServiceProxy('/update_person_features', UpdatePersonFeatures),
         person_cache=person_cache,
         min_confidence_update=rospy.get_param('min_confidence_update', 0.9),
-        person_max_feature_vector_count=rospy.get_param('person_max_feature_vector_count', 50)
+        person_max_feature_vector_count=rospy.get_param('person_max_feature_vector_count', 30)
     )
 
     from sensor_msgs.msg import Image
