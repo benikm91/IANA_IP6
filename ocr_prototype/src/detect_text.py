@@ -21,12 +21,11 @@ def cutout_rectangles(img, rects):
     delta = 5
     height, width = img.shape[:2]
     for rect in rects:
-        x = max(rect[1] - delta, 0)
-        xx = min(rect[1] + rect[3] + delta, height - 1)
-        y = max(rect[0] - delta, 0)
-        yy = min(rect[0] + rect[2] + delta, width - 1)
-        print x, xx ,y, yy
-        result.append(img[x:xx, y:yy])
+        y = max(rect[1] - delta, 0)
+        yy = min(rect[1] + rect[3] + delta, height - 1)
+        x = max(rect[0] - delta, 0)
+        xx = min(rect[0] + rect[2] + delta, width - 1)
+        result.append(img[y:yy, x:xx])
     return result
 
 
@@ -117,7 +116,7 @@ def debug_image_with_rects(name, img, rects):
 # img_path = 'res/dlink_zoom_medium_color_2m.jpg'
 # img_path = 'res/dlink_zoom_medium_high_color_2m.jpg'
 # img_path = 'res/dlink_zoom_medium_medium_high_color_2m.jpg'
-img_path = " _set/01.jpg"
+img_path = "tst_set/01.jpg"
 # img_path = "res/dlink_zoom_medium_high_color_2m.jpg"
 img = cv2.imread(img_path)
 

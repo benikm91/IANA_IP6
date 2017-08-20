@@ -62,11 +62,11 @@ class TextRecognition(object):
         height, width = img.shape[:2]
         for rect in rects:
             delta = 5
-            x = max(rect[1] - delta, 0)
-            xx = min(rect[1] + rect[3] + delta, width - 1)
-            y = max(rect[0] - delta, 0)
-            yy = min(rect[0] + rect[2] + delta, height - 1)
-            result.append((img[x:xx, y:yy], rect))
+            y = max(rect[1] - delta, 0)
+            yy = min(rect[1] + rect[3] + delta, height - 1)
+            x = max(rect[0] - delta, 0)
+            xx = min(rect[0] + rect[2] + delta, width - 1)
+            result.append((img[y:yy, x:xx], rect))
         return result
 
     def __init__(self, language):
