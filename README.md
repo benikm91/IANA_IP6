@@ -10,3 +10,4 @@ It is an autonomous roboter that can:
   - Uses the ROS navigation component
 * Greet people it drives by
   - Face recognition with DLib, OpenCV and OpenFace (python implementation of Facenet)
+* Recognise Room numbers while driving by
