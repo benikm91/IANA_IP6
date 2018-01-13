@@ -12,4 +12,4 @@ It is an autonomous roboter that can:
   - Face recognition with DLib, OpenCV and OpenFace (python implementation of Facenet)
 * Recognise Room numbers while driving by
 
-More Information: [a Thesis](Thesis_v1.pdf)
+More Information: [Thesis](Thesis_v1.pdf)
