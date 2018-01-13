@@ -15,4 +15,4 @@ It is an autonomous roboter that can:
 More Information: [Thesis](Thesis_v1.pdf)
 
 Example how the map develops while exploring:
-![Alt Map development](Map_development.png)
+![Alt Map development](map_development.gif)
