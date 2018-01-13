@@ -11,3 +11,5 @@ It is an autonomous roboter that can:
 * Greet people it drives by
   - Face recognition with DLib, OpenCV and OpenFace (python implementation of Facenet)
 * Recognise Room numbers while driving by
+
+More Information: [a relative link](Thesis_v1.pdf)
