@@ -13,7 +13,7 @@ It is an autonomous roboter that can:
 * Recognise Room numbers while driving by
 
 Der Roboter IANA:<br>
-![Alt Map development](read_me_data/IANA.jpg)
+![Alt Map development](read_me_data/IANA.png)
 
 More Information: [Thesis](read_me_data/Thesis_v1.pdf)
 
