@@ -12,7 +12,10 @@ It is an autonomous roboter that can:
   - Face recognition with DLib, OpenCV and OpenFace (python implementation of Facenet)
 * Recognise Room numbers while driving by
 
-More Information: [Thesis](Thesis_v1.pdf)
+Der Roboter IANA:<br>
+![Alt Map development](read_me_data/IANA.jpg)
+
+More Information: [Thesis](read_me_data/Thesis_v1.pdf)
 
 Example how the map develops while exploring:<br>
-![Alt Map development](map_development_new.gif)
+![Alt Map development](read_me_data/map_development.gif)
