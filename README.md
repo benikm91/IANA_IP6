@@ -1,6 +1,6 @@
 # IANA_IP6
 
-My bachelor thesis developt together with metataro during the spring of 2017.
+The bachelor thesis developt by metataro and benikm91 during the spring of 2017.
 
 It is an autonomous roboter that can:
 * Map the enviroment
